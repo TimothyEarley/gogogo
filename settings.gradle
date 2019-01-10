@@ -7,5 +7,8 @@ pluginManagement {
 		}
 	}
 }
+
 rootProject.name = 'gogogo'
 
+include 'gogogo-frontend'
+include 'gogogo-backend'
