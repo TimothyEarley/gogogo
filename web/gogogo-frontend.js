@@ -1,13 +1,13 @@
 if (typeof kotlin === 'undefined') {
-  throw new Error("Error loading module 'gogogo'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'gogogo'.");
+  throw new Error("Error loading module 'gogogo-frontend'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'gogogo-frontend'.");
 }
 if (typeof this['kotlinx-coroutines-core'] === 'undefined') {
-  throw new Error("Error loading module 'gogogo'. Its dependency 'kotlinx-coroutines-core' was not found. Please, check whether 'kotlinx-coroutines-core' is loaded prior to 'gogogo'.");
+  throw new Error("Error loading module 'gogogo-frontend'. Its dependency 'kotlinx-coroutines-core' was not found. Please, check whether 'kotlinx-coroutines-core' is loaded prior to 'gogogo-frontend'.");
 }
 if (typeof this['kotlinx-html-js'] === 'undefined') {
-  throw new Error("Error loading module 'gogogo'. Its dependency 'kotlinx-html-js' was not found. Please, check whether 'kotlinx-html-js' is loaded prior to 'gogogo'.");
+  throw new Error("Error loading module 'gogogo-frontend'. Its dependency 'kotlinx-html-js' was not found. Please, check whether 'kotlinx-html-js' is loaded prior to 'gogogo-frontend'.");
 }
-var gogogo = function (_, Kotlin, $module$kotlinx_coroutines_core, $module$kotlinx_html_js) {
+this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $module$kotlinx_html_js) {
   'use strict';
   var $$importsForInline$$ = _.$$importsForInline$$ || (_.$$importsForInline$$ = {});
   var ensureNotNull = Kotlin.ensureNotNull;
@@ -754,7 +754,7 @@ var gogogo = function (_, Kotlin, $module$kotlinx_coroutines_core, $module$kotli
   Grid.prototype.toString = function () {
     return joinToString(until(0, this.height), '\n', void 0, void 0, void 0, void 0, Grid$toString$lambda(this));
   };
-  Grid.prototype.forEach_lbptwu$ = defineInlineFunction('gogogo.de.earley.gogogo.game.Grid.forEach_lbptwu$', wrapFunction(function () {
+  Grid.prototype.forEach_lbptwu$ = defineInlineFunction('gogogo-frontend.de.earley.gogogo.game.Grid.forEach_lbptwu$', wrapFunction(function () {
     var until = Kotlin.kotlin.ranges.until_dqglrj$;
     return function (action) {
       var tmp$;
@@ -1271,7 +1271,7 @@ var gogogo = function (_, Kotlin, $module$kotlinx_coroutines_core, $module$kotli
   package$ai.debugBestMove_rxsk4c$ = debugBestMove;
   package$ai.AI = AI;
   package$ai.stratPerPlayer_nmhdos$ = stratPerPlayer;
-  $$importsForInline$$.gogogo = _;
+  $$importsForInline$$['gogogo-frontend'] = _;
   package$ai.findAllMoves_1pq5d1$ = findAllMoves;
   Object.defineProperty(package$ai, 'progressMult', {
     get: function () {
@@ -1376,8 +1376,8 @@ var gogogo = function (_, Kotlin, $module$kotlinx_coroutines_core, $module$kotli
   HEIGHT = 5;
   standardStartGrid = Grid$Companion_getInstance().create_6qkxfg$(6, 5, standardStartGrid$lambda);
   main([]);
-  Kotlin.defineModule('gogogo', _);
+  Kotlin.defineModule('gogogo-frontend', _);
   return _;
-}(typeof gogogo === 'undefined' ? {} : gogogo, kotlin, this['kotlinx-coroutines-core'], this['kotlinx-html-js']);
+}(typeof this['gogogo-frontend'] === 'undefined' ? {} : this['gogogo-frontend'], kotlin, this['kotlinx-coroutines-core'], this['kotlinx-html-js']);
 
-//# sourceMappingURL=gogogo.js.map
+//# sourceMappingURL=gogogo-frontend.js.map
