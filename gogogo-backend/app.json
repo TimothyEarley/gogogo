@@ -1,0 +1,6 @@
+{
+  "name": "GoGoGo server",
+  "description": "Small matchmaking server for GoGoGo",
+  "image": "heroku/java",
+  "addons": [ ]
+}
