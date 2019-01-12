@@ -4,60 +4,174 @@ if (typeof kotlin === 'undefined') {
 if (typeof this['kotlinx-coroutines-core'] === 'undefined') {
   throw new Error("Error loading module 'gogogo-frontend'. Its dependency 'kotlinx-coroutines-core' was not found. Please, check whether 'kotlinx-coroutines-core' is loaded prior to 'gogogo-frontend'.");
 }
+if (typeof this['gogogo-common'] === 'undefined') {
+  throw new Error("Error loading module 'gogogo-frontend'. Its dependency 'gogogo-common' was not found. Please, check whether 'gogogo-common' is loaded prior to 'gogogo-frontend'.");
+}
 if (typeof this['kotlinx-html-js'] === 'undefined') {
   throw new Error("Error loading module 'gogogo-frontend'. Its dependency 'kotlinx-html-js' was not found. Please, check whether 'kotlinx-html-js' is loaded prior to 'gogogo-frontend'.");
 }
-this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $module$kotlinx_html_js) {
+this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $module$gogogo_common, $module$kotlinx_html_js) {
   'use strict';
   var $$importsForInline$$ = _.$$importsForInline$$ || (_.$$importsForInline$$ = {});
-  var ensureNotNull = Kotlin.ensureNotNull;
-  var to = Kotlin.kotlin.to_ujzrz7$;
-  var println = Kotlin.kotlin.io.println_s8jyv4$;
   var coroutines = $module$kotlinx_coroutines_core.kotlinx.coroutines;
-  var L800 = Kotlin.Long.fromInt(800);
-  var delay = $module$kotlinx_coroutines_core.kotlinx.coroutines.delay_s8cxhz$;
+  var Job = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job_5dx9e$;
+  var Kind_OBJECT = Kotlin.Kind.OBJECT;
+  var println = Kotlin.kotlin.io.println_s8jyv4$;
   var Unit = Kotlin.kotlin.Unit;
   var COROUTINE_SUSPENDED = Kotlin.kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED;
   var CoroutineImpl = Kotlin.kotlin.coroutines.CoroutineImpl;
   var launch = $module$kotlinx_coroutines_core.kotlinx.coroutines.launch_s496o7$;
   var Kind_CLASS = Kotlin.Kind.CLASS;
+  var CoroutineScope = $module$kotlinx_coroutines_core.kotlinx.coroutines.CoroutineScope;
+  var ensureNotNull = Kotlin.ensureNotNull;
+  var to = Kotlin.kotlin.to_ujzrz7$;
+  var L800 = Kotlin.Long.fromInt(800);
+  var delay = $module$kotlinx_coroutines_core.kotlinx.coroutines.delay_s8cxhz$;
+  var Point = $module$gogogo_common.de.earley.gogogo.game.Point;
   var Triple = Kotlin.kotlin.Triple;
   var sequence = Kotlin.kotlin.sequences.sequence_o0x0bg$;
   var toList = Kotlin.kotlin.sequences.toList_veqyi0$;
   var equals = Kotlin.equals;
   var kotlin_js_internal_FloatCompanionObject = Kotlin.kotlin.js.internal.FloatCompanionObject;
   var Random = Kotlin.kotlin.random.Random;
+  var Player = $module$gogogo_common.de.earley.gogogo.game.Player;
+  var sumBy = $module$gogogo_common.de.earley.gogogo.game.sumBy_750h6s$;
+  var next = $module$gogogo_common.de.earley.gogogo.game.next_txv5hr$;
   var max = Kotlin.kotlin.collections.max_lvsncp$;
   var HashMap_init = Kotlin.kotlin.collections.HashMap_init_q3lmfv$;
   var min = Kotlin.kotlin.collections.min_lvsncp$;
-  var Enum = Kotlin.kotlin.Enum;
-  var throwISE = Kotlin.throwISE;
-  var last = Kotlin.kotlin.collections.last_2p1efm$;
-  var get_lastIndex = Kotlin.kotlin.collections.get_lastIndex_55thoc$;
-  var mutableListOf = Kotlin.kotlin.collections.mutableListOf_i5x0yv$;
-  var until = Kotlin.kotlin.ranges.until_dqglrj$;
-  var Kind_OBJECT = Kotlin.Kind.OBJECT;
-  var toString = Kotlin.toString;
-  var joinToString = Kotlin.kotlin.collections.joinToString_fmv235$;
-  var defineInlineFunction = Kotlin.defineInlineFunction;
-  var wrapFunction = Kotlin.wrapFunction;
-  var get_js = Kotlin.kotlin.js.get_js_1yb8b7$;
   var throwCCE = Kotlin.throwCCE;
-  var contentEquals = Kotlin.arrayEquals;
-  var contentHashCode = Kotlin.arrayHashCode;
-  var abs = Kotlin.kotlin.math.abs_za3lpa$;
   var get_create = $module$kotlinx_html_js.kotlinx.html.dom.get_create_4wc2mh$;
   var set_id = $module$kotlinx_html_js.kotlinx.html.set_id_ueiko3$;
+  var until = Kotlin.kotlin.ranges.until_dqglrj$;
   var td = $module$kotlinx_html_js.kotlinx.html.td_vlzo05$;
   var tr = $module$kotlinx_html_js.kotlinx.html.tr_7wec05$;
   var table = $module$kotlinx_html_js.kotlinx.html.js.table_uk5qws$;
   var removeClass = Kotlin.kotlin.dom.removeClass_hhb33f$;
+  var toString = Kotlin.toString;
+  var Game = $module$gogogo_common.de.earley.gogogo.game.Game;
   var getCallableRef = Kotlin.getCallableRef;
   var NoSuchElementException = Kotlin.kotlin.NoSuchElementException;
-  MoveResult.prototype = Object.create(Enum.prototype);
-  MoveResult.prototype.constructor = MoveResult;
-  Player.prototype = Object.create(Enum.prototype);
-  Player.prototype.constructor = Player;
+  var Kind_INTERFACE = Kotlin.Kind.INTERFACE;
+  var CompletableDeferred = $module$kotlinx_coroutines_core.kotlinx.coroutines.CompletableDeferred_xptg6w$;
+  var Channel = $module$kotlinx_coroutines_core.kotlinx.coroutines.channels.Channel_ww73n8$;
+  var server;
+  var con;
+  function Connection(ws) {
+    Connection$Companion_getInstance();
+    this.ws_0 = ws;
+    launch(this, void 0, void 0, Connection_init$lambda(this));
+  }
+  Connection.prototype.move_56t7qy$ = function (from, to) {
+    this.ws_0.send_61zpoe$('[' + from.x + ', ' + from.y + '] -> [' + to.x + ', ' + to.y + ']');
+  };
+  Object.defineProperty(Connection.prototype, 'coroutineContext', {
+    get: function () {
+      return coroutines.Dispatchers.Default.plus_1fupul$(Job());
+    }
+  });
+  function Connection$Companion() {
+    Connection$Companion_instance = this;
+  }
+  Connection$Companion.prototype.connect_61zpoe$ = function (url) {
+    var ws = new WebsocketConnectionImpl(new WebSocket(url));
+    return new Connection(ws);
+  };
+  Connection$Companion.$metadata$ = {
+    kind: Kind_OBJECT,
+    simpleName: 'Companion',
+    interfaces: []
+  };
+  var Connection$Companion_instance = null;
+  function Connection$Companion_getInstance() {
+    if (Connection$Companion_instance === null) {
+      new Connection$Companion();
+    }
+    return Connection$Companion_instance;
+  }
+  function Connection_init$lambda(this$Connection_0) {
+    return function ($receiver, continuation_0, suspended) {
+      var instance = new Coroutine$Connection_init$lambda(this$Connection_0, $receiver, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
+  function Coroutine$Connection_init$lambda(this$Connection_0, $receiver, controller, continuation_0) {
+    CoroutineImpl.call(this, continuation_0);
+    this.$controller = controller;
+    this.exceptionState_0 = 1;
+    this.local$this$Connection = this$Connection_0;
+    this.local$tmp$ = void 0;
+  }
+  Coroutine$Connection_init$lambda.$metadata$ = {
+    kind: Kotlin.Kind.CLASS,
+    simpleName: null,
+    interfaces: [CoroutineImpl]
+  };
+  Coroutine$Connection_init$lambda.prototype = Object.create(CoroutineImpl.prototype);
+  Coroutine$Connection_init$lambda.prototype.constructor = Coroutine$Connection_init$lambda;
+  Coroutine$Connection_init$lambda.prototype.doResume = function () {
+    do
+      try {
+        switch (this.state_0) {
+          case 0:
+            this.local$tmp$ = this.local$this$Connection.ws_0.messages.iterator();
+            this.state_0 = 2;
+            continue;
+          case 1:
+            throw this.exception_0;
+          case 2:
+            this.state_0 = 3;
+            this.result_0 = this.local$tmp$.hasNext(this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 3:
+            if (!this.result_0) {
+              this.state_0 = 6;
+              continue;
+            }
+             else {
+              this.state_0 = 4;
+              continue;
+            }
+
+          case 4:
+            this.state_0 = 5;
+            this.result_0 = this.local$tmp$.next(this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 5:
+            var message = this.result_0;
+            println(message);
+            this.state_0 = 2;
+            continue;
+          case 6:
+            return Unit;
+          default:this.state_0 = 1;
+            throw new Error('State Machine Unreachable execution');
+        }
+      }
+       catch (e) {
+        if (this.state_0 === 1) {
+          this.exceptionState_0 = this.state_0;
+          throw e;
+        }
+         else {
+          this.state_0 = this.exceptionState_0;
+          this.exception_0 = e;
+        }
+      }
+     while (true);
+  };
+  Connection.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'Connection',
+    interfaces: [CoroutineScope]
+  };
   function bestMove($receiver, player, state) {
     var $receiver_0 = findAllMoves(state);
     var maxBy$result;
@@ -228,7 +342,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     this.local$$this_0 = void 0;
     this.local$tmp$_1 = void 0;
     this.local$element_0 = void 0;
-    this.local$tmp$_2 = void 0;
+    this.local$tmp$_0_0 = void 0;
     this.local$$receiver = $receiver_0;
   }
   Coroutine$findAllMoves$lambda.$metadata$ = {
@@ -265,10 +379,10 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
               continue;
             }
 
-            var element = this.local$tmp$_0.next();
+            var element_0 = this.local$tmp$_0.next();
             this.local$this$findAllMoves_0 = this.local$this$findAllMoves;
-            this.local$$this.get_vux9f0$(element, this.local$element);
-            this.local$from = new Point(element, this.local$element);
+            this.local$$this.get_vux9f0$(element_0, this.local$element);
+            this.local$from = new Point(element_0, this.local$element);
             if (this.local$this$findAllMoves_0.isEligibleToMove_bk5ui5$(this.local$from)) {
               this.local$$this_0 = this.local$this$findAllMoves_0.grid;
               this.local$tmp$_1 = until(0, this.local$$this_0.height).iterator();
@@ -287,18 +401,18 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
             }
 
             this.local$element_0 = this.local$tmp$_1.next();
-            this.local$tmp$_2 = until(0, this.local$$this_0.width).iterator();
+            this.local$tmp$_0_0 = until(0, this.local$$this_0.width).iterator();
             this.state_0 = 5;
             continue;
           case 5:
-            if (!this.local$tmp$_2.hasNext()) {
+            if (!this.local$tmp$_0_0.hasNext()) {
               this.state_0 = 8;
               continue;
             }
 
-            var element_0 = this.local$tmp$_2.next();
-            this.local$$this_0.get_vux9f0$(element_0, this.local$element_0);
-            var to = new Point(element_0, this.local$element_0);
+            var element_0_0 = this.local$tmp$_0_0.next();
+            this.local$$this_0.get_vux9f0$(element_0_0, this.local$element_0);
+            var to = new Point(element_0_0, this.local$element_0);
             var next = this.local$this$findAllMoves_0.move_56t7qy$(this.local$from, to);
             if (next != null) {
               this.state_0 = 6;
@@ -357,9 +471,9 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   function easy$lambda$lambda(closure$state, closure$ownPlayer) {
     return function (x, y, player) {
       var tmp$;
-      if (equals(player, Player$Red_getInstance()))
+      if (equals(player, Player.Red))
         tmp$ = closure$state.grid.width - x - 1 | 0;
-      else if (equals(player, Player$Blue_getInstance()))
+      else if (equals(player, Player.Blue))
         tmp$ = x;
       else
         tmp$ = 0;
@@ -541,481 +655,6 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     }
     return max ? maxVal.v : minVal.v;
   }
-  var WIDTH;
-  var HEIGHT;
-  function Point(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-  Point.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Point',
-    interfaces: []
-  };
-  Point.prototype.component1 = function () {
-    return this.x;
-  };
-  Point.prototype.component2 = function () {
-    return this.y;
-  };
-  Point.prototype.copy_vux9f0$ = function (x, y) {
-    return new Point(x === void 0 ? this.x : x, y === void 0 ? this.y : y);
-  };
-  Point.prototype.toString = function () {
-    return 'Point(x=' + Kotlin.toString(this.x) + (', y=' + Kotlin.toString(this.y)) + ')';
-  };
-  Point.prototype.hashCode = function () {
-    var result = 0;
-    result = result * 31 + Kotlin.hashCode(this.x) | 0;
-    result = result * 31 + Kotlin.hashCode(this.y) | 0;
-    return result;
-  };
-  Point.prototype.equals = function (other) {
-    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.x, other.x) && Kotlin.equals(this.y, other.y)))));
-  };
-  function get_0($receiver, p) {
-    return $receiver.get_vux9f0$(p.x, p.y);
-  }
-  function MoveResult(name, ordinal) {
-    Enum.call(this);
-    this.name$ = name;
-    this.ordinal$ = ordinal;
-  }
-  function MoveResult_initFields() {
-    MoveResult_initFields = function () {
-    };
-    MoveResult$Moved_instance = new MoveResult('Moved', 0);
-    MoveResult$Illegal_instance = new MoveResult('Illegal', 1);
-    MoveResult$Victory_instance = new MoveResult('Victory', 2);
-  }
-  var MoveResult$Moved_instance;
-  function MoveResult$Moved_getInstance() {
-    MoveResult_initFields();
-    return MoveResult$Moved_instance;
-  }
-  var MoveResult$Illegal_instance;
-  function MoveResult$Illegal_getInstance() {
-    MoveResult_initFields();
-    return MoveResult$Illegal_instance;
-  }
-  var MoveResult$Victory_instance;
-  function MoveResult$Victory_getInstance() {
-    MoveResult_initFields();
-    return MoveResult$Victory_instance;
-  }
-  MoveResult.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'MoveResult',
-    interfaces: [Enum]
-  };
-  function MoveResult$values() {
-    return [MoveResult$Moved_getInstance(), MoveResult$Illegal_getInstance(), MoveResult$Victory_getInstance()];
-  }
-  MoveResult.values = MoveResult$values;
-  function MoveResult$valueOf(name) {
-    switch (name) {
-      case 'Moved':
-        return MoveResult$Moved_getInstance();
-      case 'Illegal':
-        return MoveResult$Illegal_getInstance();
-      case 'Victory':
-        return MoveResult$Victory_getInstance();
-      default:throwISE('No enum constant de.earley.gogogo.game.MoveResult.' + name);
-    }
-  }
-  MoveResult.valueOf_61zpoe$ = MoveResult$valueOf;
-  function Game() {
-    this.states_0 = mutableListOf([new State()]);
-  }
-  Object.defineProperty(Game.prototype, 'state', {
-    get: function () {
-      return last(this.states_0);
-    }
-  });
-  Object.defineProperty(Game.prototype, 'player', {
-    get: function () {
-      return this.state.playersTurn;
-    }
-  });
-  Object.defineProperty(Game.prototype, 'victor', {
-    get: function () {
-      return this.state.victor;
-    }
-  });
-  Object.defineProperty(Game.prototype, 'grid', {
-    get: function () {
-      return this.state.grid;
-    }
-  });
-  Game.prototype.canUndo = function () {
-    return this.states_0.size > 1;
-  };
-  Game.prototype.undo = function () {
-    if (!this.canUndo())
-      return;
-    this.states_0.removeAt_za3lpa$(get_lastIndex(this.states_0));
-  };
-  Game.prototype.isEligibleToMove_bk5ui5$ = function (from) {
-    return this.state.isEligibleToMove_bk5ui5$(from);
-  };
-  Game.prototype.isOver = function () {
-    return this.victor != null;
-  };
-  Game.prototype.move_56t7qy$ = function (from, to) {
-    var tmp$;
-    tmp$ = this.state.move_56t7qy$(from, to);
-    if (tmp$ == null) {
-      return false;
-    }
-    var next = tmp$;
-    this.states_0.add_11rb$(next);
-    return true;
-  };
-  Game.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Game',
-    interfaces: []
-  };
-  function standardStartGrid$lambda(x, f) {
-    switch (x) {
-      case 0:
-        return Player$Blue_getInstance();
-      case 5:
-        return Player$Red_getInstance();
-      default:return null;
-    }
-  }
-  var standardStartGrid;
-  function Grid(width, height, elems) {
-    Grid$Companion_getInstance();
-    this.width = width;
-    this.height = height;
-    this.elems_0 = elems;
-  }
-  function Grid$Companion() {
-    Grid$Companion_instance = this;
-  }
-  var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_287e2$;
-  var addAll = Kotlin.kotlin.collections.addAll_ipc267$;
-  var copyToArray = Kotlin.kotlin.collections.copyToArray;
-  Grid$Companion.prototype.create_6qkxfg$ = function (width, height, init) {
-    var $receiver = until(0, height);
-    var destination = ArrayList_init_0();
-    var tmp$;
-    tmp$ = $receiver.iterator();
-    while (tmp$.hasNext()) {
-      var element = tmp$.next();
-      var $receiver_0 = until(0, width);
-      var destination_0 = ArrayList_init(collectionSizeOrDefault($receiver_0, 10));
-      var tmp$_0;
-      tmp$_0 = $receiver_0.iterator();
-      while (tmp$_0.hasNext()) {
-        var item = tmp$_0.next();
-        destination_0.add_11rb$(init(item, element));
-      }
-      var list = destination_0;
-      addAll(destination, list);
-    }
-    return new Grid(width, height, copyToArray(destination));
-  };
-  Grid$Companion.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: 'Companion',
-    interfaces: []
-  };
-  var Grid$Companion_instance = null;
-  function Grid$Companion_getInstance() {
-    if (Grid$Companion_instance === null) {
-      new Grid$Companion();
-    }
-    return Grid$Companion_instance;
-  }
-  Grid.prototype.get_vux9f0$ = function (x, y) {
-    var tmp$, tmp$_0, tmp$_1;
-    tmp$ = this.width - 1 | 0;
-    if (0 <= x && x <= tmp$) {
-      tmp$_0 = this.height - 1 | 0;
-      tmp$_1 = (0 <= y && y <= tmp$_0);
-    }
-     else
-      tmp$_1 = false;
-    return tmp$_1 ? this.elems_0[Kotlin.imul(y, this.width) + x | 0] : null;
-  };
-  function Grid$toString$lambda$lambda(this$Grid, closure$y) {
-    return function (x) {
-      return toString(this$Grid.get_vux9f0$(x, closure$y));
-    };
-  }
-  function Grid$toString$lambda(this$Grid) {
-    return function (y) {
-      return joinToString(until(0, this$Grid.width), ' ', void 0, void 0, void 0, void 0, Grid$toString$lambda$lambda(this$Grid, y));
-    };
-  }
-  Grid.prototype.toString = function () {
-    return joinToString(until(0, this.height), '\n', void 0, void 0, void 0, void 0, Grid$toString$lambda(this));
-  };
-  Grid.prototype.forEach_lbptwu$ = defineInlineFunction('gogogo-frontend.de.earley.gogogo.game.Grid.forEach_lbptwu$', wrapFunction(function () {
-    var until = Kotlin.kotlin.ranges.until_dqglrj$;
-    return function (action) {
-      var tmp$;
-      tmp$ = until(0, this.height).iterator();
-      while (tmp$.hasNext()) {
-        var element = tmp$.next();
-        var tmp$_0;
-        tmp$_0 = until(0, this.width).iterator();
-        while (tmp$_0.hasNext()) {
-          var element_0 = tmp$_0.next();
-          action(element_0, element, this.get_vux9f0$(element_0, element));
-        }
-      }
-    };
-  }));
-  Grid.prototype.copy_drmat7$ = function (alterations) {
-    var $receiver = new Alterations();
-    alterations($receiver);
-    return $receiver.create_oyles0$(this);
-  };
-  Grid.prototype.equals = function (other) {
-    var tmp$;
-    if (this === other)
-      return true;
-    if (other == null || !equals(get_js(Kotlin.getKClassFromExpression(this)), get_js(Kotlin.getKClassFromExpression(other))))
-      return false;
-    Kotlin.isType(tmp$ = other, Grid) ? tmp$ : throwCCE();
-    if (this.width !== other.width)
-      return false;
-    if (this.height !== other.height)
-      return false;
-    if (!contentEquals(this.elems_0, other.elems_0))
-      return false;
-    return true;
-  };
-  Grid.prototype.hashCode = function () {
-    var result = this.width;
-    result = (31 * result | 0) + this.height | 0;
-    result = (31 * result | 0) + contentHashCode(this.elems_0) | 0;
-    return result;
-  };
-  Grid.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Grid',
-    interfaces: []
-  };
-  Grid.prototype.component1 = function () {
-    return this.width;
-  };
-  Grid.prototype.component2 = function () {
-    return this.height;
-  };
-  Grid.prototype.component3_0 = function () {
-    return this.elems_0;
-  };
-  Grid.prototype.copy_ohzztl$ = function (width, height, elems) {
-    return new Grid(width === void 0 ? this.width : width, height === void 0 ? this.height : height, elems === void 0 ? this.elems_0 : elems);
-  };
-  function Alterations() {
-    this.ops_0 = HashMap_init();
-  }
-  Alterations.prototype.replace_jprfea$ = function (p, value) {
-    this.ops_0.put_xwzc9p$(p, value);
-  };
-  function Alterations$create$lambda(this$Alterations, closure$grid) {
-    return function (x, y) {
-      var p = new Point(x, y);
-      return this$Alterations.ops_0.containsKey_11rb$(p) ? this$Alterations.ops_0.get_11rb$(p) : closure$grid.get_vux9f0$(x, y);
-    };
-  }
-  Alterations.prototype.create_oyles0$ = function (grid) {
-    return Grid$Companion_getInstance().create_6qkxfg$(grid.width, grid.height, Alterations$create$lambda(this, grid));
-  };
-  Alterations.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Alterations',
-    interfaces: []
-  };
-  function sumBy($receiver, value) {
-    var sum = {v: 0};
-    var tmp$;
-    tmp$ = until(0, $receiver.height).iterator();
-    while (tmp$.hasNext()) {
-      var element = tmp$.next();
-      var tmp$_0;
-      tmp$_0 = until(0, $receiver.width).iterator();
-      while (tmp$_0.hasNext()) {
-        var element_0 = tmp$_0.next();
-        sum.v = sum.v + value(element_0, element, $receiver.get_vux9f0$(element_0, element)) | 0;
-      }
-    }
-    return sum.v;
-  }
-  function Player(name, ordinal) {
-    Enum.call(this);
-    this.name$ = name;
-    this.ordinal$ = ordinal;
-  }
-  function Player_initFields() {
-    Player_initFields = function () {
-    };
-    Player$Red_instance = new Player('Red', 0);
-    Player$Blue_instance = new Player('Blue', 1);
-  }
-  var Player$Red_instance;
-  function Player$Red_getInstance() {
-    Player_initFields();
-    return Player$Red_instance;
-  }
-  var Player$Blue_instance;
-  function Player$Blue_getInstance() {
-    Player_initFields();
-    return Player$Blue_instance;
-  }
-  Player.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Player',
-    interfaces: [Enum]
-  };
-  function Player$values() {
-    return [Player$Red_getInstance(), Player$Blue_getInstance()];
-  }
-  Player.values = Player$values;
-  function Player$valueOf(name) {
-    switch (name) {
-      case 'Red':
-        return Player$Red_getInstance();
-      case 'Blue':
-        return Player$Blue_getInstance();
-      default:throwISE('No enum constant de.earley.gogogo.game.Player.' + name);
-    }
-  }
-  Player.valueOf_61zpoe$ = Player$valueOf;
-  function next($receiver) {
-    switch ($receiver.name) {
-      case 'Red':
-        return Player$Blue_getInstance();
-      case 'Blue':
-        return Player$Red_getInstance();
-      default:return Kotlin.noWhenBranchMatched();
-    }
-  }
-  function State(playersTurn, lastPushed, grid) {
-    if (playersTurn === void 0)
-      playersTurn = Player$Blue_getInstance();
-    if (lastPushed === void 0)
-      lastPushed = null;
-    if (grid === void 0)
-      grid = standardStartGrid;
-    this.playersTurn = playersTurn;
-    this.lastPushed = lastPushed;
-    this.grid = grid;
-    this.victor = this.isVictory_0();
-  }
-  function State$move$lambda(closure$pushing, closure$next, this$State, closure$to, closure$from) {
-    return function ($receiver) {
-      if (closure$pushing)
-        $receiver.replace_jprfea$(closure$next, get_0(this$State.grid, closure$to));
-      $receiver.replace_jprfea$(closure$to, get_0(this$State.grid, closure$from));
-      $receiver.replace_jprfea$(closure$from, null);
-      return Unit;
-    };
-  }
-  State.prototype.move_56t7qy$ = function (from, to) {
-    if (!this.canMoveTo_0(from, to))
-      return null;
-    var next_0 = nextOver(from, to);
-    var pushing = get_0(this.grid, to) != null;
-    var pushed = pushing ? next_0 : null;
-    var newGrid = this.grid.copy_drmat7$(State$move$lambda(pushing, next_0, this, to, from));
-    return new State(next(this.playersTurn), pushed, newGrid);
-  };
-  State.prototype.canMoveTo_0 = function (from, to) {
-    return this.isEligibleToMove_bk5ui5$(from) && isAdjacent(from, to) && this.canPush_0(from, to);
-  };
-  State.prototype.isEligibleToMove_bk5ui5$ = function (p) {
-    return equals(this.playersTurn, get_0(this.grid, p)) && !equals(this.lastPushed, p);
-  };
-  State.prototype.canPush_0 = function (from, to) {
-    return get_0(this.grid, to) == null || get_0(this.grid, nextOver(from, to)) == null;
-  };
-  State.prototype.isVictory_0 = function () {
-    var $this = this.grid;
-    var tmp$;
-    tmp$ = until(0, $this.height).iterator();
-    while (tmp$.hasNext()) {
-      var element = tmp$.next();
-      var tmp$_0;
-      tmp$_0 = until(0, $this.width).iterator();
-      while (tmp$_0.hasNext()) {
-        var element_0 = tmp$_0.next();
-        var player = $this.get_vux9f0$(element_0, element);
-        var tmp$_1;
-        if (player != null) {
-          switch (player.name) {
-            case 'Blue':
-              tmp$_1 = element_0 === 5;
-              break;
-            case 'Red':
-              tmp$_1 = element_0 === 0;
-              break;
-            default:tmp$_1 = Kotlin.noWhenBranchMatched();
-              break;
-          }
-          var reachedEnd = tmp$_1;
-          if (reachedEnd)
-            return player;
-        }
-      }
-    }
-    if (this.countActiveTokens_0() <= 0) {
-      return next(this.playersTurn);
-    }
-    return null;
-  };
-  function State$countActiveTokens$lambda(this$State) {
-    return function (x, y, f) {
-      return this$State.isEligibleToMove_bk5ui5$(new Point(x, y)) ? 1 : 0;
-    };
-  }
-  State.prototype.countActiveTokens_0 = function () {
-    return sumBy(this.grid, State$countActiveTokens$lambda(this));
-  };
-  State.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'State',
-    interfaces: []
-  };
-  State.prototype.component1 = function () {
-    return this.playersTurn;
-  };
-  State.prototype.component2 = function () {
-    return this.lastPushed;
-  };
-  State.prototype.component3 = function () {
-    return this.grid;
-  };
-  State.prototype.copy_ia8drb$ = function (playersTurn, lastPushed, grid) {
-    return new State(playersTurn === void 0 ? this.playersTurn : playersTurn, lastPushed === void 0 ? this.lastPushed : lastPushed, grid === void 0 ? this.grid : grid);
-  };
-  State.prototype.toString = function () {
-    return 'State(playersTurn=' + Kotlin.toString(this.playersTurn) + (', lastPushed=' + Kotlin.toString(this.lastPushed)) + (', grid=' + Kotlin.toString(this.grid)) + ')';
-  };
-  State.prototype.hashCode = function () {
-    var result = 0;
-    result = result * 31 + Kotlin.hashCode(this.playersTurn) | 0;
-    result = result * 31 + Kotlin.hashCode(this.lastPushed) | 0;
-    result = result * 31 + Kotlin.hashCode(this.grid) | 0;
-    return result;
-  };
-  State.prototype.equals = function (other) {
-    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.playersTurn, other.playersTurn) && Kotlin.equals(this.lastPushed, other.lastPushed) && Kotlin.equals(this.grid, other.grid)))));
-  };
-  function nextOver(from, to) {
-    return new Point(from.x + (2 * (to.x - from.x | 0) | 0) | 0, from.y + (2 * (to.y - from.y | 0) | 0) | 0);
-  }
-  function isAdjacent(from, to) {
-    var dx = abs(from.x - to.x | 0);
-    var dy = abs(from.y - to.y | 0);
-    return dx === 1 && dy === 0 || (dx === 0 && dy === 1);
-  }
   function main$lambda(it) {
     var tmp$;
     var root = Kotlin.isType(tmp$ = document.getElementById('game'), HTMLDivElement) ? tmp$ : throwCCE();
@@ -1032,10 +671,10 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     this.rootDiv_0 = rootDiv;
     this.presenter_0 = new Presenter(this);
     this.cells = this.createCells_0(this.presenter_0.gameWidth, this.presenter_0.gameHeight);
-    this.turnIndicator_0 = get_1(document, 'turn-indicator');
-    this.undo_0 = get_1(document, 'undo');
-    this.aiCheckboxBlue_0 = get_1(document, 'ai-blue-check');
-    this.aiCheckboxRed_0 = get_1(document, 'ai-red-check');
+    this.turnIndicator_0 = get_0(document, 'turn-indicator');
+    this.undo_0 = get_0(document, 'undo');
+    this.aiCheckboxBlue_0 = get_0(document, 'ai-blue-check');
+    this.aiCheckboxRed_0 = get_0(document, 'ai-red-check');
     this.updateUI();
     this.registerEventListeners_0();
   }
@@ -1071,12 +710,51 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     };
   }
   function GameUI$createCells$lambda_0(x, y) {
-    return get_1(document, 'game-cell-' + x + '-' + y);
+    return get_0(document, 'game-cell-' + x + '-' + y);
   }
+  var wrapFunction = Kotlin.wrapFunction;
+  var Grid_init = $module$gogogo_common.de.earley.gogogo.game.Grid;
+  var Grid$Companion$create$lambda = wrapFunction(function () {
+    var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
+    var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
+    return function (closure$width, closure$init) {
+      return function (y) {
+        var $receiver = until(0, closure$width);
+        var destination = ArrayList_init(collectionSizeOrDefault($receiver, 10));
+        var tmp$;
+        tmp$ = $receiver.iterator();
+        while (tmp$.hasNext()) {
+          var item = tmp$.next();
+          destination.add_11rb$(closure$init(item, y));
+        }
+        return destination;
+      };
+    };
+  });
+  var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_287e2$;
+  var addAll = Kotlin.kotlin.collections.addAll_ipc267$;
+  var copyToArray = Kotlin.kotlin.collections.copyToArray;
   GameUI.prototype.createCells_0 = function (width, height) {
     var ui = table(get_create(document), void 0, GameUI$createCells$lambda(height, width));
     this.rootDiv_0.append(ui);
-    return Grid$Companion_getInstance().create_6qkxfg$(width, height, GameUI$createCells$lambda_0);
+    var $receiver = until(0, height);
+    var destination = ArrayList_init_0();
+    var tmp$;
+    tmp$ = $receiver.iterator();
+    while (tmp$.hasNext()) {
+      var element = tmp$.next();
+      var $receiver_0 = until(0, width);
+      var destination_0 = ArrayList_init(collectionSizeOrDefault($receiver_0, 10));
+      var tmp$_0;
+      tmp$_0 = $receiver_0.iterator();
+      while (tmp$_0.hasNext()) {
+        var item = tmp$_0.next();
+        destination_0.add_11rb$(GameUI$createCells$lambda_0(item, element));
+      }
+      var list = destination_0;
+      addAll(destination, list);
+    }
+    return new Grid_init(width, height, copyToArray(destination));
   };
   GameUI.prototype.updateUI = function () {
     var $this = this.cells;
@@ -1147,7 +825,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
         element_1 != null ? (onClick(element_1, GameUI$registerEventListeners$lambda$lambda(this, element_0, element)), Unit) : null;
       }
     }
-    onClick(get_1(document, 'restart'), GameUI$registerEventListeners$lambda(this));
+    onClick(get_0(document, 'restart'), GameUI$registerEventListeners$lambda(this));
     onClick(this.undo_0, GameUI$registerEventListeners$lambda_0(this));
     onClick(this.aiCheckboxRed_0, GameUI$registerEventListeners$lambda_1(this));
     onClick(this.aiCheckboxBlue_0, GameUI$registerEventListeners$lambda_2(this));
@@ -1203,11 +881,13 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     if (this.game_0.isOver())
       return;
     var sel = this.selected_0;
+    var target = new Point(x, y);
     if (sel != null) {
       if (sel.x === x && sel.y === y) {
         this.unselect_0();
       }
-      if (this.game_0.move_56t7qy$(sel, new Point(x, y))) {
+       else if (this.game_0.move_56t7qy$(sel, target)) {
+        con.move_56t7qy$(sel, target);
         this.unselect_0();
         this.gameUI_0.updateUI();
         this.checkAI();
@@ -1252,7 +932,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     simpleName: 'Presenter',
     interfaces: []
   };
-  function get_1($receiver, id) {
+  function get_0($receiver, id) {
     var tmp$, tmp$_0;
     tmp$_0 = Kotlin.isType(tmp$ = $receiver.getElementById(id), Element) ? tmp$ : null;
     if (tmp$_0 == null) {
@@ -1263,15 +943,197 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   function onClick($receiver, action) {
     $receiver.addEventListener('click', action);
   }
+  function WebsocketConnection() {
+  }
+  WebsocketConnection.$metadata$ = {
+    kind: Kind_INTERFACE,
+    simpleName: 'WebsocketConnection',
+    interfaces: []
+  };
+  function WebsocketConnectionImpl(ws) {
+    this.ws_0 = ws;
+    this.open_0 = CompletableDeferred();
+    this.messages_9ckido$_0 = Channel();
+    this.ws_0.onopen = WebsocketConnectionImpl_init$lambda(this);
+    this.ws_0.onclose = WebsocketConnectionImpl_init$lambda_0(this);
+    this.ws_0.onmessage = WebsocketConnectionImpl_init$lambda_1(this);
+  }
+  Object.defineProperty(WebsocketConnectionImpl.prototype, 'coroutineContext', {
+    get: function () {
+      return coroutines.Dispatchers.Default.plus_1fupul$(Job());
+    }
+  });
+  Object.defineProperty(WebsocketConnectionImpl.prototype, 'messages', {
+    get: function () {
+      return this.messages_9ckido$_0;
+    }
+  });
+  function WebsocketConnectionImpl$send$lambda(this$WebsocketConnectionImpl_0, closure$s_0) {
+    return function ($receiver, continuation_0, suspended) {
+      var instance = new Coroutine$WebsocketConnectionImpl$send$lambda(this$WebsocketConnectionImpl_0, closure$s_0, $receiver, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
+  function Coroutine$WebsocketConnectionImpl$send$lambda(this$WebsocketConnectionImpl_0, closure$s_0, $receiver, controller, continuation_0) {
+    CoroutineImpl.call(this, continuation_0);
+    this.$controller = controller;
+    this.exceptionState_0 = 1;
+    this.local$this$WebsocketConnectionImpl = this$WebsocketConnectionImpl_0;
+    this.local$closure$s = closure$s_0;
+  }
+  Coroutine$WebsocketConnectionImpl$send$lambda.$metadata$ = {
+    kind: Kotlin.Kind.CLASS,
+    simpleName: null,
+    interfaces: [CoroutineImpl]
+  };
+  Coroutine$WebsocketConnectionImpl$send$lambda.prototype = Object.create(CoroutineImpl.prototype);
+  Coroutine$WebsocketConnectionImpl$send$lambda.prototype.constructor = Coroutine$WebsocketConnectionImpl$send$lambda;
+  Coroutine$WebsocketConnectionImpl$send$lambda.prototype.doResume = function () {
+    do
+      try {
+        switch (this.state_0) {
+          case 0:
+            this.state_0 = 2;
+            this.result_0 = this.local$this$WebsocketConnectionImpl.open_0.await(this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 1:
+            throw this.exception_0;
+          case 2:
+            return this.local$this$WebsocketConnectionImpl.ws_0.send(this.local$closure$s), Unit;
+          default:this.state_0 = 1;
+            throw new Error('State Machine Unreachable execution');
+        }
+      }
+       catch (e) {
+        if (this.state_0 === 1) {
+          this.exceptionState_0 = this.state_0;
+          throw e;
+        }
+         else {
+          this.state_0 = this.exceptionState_0;
+          this.exception_0 = e;
+        }
+      }
+     while (true);
+  };
+  WebsocketConnectionImpl.prototype.send_61zpoe$ = function (s) {
+    launch(this, void 0, void 0, WebsocketConnectionImpl$send$lambda(this, s));
+  };
+  function WebsocketConnectionImpl_init$lambda(this$WebsocketConnectionImpl) {
+    return function (it) {
+      return this$WebsocketConnectionImpl.open_0.complete_11rb$(null);
+    };
+  }
+  var Job_0 = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job;
+  var IllegalStateException_init = Kotlin.kotlin.IllegalStateException_init_pdl1vj$;
+  function WebsocketConnectionImpl_init$lambda_0(this$WebsocketConnectionImpl) {
+    return function (it) {
+      var $receiver = this$WebsocketConnectionImpl;
+      var tmp$;
+      var tmp$_0;
+      if ((tmp$ = $receiver.coroutineContext.get_j3r2sn$(Job_0.Key)) != null)
+        tmp$_0 = tmp$;
+      else {
+        throw IllegalStateException_init(('Scope cannot be cancelled because it does not have a job: ' + $receiver).toString());
+      }
+      var job = tmp$_0;
+      job.cancel();
+      return Unit;
+    };
+  }
+  function WebsocketConnectionImpl_init$lambda$lambda(this$WebsocketConnectionImpl_0, closure$evt_0) {
+    return function ($receiver, continuation_0, suspended) {
+      var instance = new Coroutine$WebsocketConnectionImpl_init$lambda$lambda(this$WebsocketConnectionImpl_0, closure$evt_0, $receiver, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
+  function Coroutine$WebsocketConnectionImpl_init$lambda$lambda(this$WebsocketConnectionImpl_0, closure$evt_0, $receiver, controller, continuation_0) {
+    CoroutineImpl.call(this, continuation_0);
+    this.$controller = controller;
+    this.exceptionState_0 = 1;
+    this.local$this$WebsocketConnectionImpl = this$WebsocketConnectionImpl_0;
+    this.local$closure$evt = closure$evt_0;
+  }
+  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.$metadata$ = {
+    kind: Kotlin.Kind.CLASS,
+    simpleName: null,
+    interfaces: [CoroutineImpl]
+  };
+  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.prototype = Object.create(CoroutineImpl.prototype);
+  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.prototype.constructor = Coroutine$WebsocketConnectionImpl_init$lambda$lambda;
+  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.prototype.doResume = function () {
+    do
+      try {
+        switch (this.state_0) {
+          case 0:
+            this.state_0 = 2;
+            this.result_0 = this.local$this$WebsocketConnectionImpl.messages.send_11rb$(toString(this.local$closure$evt.data), this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 1:
+            throw this.exception_0;
+          case 2:
+            return this.result_0;
+          default:this.state_0 = 1;
+            throw new Error('State Machine Unreachable execution');
+        }
+      }
+       catch (e) {
+        if (this.state_0 === 1) {
+          this.exceptionState_0 = this.state_0;
+          throw e;
+        }
+         else {
+          this.state_0 = this.exceptionState_0;
+          this.exception_0 = e;
+        }
+      }
+     while (true);
+  };
+  function WebsocketConnectionImpl_init$lambda_1(this$WebsocketConnectionImpl) {
+    return function (evt) {
+      if (Kotlin.isType(evt, MessageEvent))
+        launch(this$WebsocketConnectionImpl, void 0, void 0, WebsocketConnectionImpl_init$lambda$lambda(this$WebsocketConnectionImpl, evt));
+      return Unit;
+    };
+  }
+  WebsocketConnectionImpl.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'WebsocketConnectionImpl',
+    interfaces: [CoroutineScope, WebsocketConnection]
+  };
   var package$de = _.de || (_.de = {});
   var package$earley = package$de.earley || (package$de.earley = {});
   var package$gogogo = package$earley.gogogo || (package$earley.gogogo = {});
+  Object.defineProperty(package$gogogo, 'server', {
+    get: function () {
+      return server;
+    }
+  });
+  Object.defineProperty(package$gogogo, 'con', {
+    get: function () {
+      return con;
+    }
+  });
+  Object.defineProperty(Connection, 'Companion', {
+    get: Connection$Companion_getInstance
+  });
+  package$gogogo.Connection = Connection;
   var package$ai = package$gogogo.ai || (package$gogogo.ai = {});
   package$ai.bestMove_rxsk4c$ = bestMove;
   package$ai.debugBestMove_rxsk4c$ = debugBestMove;
   package$ai.AI = AI;
   package$ai.stratPerPlayer_nmhdos$ = stratPerPlayer;
-  $$importsForInline$$['gogogo-frontend'] = _;
+  $$importsForInline$$['gogogo-common'] = $module$gogogo_common;
   package$ai.findAllMoves_1pq5d1$ = findAllMoves;
   Object.defineProperty(package$ai, 'progressMult', {
     get: function () {
@@ -1312,59 +1174,19 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       return pruneDiff;
     }
   });
-  var package$game = package$gogogo.game || (package$gogogo.game = {});
-  Object.defineProperty(package$game, 'WIDTH', {
-    get: function () {
-      return WIDTH;
-    }
-  });
-  Object.defineProperty(package$game, 'HEIGHT', {
-    get: function () {
-      return HEIGHT;
-    }
-  });
-  package$game.Point = Point;
-  package$game.get_sddg3j$ = get_0;
-  Object.defineProperty(MoveResult, 'Moved', {
-    get: MoveResult$Moved_getInstance
-  });
-  Object.defineProperty(MoveResult, 'Illegal', {
-    get: MoveResult$Illegal_getInstance
-  });
-  Object.defineProperty(MoveResult, 'Victory', {
-    get: MoveResult$Victory_getInstance
-  });
-  package$game.MoveResult = MoveResult;
-  package$game.Game = Game;
-  Object.defineProperty(package$game, 'standardStartGrid', {
-    get: function () {
-      return standardStartGrid;
-    }
-  });
-  Object.defineProperty(Grid, 'Companion', {
-    get: Grid$Companion_getInstance
-  });
-  package$game.Grid = Grid;
-  package$game.Alterations = Alterations;
-  package$game.sumBy_750h6s$ = sumBy;
-  Object.defineProperty(Player, 'Red', {
-    get: Player$Red_getInstance
-  });
-  Object.defineProperty(Player, 'Blue', {
-    get: Player$Blue_getInstance
-  });
-  package$game.Player = Player;
-  package$game.next_txv5hr$ = next;
-  package$game.State = State;
-  package$game.nextOver_56t7qy$ = nextOver;
-  package$game.isAdjacent_56t7qy$ = isAdjacent;
   package$gogogo.main_kand9s$ = main;
   var package$ui = package$gogogo.ui || (package$gogogo.ui = {});
   package$ui.asClass_txv5hr$ = asClass;
   package$ui.GameUI = GameUI;
   package$ui.Presenter = Presenter;
-  package$ui.get_o90r4$ = get_1;
+  package$ui.get_o90r4$ = get_0;
   package$ui.onClick_2lnv0o$ = onClick;
+  var package$web = package$gogogo.web || (package$gogogo.web = {});
+  package$web.WebsocketConnection = WebsocketConnection;
+  $$importsForInline$$['kotlinx-coroutines-core'] = $module$kotlinx_coroutines_core;
+  package$web.WebsocketConnectionImpl = WebsocketConnectionImpl;
+  server = 'ws://localhost:8080';
+  con = Connection$Companion_getInstance().connect_61zpoe$('ws://localhost:8080/matchmaking');
   progressMult = 10;
   pushedPenalty = 6;
   tokenBonus = 10;
@@ -1372,12 +1194,9 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   hard = hard$lambda;
   medium = medium$lambda;
   pruneDiff = 100;
-  WIDTH = 6;
-  HEIGHT = 5;
-  standardStartGrid = Grid$Companion_getInstance().create_6qkxfg$(6, 5, standardStartGrid$lambda);
   main([]);
   Kotlin.defineModule('gogogo-frontend', _);
   return _;
-}(typeof this['gogogo-frontend'] === 'undefined' ? {} : this['gogogo-frontend'], kotlin, this['kotlinx-coroutines-core'], this['kotlinx-html-js']);
+}(typeof this['gogogo-frontend'] === 'undefined' ? {} : this['gogogo-frontend'], kotlin, this['kotlinx-coroutines-core'], this['gogogo-common'], this['kotlinx-html-js']);
 
 //# sourceMappingURL=gogogo-frontend.js.map

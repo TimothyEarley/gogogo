@@ -1,14 +1,14 @@
 package de.earley.gogogo.game
 
 
-data class Grid<T> private constructor(
+data class Grid<T>(
 	val width: Int,
 	val height: Int,
 	private val elems: Array<T?>
 ) {
 
 	companion object {
-		fun <T> create(width: Int, height: Int, init: (Int, Int) -> T?): Grid<T> = Grid(
+		inline fun <reified T> create(width: Int, height: Int, init: (Int, Int) -> T?): Grid<T> = Grid(
 			width,
 			height,
 			(0 until height).flatMap { y ->
@@ -37,12 +37,9 @@ data class Grid<T> private constructor(
 		}
 	}
 
-	fun copy(alterations: Alterations<T>.() -> Unit) =
-		Alterations<T>().also(alterations).create(this)
-
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
-		if (other == null || this::class.js != other::class.js) return false
+		if (other == null || this::class != other::class) return false
 
 		other as Grid<T>
 
@@ -62,19 +59,25 @@ data class Grid<T> private constructor(
 
 }
 
+// all these reified things are because of multiplatform (idk)
+
+inline fun <reified T> Grid<T>.copy(alterations: Alterations<T>.() -> Unit) =
+	Alterations<T>().also(alterations).create(this)
+
+
 class Alterations<T> {
-	private val ops: MutableMap<Point, T?> = HashMap()
+	val ops: MutableMap<Point, T?> = HashMap()
 
 	fun replace(p: Point, value: T?) {
 		ops[p] = value
 	}
-
-	fun create(grid: Grid<T>): Grid<T> =
-		Grid.create(grid.width, grid.height) { x, y ->
-			val p = Point(x, y)
-			if (ops.containsKey(p)) ops[p] else grid[x, y]
-		}
 }
+
+inline fun <reified T> Alterations<T>.create(grid: Grid<T>): Grid<T> =
+	Grid.create(grid.width, grid.height) { x, y ->
+		val p = Point(x, y)
+		if (ops.containsKey(p)) ops[p] else grid[x, y]
+	}
 
 fun <T> Grid<T>.sumBy(value: (Int, Int, T?) -> Int): Int {
 	var sum = 0

@@ -4,14 +4,9 @@ plugins {
     id("kotlin2js") version "1.3.10"
 }
 
-group = "de.earley"
-version = "0.1"
-
-repositories {
-    jcenter()
-}
-
 dependencies {
+    compile(project(":gogogo-common"))
+
     compile(kotlin("stdlib-js", "1.3.11"))
     compile("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.1.0")
     compile("org.jetbrains.kotlinx:kotlinx-html-js:0.6.12")

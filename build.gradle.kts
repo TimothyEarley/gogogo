@@ -5,5 +5,10 @@ plugins {
 val gitVersion: groovy.lang.Closure<*> by extra
 
 allprojects {
+	group = "de.earley.gogogo"
 	version = gitVersion()
+
+	repositories {
+		jcenter()
+	}
 }
