@@ -1,9 +1,8 @@
 package de.earley.gogogo.ui
 
 import de.earley.gogogo.ai.AI
+import de.earley.gogogo.con
 import de.earley.gogogo.game.Game
-import de.earley.gogogo.game.MoveResult
-import de.earley.gogogo.game.Player
 import de.earley.gogogo.game.Point
 import org.w3c.dom.HTMLTableCellElement
 import kotlin.dom.removeClass
@@ -53,15 +52,17 @@ class Presenter(
 
 		// if already selected something, try to move
 		val sel = selected
+		val target = Point(x, y)
 		if (sel != null) {
 
 			if (sel.x == x && sel.y == y) {
 				// unselect when clicking on same cell
 				unselect()
 			}
-
 			// try to move
-			if (game.move(sel, Point(x, y))) {
+			else if (game.move(sel, target)) {
+				//temp server code
+				con.move(sel, target)
 				unselect()
 				gameUI.updateUI()
 				checkAI()

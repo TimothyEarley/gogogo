@@ -1,18 +1,11 @@
 package de.earley.gogogo.game
 
-import kotlin.math.abs
-
 const val WIDTH = 6
 const val HEIGHT = 5
 
 data class Point(val x: Int, val y: Int)
 
 operator fun <T> Grid<T>.get(p: Point) = get(p.x, p.y)
-//operator fun <T> Grid<T>.set(p: Point, value: T?) = set(p.x, p.y, value)
-
-enum class MoveResult {
-	Moved, Illegal, Victory
-}
 
 class Game {
 

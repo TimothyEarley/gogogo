@@ -1,7 +1,6 @@
 package de.earley.gogogo
 
 
-import de.earley.gogogo.game.Game
 import de.earley.gogogo.ui.GameUI
 import org.w3c.dom.HTMLDivElement
 import kotlin.browser.document
