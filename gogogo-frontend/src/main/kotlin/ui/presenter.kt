@@ -1,20 +1,21 @@
 package de.earley.gogogo.ui
 
 import de.earley.gogogo.ai.AI
-import de.earley.gogogo.con
-import de.earley.gogogo.game.Game
-import de.earley.gogogo.game.Point
+import de.earley.gogogo.ai.withUIAwareness
+import de.earley.gogogo.game.*
+import de.earley.gogogo.net.NetworkController
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLTableCellElement
 import kotlin.dom.removeClass
 
 class Presenter(
 	private val gameUI: GameUI
-) {
-
-	private val ai: AI = AI()
+) : UIHook {
 
 	private var selected: Point? = null
-	private var game: Game = Game()
+	private var game: ControlledGame = createGame()
 
 	val gameWidth: Int get() = game.grid.width
 	val gameHeight: Int get() = game.grid.height
@@ -42,46 +43,55 @@ class Presenter(
 	}
 
 	fun restart() {
-		game = Game()
+		game = createGame()
 		gameUI.updateUI()
-		checkAI()
 	}
 
 	fun handleClick(x: Int, y: Int) {
 		if (game.isOver()) return
 
-		// if already selected something, try to move
-		val sel = selected
-		val target = Point(x, y)
-		if (sel != null) {
+		val c = game.activeController
+		if (c is HumanController) {
+			c.supplyClick(Point(x, y))
+		}
+	}
 
-			if (sel.x == x && sel.y == y) {
-				// unselect when clicking on same cell
-				unselect()
-			}
-			// try to move
-			else if (game.move(sel, target)) {
-				//temp server code
-				con.move(sel, target)
-				unselect()
-				gameUI.updateUI()
-				checkAI()
-			}
+	override fun onSelect(point: Point?) {
+		if (point == null) {
+			unselect()
+		} else {
+			selected = point
+			gameUI.cells[point.x, point.y]!!.classList.add("game-cell-selected")
+		}
+	}
 
-			if (game.isOver()) {
-				unselect()
-				gameUI.updateUI()
-			}
+	override fun onGameEnd() {
+		unselect()
+	}
 
-		} else if (game.isEligibleToMove(Point(x, y))) {
-			select(x, y)
+	override suspend fun onMove(move: Move) {
+		unselect()
+		gameUI.updateUI()
+		// for some reason the UI is not properly updated unless we allow some yield tile
+		delay(100)
+	}
+
+	private fun createGame(): ControlledGame {
+		return ControlledGame(
+			getController(Player.Red),
+			getController(Player.Blue),
+			this
+		).also {
+			startGame(it)
 		}
 
 	}
 
-	private fun select(x: Int, y: Int) {
-		selected = Point(x, y)
-		gameUI.cells[x, y]!!.classList.add("game-cell-selected")
+	private fun startGame(game: ControlledGame) = with(game) {
+		// add job to cancel
+		GlobalScope.launch {
+			start()
+		}
 	}
 
 	private fun unselect() {
@@ -97,13 +107,19 @@ class Presenter(
 		gameUI.updateUI()
 	}
 
+	//TODO multiplayer
 	fun canUndo(): Boolean = game.canUndo()
 
-
-	fun checkAI() {
-		if (gameUI.isAI(game.player)) {
-			ai.move(game.player, game.state, ::handleClick)
-		}
+	fun setRedAI(active: Boolean) {
+		game.switchRed(getController(Player.Red))
 	}
+
+	fun setBlueAI(active: Boolean) {
+		game.switchBlue(getController(Player.Blue))
+	}
+
+	private fun getController(player: Player): PlayerController =
+		if (gameUI.isAI(player)) NetworkController().withUIAwareness() else HumanController()
+
 
 }

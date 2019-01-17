@@ -2,12 +2,14 @@ package de.earley.gogogo.ui
 
 
 import de.earley.gogogo.game.*
+import de.earley.gogogo.game.grid.GenericGrid
+import de.earley.gogogo.game.grid.Grid
+import de.earley.gogogo.game.grid.forEach
 import kotlinx.html.*
 import kotlinx.html.dom.create
 import kotlinx.html.js.table
 import org.w3c.dom.*
 import kotlin.browser.document
-import kotlin.dom.removeClass
 
 fun Player.asClass(): String = toString().toLowerCase()
 
@@ -16,13 +18,13 @@ class GameUI(
 	private val rootDiv: HTMLDivElement
 ) {
 
-	private val presenter = Presenter(this)
-
-	val cells: Grid<HTMLTableCellElement> = createCells(presenter.gameWidth, presenter.gameHeight)
-	private val turnIndicator: HTMLParagraphElement = document.get("turn-indicator")
-	private val undo: HTMLButtonElement = document.get("undo")
 	private val aiCheckboxBlue: HTMLInputElement = document.get("ai-blue-check")
 	private val aiCheckboxRed: HTMLInputElement = document.get("ai-red-check")
+	private val turnIndicator: HTMLParagraphElement = document.get("turn-indicator")
+	private val undo: HTMLButtonElement = document.get("undo")
+
+	private val presenter = Presenter(this)
+	val cells: Grid<HTMLTableCellElement> = createCells(presenter.gameWidth, presenter.gameHeight)
 
 
 	private fun createCells(width: Int, height: Int): Grid<HTMLTableCellElement> {
@@ -82,11 +84,11 @@ class GameUI(
 		}
 
 		aiCheckboxRed.onClick {
-			presenter.checkAI()
+			presenter.setRedAI(aiCheckboxRed.checked)
 		}
 
 		aiCheckboxBlue.onClick {
-			presenter.checkAI()
+			presenter.setBlueAI(aiCheckboxRed.checked)
 		}
 	}
 

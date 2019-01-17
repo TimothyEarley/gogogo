@@ -1,13 +1,17 @@
 package de.earley.gogogo.game
 
+import de.earley.gogogo.game.grid.GameGrid
+import de.earley.gogogo.game.grid.Grid
+import de.earley.gogogo.game.grid.toGameGrid
+import kotlinx.serialization.Serializable
+
 const val WIDTH = 6
 const val HEIGHT = 5
 
+@Serializable
 data class Point(val x: Int, val y: Int)
 
-operator fun <T> Grid<T>.get(p: Point) = get(p.x, p.y)
-
-class Game {
+open class Game {
 
 	private val states: MutableList<State> = mutableListOf(State())
 	val state: State get() = states.last()
@@ -33,10 +37,10 @@ class Game {
 
 }
 
-val standardStartGrid = Grid.create(WIDTH, HEIGHT) { x, _ ->
+val standardStartGrid: GameGrid = Grid.create(WIDTH, HEIGHT) { x, _ ->
 	when (x) {
 		0 -> Player.Blue
 		WIDTH-1 -> Player.Red
 		else -> null
 	}
-}
+}.toGameGrid()

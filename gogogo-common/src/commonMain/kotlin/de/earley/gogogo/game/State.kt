@@ -1,11 +1,15 @@
 package de.earley.gogogo.game
 
+import de.earley.gogogo.game.grid.GameGrid
+import de.earley.gogogo.game.grid.*
+import kotlinx.serialization.Serializable
 import kotlin.math.abs
 
+@Serializable
 data class State(
 	val playersTurn: Player = Player.Blue,
 	val lastPushed: Point? = null,
-	val grid: Grid<Player> = standardStartGrid
+	val grid: GameGrid = standardStartGrid
 ) {
 
 	val victor: Player? = isVictory()
@@ -31,7 +35,7 @@ data class State(
 		return State(
 			playersTurn = playersTurn.next(),
 			lastPushed = pushed,
-			grid = newGrid
+			grid = newGrid.toGameGrid()
 		)
 
 	}

@@ -2,7 +2,7 @@ package de.earley.gogogo.ai
 
 import de.earley.gogogo.game.Player
 import de.earley.gogogo.game.Point
-import de.earley.gogogo.game.sumBy
+import de.earley.gogogo.game.grid.sumBy
 import kotlin.random.Random
 
 // closer to end -> good
