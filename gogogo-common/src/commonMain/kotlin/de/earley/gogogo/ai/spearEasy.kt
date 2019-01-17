@@ -1,11 +1,5 @@
 package de.earley.gogogo.ai
 
-import de.earley.gogogo.game.Player
-import de.earley.gogogo.game.Point
-import de.earley.gogogo.game.sumBy
-import kotlin.math.abs
-import kotlin.random.Random
-
 //val spearEasy: Strat = { ownPlayer, state ->
 //
 //	if (state.victor == ownPlayer) Float.MAX_VALUE

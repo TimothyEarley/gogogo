@@ -13,7 +13,8 @@ dependencies {
 	compile("io.ktor:ktor-server-netty:$ktor_version")
 	compile("io.ktor:ktor-websockets:$ktor_version")
 	compile("ch.qos.logback:logback-classic:1.2.3")
-
+	
+	compile(project(":gogogo-common"))
 }
 
 application {

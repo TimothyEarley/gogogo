@@ -1,8 +1,7 @@
 package de.earley.gogogo.ai
 
-import de.earley.gogogo.game.Player
-import de.earley.gogogo.game.Point
-import de.earley.gogogo.game.State
+import de.earley.gogogo.game.*
+import de.earley.gogogo.game.grid.forEach
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -21,18 +20,16 @@ fun Strat.debugBestMove(player: Player, state: State): Triple<Point, Point, Stat
 }
 
 
-class AI {
+class AI : PlayerController {
+	override val name: String = "AI"
 
 	private val strat: Strat = stratPerPlayer(hard, hard)
 
-	fun move(ownPlayer: Player, state: State, click: (Int, Int) -> Unit) = GlobalScope.launch {
+	override suspend fun getMove(state: State, fromSelectCallback: (Point?) -> Unit): Move {
 
-		strat.debugBestMove(ownPlayer, state).let { (from, to, _) ->
-			click(from.x, from.y)
-			delay(800)
-			click(to.x, to.y)
+		return strat.debugBestMove(state.playersTurn, state).let { (from, to, _) ->
+			Move(from, to)
 		}
-
 	}
 
 }

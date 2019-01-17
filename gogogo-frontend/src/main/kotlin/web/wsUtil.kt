@@ -9,7 +9,8 @@ import kotlin.coroutines.CoroutineContext
 
 interface WebsocketConnection {
 	fun send(s: String)
-	val messages: ReceiveChannel<String>
+	suspend fun receive(): String
+	// val messages: ReceiveChannel<String>
 }
 
 class WebsocketConnectionImpl(
@@ -21,7 +22,7 @@ class WebsocketConnectionImpl(
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Default + Job()
 
-	override val messages: Channel<String> = Channel()
+	private val messages: Channel<String> = Channel()
 
 
 	override fun send(s: String) {
@@ -30,6 +31,10 @@ class WebsocketConnectionImpl(
 			ws.send(s)
 
 		}
+	}
+
+	override suspend fun receive(): String {
+		return messages.receive()
 	}
 
 	init {
