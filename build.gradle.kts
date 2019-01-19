@@ -13,3 +13,9 @@ allprojects {
 		maven("https://kotlin.bintray.com/kotlinx")
 	}
 }
+
+tasks {
+	val stage by registering {
+		dependsOn(":gogogo-backend:clean", ":gogogo-backend:shadowJar")
+	}
+}
