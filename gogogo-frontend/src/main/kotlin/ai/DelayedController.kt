@@ -10,8 +10,8 @@ import kotlinx.coroutines.delay
 class DelayedController(private val pc: PlayerController) : PlayerController {
 	override val name: String = "UI AI"
 
-	override suspend fun getMove(state: State, fromSelectCallback: (Point?) -> Unit): Move {
-		val move = pc.getMove(state, fromSelectCallback)
+	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Move {
+		val move = pc.getMove(lastMove, state, fromSelectCallback)
 		fromSelectCallback(move.from)
 		delay(1000)
 		return move

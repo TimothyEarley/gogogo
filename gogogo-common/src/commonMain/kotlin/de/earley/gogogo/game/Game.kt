@@ -5,8 +5,8 @@ import de.earley.gogogo.game.grid.Grid
 import de.earley.gogogo.game.grid.toGameGrid
 import kotlinx.serialization.Serializable
 
-const val WIDTH = 6
-const val HEIGHT = 5
+const val GAME_WIDTH = 6
+const val GAME_HEIGHT = 5
 
 @Serializable
 data class Point(val x: Int, val y: Int)
@@ -37,10 +37,10 @@ open class Game {
 
 }
 
-val standardStartGrid: GameGrid = Grid.create(WIDTH, HEIGHT) { x, _ ->
+val standardStartGrid: GameGrid = Grid.create(GAME_WIDTH, GAME_HEIGHT) { x, _ ->
 	when (x) {
 		0 -> Player.Blue
-		WIDTH-1 -> Player.Red
+		GAME_WIDTH-1 -> Player.Red
 		else -> null
 	}
 }.toGameGrid()
