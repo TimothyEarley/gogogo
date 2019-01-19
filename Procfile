@@ -1,1 +1,1 @@
-web:    java -jar build/libs/gogogo-backend.jar
+web:    java -jar gogogo-backend/build/libs/gogogo-backend.jar

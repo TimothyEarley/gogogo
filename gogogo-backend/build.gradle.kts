@@ -22,15 +22,9 @@ application {
 }
 
 tasks {
-
 	withType<ShadowJar> {
 		baseName = "gogogo-backend"
 		classifier = ""
 		version = ""
 	}
-
-	val stage by registering {
-		dependsOn("clean", "shadowJar")
-	}
-
 }
