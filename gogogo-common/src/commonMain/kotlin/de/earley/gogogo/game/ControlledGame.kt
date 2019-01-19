@@ -10,8 +10,9 @@ class ControlledGame(
 	private val uiHook: UIHook
 ) : Game() {
 
-	lateinit var scope: CoroutineScope
-	var moveJob: Job? = null
+	private lateinit var scope: CoroutineScope
+	private var moveJob: Job? = null
+	var lastMove: Move? = null
 
 	val activeController: PlayerController
 		get() = when (player) {
@@ -34,7 +35,7 @@ class ControlledGame(
 
 			try {
 				move = scope.async(job) {
-					activeController.getMove(state, uiHook::onSelect)
+					activeController.getMove(lastMove, state, uiHook::onSelect)
 				}.await()
 			} catch(_: CancellationException) {
 				// seems like the controller was swapped, try again with new one
@@ -45,6 +46,7 @@ class ControlledGame(
 
 		if (!moved) throw IllegalStateException("move was not valid")
 
+		lastMove = move
 		uiHook.onMove(move)
 
 		return !isOver()

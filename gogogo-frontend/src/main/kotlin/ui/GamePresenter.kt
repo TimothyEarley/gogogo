@@ -3,22 +3,25 @@ package de.earley.gogogo.ui
 import de.earley.gogogo.ai.AI
 import de.earley.gogogo.ai.withUIAwareness
 import de.earley.gogogo.game.*
+import de.earley.gogogo.net.Matchmaking
 import de.earley.gogogo.net.NetworkController
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import de.earley.gogogo.net.PlayerInfo
+import kotlinx.coroutines.*
 import org.w3c.dom.HTMLTableCellElement
+import kotlin.coroutines.CoroutineContext
 import kotlin.dom.removeClass
 
-class Presenter(
-	private val gameUI: GameUI
+class GamePresenter(
+	private val gameUI: GameUI,
+	private val mode: GameMode
 ) : UIHook {
 
 	private var selected: Point? = null
-	private var game: ControlledGame = createGame()
+	private lateinit var game: ControlledGame
 
-	val gameWidth: Int get() = game.grid.width
-	val gameHeight: Int get() = game.grid.height
+	suspend fun start() {
+		restart()
+	}
 
 	fun setClasses(element: HTMLTableCellElement, x: Int, y: Int) = with(element) {
 		removeClass("token-blue", "token-red", "clickable", "can-move", "selected")
@@ -42,7 +45,7 @@ class Presenter(
 		"${game.player}'s turn"
 	}
 
-	fun restart() {
+	suspend fun restart() {
 		game = createGame()
 		gameUI.updateUI()
 	}
@@ -66,6 +69,10 @@ class Presenter(
 	}
 
 	override fun onGameEnd() {
+		// inform other player in multiplayer scenario
+		if (mode == GameMode.Online) {
+			(game.activeController as? NetworkController)?.sendVictory(game.lastMove!!)
+		}
 		unselect()
 	}
 
@@ -76,12 +83,29 @@ class Presenter(
 		delay(100)
 	}
 
-	private fun createGame(): ControlledGame {
-		return ControlledGame(
-			getController(Player.Red),
-			getController(Player.Blue),
-			this
-		).also {
+	private suspend fun createGame(): ControlledGame {
+
+		return if (mode == GameMode.Online) {
+			// setup connection
+			//TODO name
+			val matchmaking = Matchmaking(PlayerInfo(gameUI.getName()))
+			val info = matchmaking.findMatch()
+			println("Playing against ${info.other.name} as ${info.player}")
+			// get player side
+			val red = if (info.player == Player.Red) HumanController() else matchmaking.opponent
+			val blue = if (info.player == Player.Blue) HumanController() else matchmaking.opponent
+
+			gameUI.showOwnPlayer(info.player, info.other.name)
+
+			ControlledGame(red, blue, this)
+
+		} else {
+			ControlledGame(
+				getLocalController(Player.Red),
+				getLocalController(Player.Blue),
+				this
+			)
+		}.also {
 			startGame(it)
 		}
 
@@ -102,6 +126,7 @@ class Presenter(
 	}
 
 	fun undo() {
+		require(mode == GameMode.Local) { "Only allowed in local play!" }
 		game.undo()
 		unselect()
 		gameUI.updateUI()
@@ -111,15 +136,14 @@ class Presenter(
 	fun canUndo(): Boolean = game.canUndo()
 
 	fun setRedAI(active: Boolean) {
-		game.switchRed(getController(Player.Red))
+		game.switchRed(getLocalController(Player.Red))
 	}
 
 	fun setBlueAI(active: Boolean) {
-		game.switchBlue(getController(Player.Blue))
+		game.switchBlue(getLocalController(Player.Blue))
 	}
 
-	private fun getController(player: Player): PlayerController =
-		if (gameUI.isAI(player)) NetworkController().withUIAwareness() else HumanController()
-
-
+	private fun getLocalController(player: Player): PlayerController =
+				if (gameUI.isAI(player)) AI().withUIAwareness()
+				else HumanController()
 }

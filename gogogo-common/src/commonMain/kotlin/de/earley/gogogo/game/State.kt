@@ -57,7 +57,7 @@ data class State(
 		grid.forEach { x, _, player ->
 			if (player != null) {
 				val reachedEnd = when (player) {
-					Player.Blue -> x == WIDTH-1
+					Player.Blue -> x == GAME_WIDTH-1
 					Player.Red -> x == 0
 				}
 				if (reachedEnd) return player

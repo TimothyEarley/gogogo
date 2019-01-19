@@ -18,25 +18,44 @@
 
 	<h1>GoGoGo</h1>
 
-	<div id="game"></div>
+	<div id="menu" class="center">
+		<div id="main-menu">
+			<button id="btn-play-local">Play local</button>
+			<button id="btn-play-online">Play online</button>
+			<button id="btn-rules">Rules</button>
+		</div>
 
-	<p id="turn-indicator">Blue's turn</p>
+		<div id="rules" hidden>
+			<p>Here are the rules.....</p>
+			<button id="btn-back">back</button>
+		</div>
+	</div>
 
-	<div class="center">
-		<label>
-			<input id="ai-blue-check" type="checkbox"/>
-			Blue AI
-		</label>
-		<label>
-			<input id="ai-red-check" type="checkbox" checked/>
-			Red AI
-		</label>
-		<br><br>
+	<div id="game-ui" hidden>
+		<div id="game"></div>
 
-		<button id="undo">Undo</button>
-		<br><br>
+		<p id="turn-indicator">Blue's turn</p>
 
-		<button id="restart">Restart</button>
+		<div class="center" id="local-controls">
+			<label>
+				<input id="ai-blue-check" type="checkbox"/>
+				Blue AI
+			</label>
+			<label>
+				<input id="ai-red-check" type="checkbox" checked/>
+				Red AI
+			</label>
+			<br>
+
+			<button id="btn-undo">Undo</button>
+			<button id="btn-restart">Restart</button>
+		</div>
+
+		<div class="center" id="server-controls">
+			<p id="server-own-player"></p>
+		</div>
+
+		<button id="btn-exit-game" class="center">Exit game</button>
 	</div>
 
 

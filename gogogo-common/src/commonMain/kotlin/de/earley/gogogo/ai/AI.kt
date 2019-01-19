@@ -25,7 +25,7 @@ class AI : PlayerController {
 
 	private val strat: Strat = stratPerPlayer(hard, hard)
 
-	override suspend fun getMove(state: State, fromSelectCallback: (Point?) -> Unit): Move {
+	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Move {
 
 		return strat.debugBestMove(state.playersTurn, state).let { (from, to, _) ->
 			Move(from, to)

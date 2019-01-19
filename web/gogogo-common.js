@@ -54,6 +54,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   var ReferenceArraySerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.ReferenceArraySerializer;
   var defineInlineFunction = Kotlin.defineInlineFunction;
   var wrapFunction = Kotlin.wrapFunction;
+  var split = Kotlin.kotlin.text.split_o64adg$;
   var JSON_0 = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.json.JSON;
   ControlledGame.prototype = Object.create(Game.prototype);
   ControlledGame.prototype.constructor = ControlledGame;
@@ -127,7 +128,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       return this.name_p9lk9c$_0;
     }
   });
-  AI.prototype.getMove_g7d5xp$ = function (state, fromSelectCallback, continuation) {
+  AI.prototype.getMove_jr41iw$ = function (lastMove, state, fromSelectCallback, continuation) {
     var f = debugBestMove(this.strat_0, state.playersTurn, state);
     var from = f.component1()
     , to = f.component2();
@@ -495,9 +496,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.blueController_0 = blueController;
     this.uiHook_0 = uiHook;
     this.scope_8u5p2v$_0 = this.scope_8u5p2v$_0;
-    this.moveJob = null;
+    this.moveJob_0 = null;
+    this.lastMove = null;
   }
-  Object.defineProperty(ControlledGame.prototype, 'scope', {
+  Object.defineProperty(ControlledGame.prototype, 'scope_0', {
     get: function () {
       if (this.scope_8u5p2v$_0 == null)
         return throwUPAE('scope');
@@ -546,7 +548,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
         switch (this.state_0) {
           case 0:
             this.state_0 = 2;
-            this.result_0 = this.local$this$ControlledGame.activeController.getMove_g7d5xp$(this.local$this$ControlledGame.state, getCallableRef('onSelect', function ($receiver, point) {
+            this.result_0 = this.local$this$ControlledGame.activeController.getMove_jr41iw$(this.local$this$ControlledGame.lastMove, this.local$this$ControlledGame.state, getCallableRef('onSelect', function ($receiver, point) {
               return $receiver.onSelect_37gzp0$(point), Unit;
             }.bind(null, this.local$this$ControlledGame.uiHook_0)), this);
             if (this.result_0 === COROUTINE_SUSPENDED)
@@ -608,10 +610,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
 
             this.$this.uiHook_0.onSelect_37gzp0$(null);
             var job = Job();
-            this.$this.moveJob = job;
+            this.$this.moveJob_0 = job;
             this.exceptionState_0 = 3;
             this.state_0 = 2;
-            this.result_0 = async(this.$this.scope, job, void 0, ControlledGame$doMove$lambda(this.$this)).await(this);
+            this.result_0 = async(this.$this.scope_0, job, void 0, ControlledGame$doMove$lambda(this.$this)).await(this);
             if (this.result_0 === COROUTINE_SUSPENDED)
               return COROUTINE_SUSPENDED;
             continue;
@@ -636,6 +638,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
             var moved = this.$this.move_56t7qy$(this.local$move.from, this.local$move.to);
             if (!moved)
               throw IllegalStateException_init('move was not valid');
+            this.$this.lastMove = this.local$move;
             this.state_0 = 7;
             this.result_0 = this.$this.uiHook_0.onMove_47hwoe$(this.local$move, this);
             if (this.result_0 === COROUTINE_SUSPENDED)
@@ -778,7 +781,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
      while (true);
   };
   ControlledGame.prototype.start_e9pf1l$ = function ($receiver) {
-    this.scope = $receiver;
+    this.scope_0 = $receiver;
     launch($receiver, void 0, void 0, ControlledGame$start$lambda(this));
   };
   ControlledGame.prototype.switchRed_wszlfq$ = function (controller) {
@@ -819,7 +822,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
         switch (this.state_0) {
           case 0:
             var tmp$;
-            if ((tmp$ = this.local$this$ControlledGame.moveJob) != null) {
+            if ((tmp$ = this.local$this$ControlledGame.moveJob_0) != null) {
               this.state_0 = 2;
               this.result_0 = cancelAndJoin(tmp$, this);
               if (this.result_0 === COROUTINE_SUSPENDED)
@@ -857,7 +860,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
      while (true);
   };
   ControlledGame.prototype.resetMoveAwait_0 = function () {
-    launch(this.scope, void 0, void 0, ControlledGame$resetMoveAwait$lambda(this));
+    launch(this.scope_0, void 0, void 0, ControlledGame$resetMoveAwait$lambda(this));
   };
   ControlledGame.$metadata$ = {
     kind: Kind_CLASS,
@@ -871,8 +874,8 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     simpleName: 'UIHook',
     interfaces: []
   };
-  var WIDTH;
-  var HEIGHT;
+  var GAME_WIDTH;
+  var GAME_HEIGHT;
   function Point(x, y) {
     Point$Companion_getInstance();
     this.x = x;
@@ -1945,13 +1948,105 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
     return sum.v;
   }
+  function PlayerInfo(name) {
+    this.name = name;
+  }
+  PlayerInfo.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'PlayerInfo',
+    interfaces: []
+  };
+  PlayerInfo.prototype.component1 = function () {
+    return this.name;
+  };
+  PlayerInfo.prototype.copy_61zpoe$ = function (name) {
+    return new PlayerInfo(name === void 0 ? this.name : name);
+  };
+  PlayerInfo.prototype.toString = function () {
+    return 'PlayerInfo(name=' + Kotlin.toString(this.name) + ')';
+  };
+  PlayerInfo.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.name) | 0;
+    return result;
+  };
+  PlayerInfo.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && Kotlin.equals(this.name, other.name))));
+  };
+  function MatchInfo(player, other) {
+    this.player = player;
+    this.other = other;
+  }
+  MatchInfo.$metadata$ = {
+    kind: Kind_CLASS,
+    simpleName: 'MatchInfo',
+    interfaces: []
+  };
+  MatchInfo.prototype.component1 = function () {
+    return this.player;
+  };
+  MatchInfo.prototype.component2 = function () {
+    return this.other;
+  };
+  MatchInfo.prototype.copy_df41ov$ = function (player, other) {
+    return new MatchInfo(player === void 0 ? this.player : player, other === void 0 ? this.other : other);
+  };
+  MatchInfo.prototype.toString = function () {
+    return 'MatchInfo(player=' + Kotlin.toString(this.player) + (', other=' + Kotlin.toString(this.other)) + ')';
+  };
+  MatchInfo.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.player) | 0;
+    result = result * 31 + Kotlin.hashCode(this.other) | 0;
+    return result;
+  };
+  MatchInfo.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.player, other.player) && Kotlin.equals(this.other, other.other)))));
+  };
+  function Messages() {
+    Messages_instance = this;
+  }
+  Messages.prototype.connect_56l50f$ = function (player) {
+    return 'CONNECT:' + player.name;
+  };
+  var IllegalArgumentException_init = Kotlin.kotlin.IllegalArgumentException_init_pdl1vj$;
+  Messages.prototype.parseConnect_61zpoe$ = function (msg) {
+    var tmp$ = split(msg, Kotlin.charArrayOf(58), void 0, 2);
+    var connect = tmp$.get_za3lpa$(0);
+    var name = tmp$.get_za3lpa$(1);
+    if (!equals(connect, 'CONNECT')) {
+      var message = 'Invalid message received';
+      throw IllegalArgumentException_init(message.toString());
+    }
+    return new PlayerInfo(name);
+  };
+  Messages.prototype.matchStart_df41ov$ = function (player, other) {
+    return 'START:' + player + ':' + other.name;
+  };
+  Messages.prototype.parseMatchStart_61zpoe$ = function (msg) {
+    var tmp$ = split(msg, Kotlin.charArrayOf(58), void 0, 3);
+    var start = tmp$.get_za3lpa$(0);
+    var player = tmp$.get_za3lpa$(1);
+    var name = tmp$.get_za3lpa$(2);
+    if (!equals(start, 'START')) {
+      var message = 'Invalid message received';
+      throw IllegalArgumentException_init(message.toString());
+    }
+    return new MatchInfo(Player$valueOf(player), new PlayerInfo(name));
+  };
+  Messages.$metadata$ = {
+    kind: Kind_OBJECT,
+    simpleName: 'Messages',
+    interfaces: []
+  };
+  var Messages_instance = null;
+  function Messages_getInstance() {
+    if (Messages_instance === null) {
+      new Messages();
+    }
+    return Messages_instance;
+  }
   function toNetFormat($receiver) {
-    return JSON_0.Companion.stringify_tf03ej$(State$Companion_getInstance().serializer(), $receiver);
-  }
-  function stateFromNetFormat($receiver) {
-    return JSON_0.Companion.parse_awif5v$(State$Companion_getInstance().serializer(), $receiver);
-  }
-  function toNetFormat_0($receiver) {
     return JSON_0.Companion.stringify_tf03ej$(Move$Companion_getInstance().serializer(), $receiver);
   }
   function moveFromNetFormat($receiver) {
@@ -2009,14 +2104,14 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   var package$game = package$gogogo.game || (package$gogogo.game = {});
   package$game.ControlledGame = ControlledGame;
   package$game.UIHook = UIHook;
-  Object.defineProperty(package$game, 'WIDTH', {
+  Object.defineProperty(package$game, 'GAME_WIDTH', {
     get: function () {
-      return WIDTH;
+      return GAME_WIDTH;
     }
   });
-  Object.defineProperty(package$game, 'HEIGHT', {
+  Object.defineProperty(package$game, 'GAME_HEIGHT', {
     get: function () {
-      return HEIGHT;
+      return GAME_HEIGHT;
     }
   });
   Object.defineProperty(Point, 'Companion', {
@@ -2075,9 +2170,13 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   package$grid.forEach_mx7rez$ = forEach;
   package$grid.Alterations = Alterations;
   package$grid.sumBy_1luysu$ = sumBy;
-  package$game.toNetFormat_1pq5d1$ = toNetFormat;
-  package$game.stateFromNetFormat_pdl1vz$ = stateFromNetFormat;
-  package$game.toNetFormat_blsywv$ = toNetFormat_0;
+  var package$net = package$gogogo.net || (package$gogogo.net = {});
+  package$net.PlayerInfo = PlayerInfo;
+  package$net.MatchInfo = MatchInfo;
+  Object.defineProperty(package$net, 'Messages', {
+    get: Messages_getInstance
+  });
+  package$game.toNetFormat_blsywv$ = toNetFormat;
   package$game.moveFromNetFormat_pdl1vz$ = moveFromNetFormat;
   Point$$serializer.prototype.patch_mynpiu$ = KSerializer.prototype.patch_mynpiu$;
   Move$$serializer.prototype.patch_mynpiu$ = KSerializer.prototype.patch_mynpiu$;
@@ -2107,8 +2206,8 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       };
     };
   });
-  WIDTH = 6;
-  HEIGHT = 5;
+  GAME_WIDTH = 6;
+  GAME_HEIGHT = 5;
   var $receiver = until(0, 5);
   var destination = ArrayList_init_0();
   var tmp$;

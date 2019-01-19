@@ -11,15 +11,21 @@ import kotlin.coroutines.CoroutineContext
 
 class Connection(
 	private val ws: WebsocketConnection
-) : CoroutineScope {
+) {
 
-	suspend fun getMove(state: State): Move {
-		ws.send(state.toNetFormat())
+	fun sendMove(move: Move) {
+		ws.send(move.toNetFormat())
+	}
+
+	suspend fun getMove(lastMove: Move?): Move {
+		if (lastMove != null) sendMove(lastMove)
 		return ws.receive().moveFromNetFormat()
 	}
 
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.Default + Job()
+	suspend fun setupMatch(playerInfo: PlayerInfo): MatchInfo {
+		ws.send(Messages.connect(playerInfo))
+		return Messages.parseMatchStart(ws.receive())
+	}
 
 	companion object {
 

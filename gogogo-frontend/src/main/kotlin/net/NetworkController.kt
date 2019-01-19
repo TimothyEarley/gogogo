@@ -7,15 +7,17 @@ import de.earley.gogogo.game.Point
 import de.earley.gogogo.game.State
 import de.earley.gogogo.net.Connection
 
-const val server = "ws://localhost:8080"
-
-class NetworkController : PlayerController {
+class NetworkController(
+	private val connection: Connection
+) : PlayerController {
 
 	override val name: String = "Network"
-	private val con = Connection.connect("$server/matchmaking")
 
+	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Move {
+		return connection.getMove(lastMove)
+	}
 
-	override suspend fun getMove(state: State, fromSelectCallback: (Point?) -> Unit): Move {
-		return con.getMove(state)
+	fun sendVictory(lastMove: Move) {
+		connection.sendMove(lastMove)
 	}
 }
