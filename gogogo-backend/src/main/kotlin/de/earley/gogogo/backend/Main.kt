@@ -10,10 +10,13 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.websocket.WebSockets
 import java.lang.System
+import java.time.Duration
 
 fun Application.main() {
 
-	install(WebSockets)
+	install(WebSockets) {
+		timeout = Duration.ofMinutes(2)
+	}
 
 	routing {
 		info()
