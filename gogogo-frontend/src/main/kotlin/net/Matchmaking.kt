@@ -1,6 +1,8 @@
 package de.earley.gogogo.net
 
-const val server = "ws://localhost:8080"
+//TODO better config
+//const val server = "ws://localhost:8080"
+const val server = "wss://gogogo-server.herokuapp.com/"
 
 class Matchmaking(private val playerInfo: PlayerInfo) {
 

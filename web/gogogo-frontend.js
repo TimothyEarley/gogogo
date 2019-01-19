@@ -311,7 +311,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     if (this.running_0)
       throw IllegalStateException_init('Already running matchmaking');
     this.running_0 = true;
-    this.connection_0 = Connection$Companion_getInstance().connect_61zpoe$('ws://localhost:8080/matchmaking');
+    this.connection_0 = Connection$Companion_getInstance().connect_61zpoe$('wss://gogogo-server.herokuapp.com//matchmaking');
     this.opponent = new NetworkController(this.connection_0);
     return this.connection_0.setupMatch_56l50f$(this.playerInfo_0, continuation);
   };
@@ -1497,7 +1497,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   package$web.WebsocketConnection = WebsocketConnection;
   $$importsForInline$$['kotlinx-coroutines-core'] = $module$kotlinx_coroutines_core;
   package$web.WebsocketConnectionImpl = WebsocketConnectionImpl;
-  server = 'ws://localhost:8080';
+  server = 'wss://gogogo-server.herokuapp.com/';
   name_0 = null;
   main([]);
   Kotlin.defineModule('gogogo-frontend', _);
