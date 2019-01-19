@@ -92,8 +92,8 @@ class GamePresenter(
 			val info = matchmaking.findMatch()
 			println("Playing against ${info.other.name} as ${info.player}")
 			// get player side
-			val red = if (info.player == Player.Red) HumanController() else matchmaking.opponent
-			val blue = if (info.player == Player.Blue) HumanController() else matchmaking.opponent
+			val red = if (info.player == Player.Red) HumanController() else matchmaking.opponent.withUIAwareness()
+			val blue = if (info.player == Player.Blue) HumanController() else matchmaking.opponent.withUIAwareness()
 
 			gameUI.showOwnPlayer(info.player, info.other.name)
 

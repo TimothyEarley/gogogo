@@ -597,8 +597,8 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
           case 2:
             var info = this.result_0;
             println('Playing against ' + info.other.name + ' as ' + info.player);
-            var red = info.player === Player.Red ? new HumanController() : this.local$matchmaking.opponent;
-            var blue = info.player === Player.Blue ? new HumanController() : this.local$matchmaking.opponent;
+            var red = info.player === Player.Red ? new HumanController() : withUIAwareness(this.local$matchmaking.opponent);
+            var blue = info.player === Player.Blue ? new HumanController() : withUIAwareness(this.local$matchmaking.opponent);
             this.$this.gameUI_0.showOwnPlayer_x97jf4$(info.player, info.other.name);
             this.local$tmp$ = new ControlledGame(red, blue, this.$this);
             this.state_0 = 3;
