@@ -9,7 +9,6 @@ if (typeof this['kotlinx-serialization-runtime-js'] === 'undefined') {
 }
 this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $module$kotlinx_serialization_runtime_js) {
   'use strict';
-  var $$importsForInline$$ = _.$$importsForInline$$ || (_.$$importsForInline$$ = {});
   var ensureNotNull = Kotlin.ensureNotNull;
   var to = Kotlin.kotlin.to_ujzrz7$;
   var println = Kotlin.kotlin.io.println_s8jyv4$;
@@ -25,7 +24,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   var Random = Kotlin.kotlin.random.Random;
   var max = Kotlin.kotlin.collections.max_lvsncp$;
   var HashMap_init = Kotlin.kotlin.collections.HashMap_init_q3lmfv$;
-  var min = Kotlin.kotlin.collections.min_lvsncp$;
   var throwUPAE = Kotlin.throwUPAE;
   var Job = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job_5dx9e$;
   var getCallableRef = Kotlin.getCallableRef;
@@ -123,22 +121,15 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.name_p9lk9c$_0 = 'AI';
     this.strat_0 = stratPerPlayer(hard, hard);
   }
-  Object.defineProperty(AI.prototype, 'name', {
-    get: function () {
-      return this.name_p9lk9c$_0;
-    }
-  });
+  Object.defineProperty(AI.prototype, 'name', {get: function () {
+    return this.name_p9lk9c$_0;
+  }});
   AI.prototype.getMove_jr41iw$ = function (lastMove, state, fromSelectCallback, continuation) {
     var f = debugBestMove(this.strat_0, state.playersTurn, state);
-    var from = f.component1()
-    , to = f.component2();
+    var from = f.component1(), to = f.component2();
     return new Move(from, to);
   };
-  AI.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'AI',
-    interfaces: [PlayerController]
-  };
+  AI.$metadata$ = {kind: Kind_CLASS, simpleName: 'AI', interfaces: [PlayerController]};
   function stratPerPlayer$lambda(closure$red, closure$blue) {
     return function (p, s) {
       switch (p.name) {
@@ -180,11 +171,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.local$tmp$_2 = void 0;
     this.local$$receiver_1 = $receiver_0;
   }
-  Coroutine$findAllMoves$lambda.$metadata$ = {
-    kind: Kotlin.Kind.CLASS,
-    simpleName: null,
-    interfaces: [CoroutineImpl]
-  };
+  Coroutine$findAllMoves$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
   Coroutine$findAllMoves$lambda.prototype = Object.create(CoroutineImpl.prototype);
   Coroutine$findAllMoves$lambda.prototype.constructor = Coroutine$findAllMoves$lambda;
   Coroutine$findAllMoves$lambda.prototype.doResume = function () {
@@ -362,11 +349,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.player = player;
     this.state = state;
   }
-  MemState.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'MemState',
-    interfaces: []
-  };
+  MemState.$metadata$ = {kind: Kind_CLASS, simpleName: 'MemState', interfaces: []};
   MemState.prototype.component1 = function () {
     return this.player;
   };
@@ -409,87 +392,8 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     var mem = HashMap_init();
     return memoize$lambda(mem, strat);
   }
-  function minMax(player, state) {
-    return minMaxPrune(state, player, 3);
-  }
-  function minMax_0($receiver, player, depth, max_0) {
-    if (max_0 === void 0)
-      max_0 = true;
-    var tmp$;
-    if (depth <= 0)
-      return medium(player, $receiver);
-    if ($receiver.victor != null) {
-      if (equals($receiver.victor, player))
-        tmp$ = kotlin_js_internal_FloatCompanionObject.POSITIVE_INFINITY;
-      else
-        tmp$ = kotlin_js_internal_FloatCompanionObject.NEGATIVE_INFINITY;
-      return tmp$;
-    }
-    var $receiver_0 = findAllMoves($receiver);
-    var destination = ArrayList_init(collectionSizeOrDefault($receiver_0, 10));
-    var tmp$_0;
-    tmp$_0 = $receiver_0.iterator();
-    while (tmp$_0.hasNext()) {
-      var item = tmp$_0.next();
-      destination.add_11rb$(item.third);
-    }
-    var children = destination;
-    var destination_0 = ArrayList_init(collectionSizeOrDefault(children, 10));
-    var tmp$_1;
-    tmp$_1 = children.iterator();
-    while (tmp$_1.hasNext()) {
-      var item_0 = tmp$_1.next();
-      destination_0.add_11rb$(minMax_0(item_0, player, depth - 1 | 0, !max_0));
-    }
-    var values = destination_0;
-    return max_0 ? ensureNotNull(max(values)) : ensureNotNull(min(values));
-  }
   var pruneDiff;
   var Math_0 = Math;
-  function minMaxPrune($receiver, player, depth, max) {
-    if (max === void 0)
-      max = true;
-    var tmp$;
-    if (depth <= 0)
-      return medium(player, $receiver);
-    if ($receiver.victor != null) {
-      if (equals($receiver.victor, player))
-        tmp$ = kotlin_js_internal_FloatCompanionObject.POSITIVE_INFINITY;
-      else
-        tmp$ = kotlin_js_internal_FloatCompanionObject.NEGATIVE_INFINITY;
-      return tmp$;
-    }
-    var $receiver_0 = findAllMoves($receiver);
-    var destination = ArrayList_init(collectionSizeOrDefault($receiver_0, 10));
-    var tmp$_0;
-    tmp$_0 = $receiver_0.iterator();
-    while (tmp$_0.hasNext()) {
-      var item = tmp$_0.next();
-      destination.add_11rb$(item.third);
-    }
-    var children = destination;
-    var minVal = {v: kotlin_js_internal_FloatCompanionObject.POSITIVE_INFINITY};
-    var maxVal = {v: kotlin_js_internal_FloatCompanionObject.NEGATIVE_INFINITY};
-    var tmp$_1;
-    tmp$_1 = children.iterator();
-    while (tmp$_1.hasNext()) {
-      var element = tmp$_1.next();
-      var value = minMaxPrune(element, player, depth - 1 | 0, !max);
-      if (max && value > 100) {
-        println('Pruned');
-        return value;
-      }
-      if (!max && value < -100) {
-        println('Pruned');
-        return value;
-      }
-      var a = minVal.v;
-      minVal.v = Math_0.min(a, value);
-      var a_0 = maxVal.v;
-      maxVal.v = Math_0.max(a_0, value);
-    }
-    return max ? maxVal.v : minVal.v;
-  }
   function ControlledGame(redController, blueController, uiHook) {
     Game.call(this);
     this.redController_0 = redController;
@@ -499,27 +403,22 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.moveJob_0 = null;
     this.lastMove = null;
   }
-  Object.defineProperty(ControlledGame.prototype, 'scope_0', {
-    get: function () {
-      if (this.scope_8u5p2v$_0 == null)
-        return throwUPAE('scope');
-      return this.scope_8u5p2v$_0;
-    },
-    set: function (scope) {
-      this.scope_8u5p2v$_0 = scope;
+  Object.defineProperty(ControlledGame.prototype, 'scope_0', {get: function () {
+    if (this.scope_8u5p2v$_0 == null)
+      return throwUPAE('scope');
+    return this.scope_8u5p2v$_0;
+  }, set: function (scope) {
+    this.scope_8u5p2v$_0 = scope;
+  }});
+  Object.defineProperty(ControlledGame.prototype, 'activeController', {get: function () {
+    switch (this.player.name) {
+      case 'Blue':
+        return this.blueController_0;
+      case 'Red':
+        return this.redController_0;
+      default:return Kotlin.noWhenBranchMatched();
     }
-  });
-  Object.defineProperty(ControlledGame.prototype, 'activeController', {
-    get: function () {
-      switch (this.player.name) {
-        case 'Blue':
-          return this.blueController_0;
-        case 'Red':
-          return this.redController_0;
-        default:return Kotlin.noWhenBranchMatched();
-      }
-    }
-  });
+  }});
   function ControlledGame$doMove$lambda(this$ControlledGame_0) {
     return function ($receiver, continuation_0, suspended) {
       var instance = new Coroutine$ControlledGame$doMove$lambda(this$ControlledGame_0, $receiver, this, continuation_0);
@@ -535,11 +434,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.exceptionState_0 = 1;
     this.local$this$ControlledGame = this$ControlledGame_0;
   }
-  Coroutine$ControlledGame$doMove$lambda.$metadata$ = {
-    kind: Kotlin.Kind.CLASS,
-    simpleName: null,
-    interfaces: [CoroutineImpl]
-  };
+  Coroutine$ControlledGame$doMove$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
   Coroutine$ControlledGame$doMove$lambda.prototype = Object.create(CoroutineImpl.prototype);
   Coroutine$ControlledGame$doMove$lambda.prototype.constructor = Coroutine$ControlledGame$doMove$lambda;
   Coroutine$ControlledGame$doMove$lambda.prototype.doResume = function () {
@@ -587,11 +482,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.$this = $this;
     this.local$move = void 0;
   }
-  Coroutine$doMove_0.$metadata$ = {
-    kind: Kotlin.Kind.CLASS,
-    simpleName: null,
-    interfaces: [CoroutineImpl]
-  };
+  Coroutine$doMove_0.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
   Coroutine$doMove_0.prototype = Object.create(CoroutineImpl.prototype);
   Coroutine$doMove_0.prototype.constructor = Coroutine$doMove_0;
   Coroutine$doMove_0.prototype.doResume = function () {
@@ -674,11 +565,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.exceptionState_0 = 1;
     this.$this = $this;
   }
-  Coroutine$gameLoop_0.$metadata$ = {
-    kind: Kotlin.Kind.CLASS,
-    simpleName: null,
-    interfaces: [CoroutineImpl]
-  };
+  Coroutine$gameLoop_0.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
   Coroutine$gameLoop_0.prototype = Object.create(CoroutineImpl.prototype);
   Coroutine$gameLoop_0.prototype.constructor = Coroutine$gameLoop_0;
   Coroutine$gameLoop_0.prototype.doResume = function () {
@@ -743,11 +630,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.exceptionState_0 = 1;
     this.local$this$ControlledGame = this$ControlledGame_0;
   }
-  Coroutine$ControlledGame$start$lambda.$metadata$ = {
-    kind: Kotlin.Kind.CLASS,
-    simpleName: null,
-    interfaces: [CoroutineImpl]
-  };
+  Coroutine$ControlledGame$start$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
   Coroutine$ControlledGame$start$lambda.prototype = Object.create(CoroutineImpl.prototype);
   Coroutine$ControlledGame$start$lambda.prototype.constructor = Coroutine$ControlledGame$start$lambda;
   Coroutine$ControlledGame$start$lambda.prototype.doResume = function () {
@@ -809,11 +692,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.exceptionState_0 = 1;
     this.local$this$ControlledGame = this$ControlledGame_0;
   }
-  Coroutine$ControlledGame$resetMoveAwait$lambda.$metadata$ = {
-    kind: Kotlin.Kind.CLASS,
-    simpleName: null,
-    interfaces: [CoroutineImpl]
-  };
+  Coroutine$ControlledGame$resetMoveAwait$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
   Coroutine$ControlledGame$resetMoveAwait$lambda.prototype = Object.create(CoroutineImpl.prototype);
   Coroutine$ControlledGame$resetMoveAwait$lambda.prototype.constructor = Coroutine$ControlledGame$resetMoveAwait$lambda;
   Coroutine$ControlledGame$resetMoveAwait$lambda.prototype.doResume = function () {
@@ -862,18 +741,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   ControlledGame.prototype.resetMoveAwait_0 = function () {
     launch(this.scope_0, void 0, void 0, ControlledGame$resetMoveAwait$lambda(this));
   };
-  ControlledGame.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'ControlledGame',
-    interfaces: [Game]
-  };
+  ControlledGame.$metadata$ = {kind: Kind_CLASS, simpleName: 'ControlledGame', interfaces: [Game]};
   function UIHook() {
   }
-  UIHook.$metadata$ = {
-    kind: Kind_INTERFACE,
-    simpleName: 'UIHook',
-    interfaces: []
-  };
+  UIHook.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'UIHook', interfaces: []};
   var GAME_WIDTH;
   var GAME_HEIGHT;
   function Point(x, y) {
@@ -887,11 +758,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Point$Companion.prototype.serializer = function () {
     return Point$$serializer_getInstance();
   };
-  Point$Companion.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: 'Companion',
-    interfaces: []
-  };
+  Point$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
   var Point$Companion_instance = null;
   function Point$Companion_getInstance() {
     if (Point$Companion_instance === null) {
@@ -905,11 +772,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.descriptor.addElement_ivxn3r$('y');
     Point$$serializer_instance = this;
   }
-  Object.defineProperty(Point$$serializer.prototype, 'descriptor', {
-    get: function () {
-      return this.descriptor_xiv488$_0;
-    }
-  });
+  Object.defineProperty(Point$$serializer.prototype, 'descriptor', {get: function () {
+    return this.descriptor_xiv488$_0;
+  }});
   Point$$serializer.prototype.serialize_awe97i$ = function (output_0, obj) {
     var output = output_0.beginStructure_r0sa6z$(this.descriptor, []);
     output.encodeIntElement_4wpqag$(this.descriptor, 0, obj.x);
@@ -919,8 +784,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Point$$serializer.prototype.deserialize_nts5qn$ = function (input_0) {
     var index, readAll = false;
     var bitMask0 = 0;
-    var local0
-    , local1;
+    var local0, local1;
     var input = input_0.beginStructure_r0sa6z$(this.descriptor, []);
     loopLabel: while (true) {
       index = input.decodeElementIndex_qatsm0$(this.descriptor);
@@ -945,11 +809,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     input.endStructure_qatsm0$(this.descriptor);
     return Point_init(bitMask0, local0, local1, null);
   };
-  Point$$serializer.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: '$serializer',
-    interfaces: [KSerializer]
-  };
+  Point$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [KSerializer]};
   var Point$$serializer_instance = null;
   function Point$$serializer_getInstance() {
     if (Point$$serializer_instance === null) {
@@ -969,11 +829,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       $this.y = y;
     return $this;
   }
-  Point.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Point',
-    interfaces: []
-  };
+  Point.$metadata$ = {kind: Kind_CLASS, simpleName: 'Point', interfaces: []};
   Point.prototype.component1 = function () {
     return this.x;
   };
@@ -998,26 +854,18 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   function Game() {
     this.states_r7t5l$_0 = mutableListOf([new State()]);
   }
-  Object.defineProperty(Game.prototype, 'state', {
-    get: function () {
-      return last(this.states_r7t5l$_0);
-    }
-  });
-  Object.defineProperty(Game.prototype, 'player', {
-    get: function () {
-      return this.state.playersTurn;
-    }
-  });
-  Object.defineProperty(Game.prototype, 'victor', {
-    get: function () {
-      return this.state.victor;
-    }
-  });
-  Object.defineProperty(Game.prototype, 'grid', {
-    get: function () {
-      return this.state.grid;
-    }
-  });
+  Object.defineProperty(Game.prototype, 'state', {get: function () {
+    return last(this.states_r7t5l$_0);
+  }});
+  Object.defineProperty(Game.prototype, 'player', {get: function () {
+    return this.state.playersTurn;
+  }});
+  Object.defineProperty(Game.prototype, 'victor', {get: function () {
+    return this.state.victor;
+  }});
+  Object.defineProperty(Game.prototype, 'grid', {get: function () {
+    return this.state.grid;
+  }});
   Game.prototype.canUndo = function () {
     return this.states_r7t5l$_0.size > 1;
   };
@@ -1042,11 +890,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.states_r7t5l$_0.add_11rb$(next);
     return true;
   };
-  Game.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Game',
-    interfaces: []
-  };
+  Game.$metadata$ = {kind: Kind_CLASS, simpleName: 'Game', interfaces: []};
   var standardStartGrid;
   function Player(name, ordinal) {
     Enum.call(this);
@@ -1069,11 +913,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     Player_initFields();
     return Player$Blue_instance;
   }
-  Player.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Player',
-    interfaces: [Enum]
-  };
+  Player.$metadata$ = {kind: Kind_CLASS, simpleName: 'Player', interfaces: [Enum]};
   function Player$values() {
     return [Player$Red_getInstance(), Player$Blue_getInstance()];
   }
@@ -1108,11 +948,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Move$Companion.prototype.serializer = function () {
     return Move$$serializer_getInstance();
   };
-  Move$Companion.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: 'Companion',
-    interfaces: []
-  };
+  Move$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
   var Move$Companion_instance = null;
   function Move$Companion_getInstance() {
     if (Move$Companion_instance === null) {
@@ -1126,11 +962,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.descriptor.addElement_ivxn3r$('to');
     Move$$serializer_instance = this;
   }
-  Object.defineProperty(Move$$serializer.prototype, 'descriptor', {
-    get: function () {
-      return this.descriptor_oi8hql$_0;
-    }
-  });
+  Object.defineProperty(Move$$serializer.prototype, 'descriptor', {get: function () {
+    return this.descriptor_oi8hql$_0;
+  }});
   Move$$serializer.prototype.serialize_awe97i$ = function (output_0, obj) {
     var output = output_0.beginStructure_r0sa6z$(this.descriptor, []);
     output.encodeSerializableElement_blecud$(this.descriptor, 0, Point$$serializer_getInstance(), obj.from);
@@ -1140,8 +974,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Move$$serializer.prototype.deserialize_nts5qn$ = function (input_0) {
     var index, readAll = false;
     var bitMask0 = 0;
-    var local0
-    , local1;
+    var local0, local1;
     var input = input_0.beginStructure_r0sa6z$(this.descriptor, []);
     loopLabel: while (true) {
       index = input.decodeElementIndex_qatsm0$(this.descriptor);
@@ -1166,11 +999,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     input.endStructure_qatsm0$(this.descriptor);
     return Move_init(bitMask0, local0, local1, null);
   };
-  Move$$serializer.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: '$serializer',
-    interfaces: [KSerializer]
-  };
+  Move$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [KSerializer]};
   var Move$$serializer_instance = null;
   function Move$$serializer_getInstance() {
     if (Move$$serializer_instance === null) {
@@ -1190,11 +1019,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       $this.to = to;
     return $this;
   }
-  Move.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Move',
-    interfaces: []
-  };
+  Move.$metadata$ = {kind: Kind_CLASS, simpleName: 'Move', interfaces: []};
   Move.prototype.component1 = function () {
     return this.from;
   };
@@ -1218,11 +1043,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   };
   function PlayerController() {
   }
-  PlayerController.$metadata$ = {
-    kind: Kind_INTERFACE,
-    simpleName: 'PlayerController',
-    interfaces: []
-  };
+  PlayerController.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'PlayerController', interfaces: []};
   function State(playersTurn, lastPushed, grid) {
     State$Companion_getInstance();
     if (playersTurn === void 0)
@@ -1236,23 +1057,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.grid = grid;
     this.victor = this.isVictory_0();
   }
-  var Grid$Companion$create$lambda = wrapFunction(function () {
-    var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
-    var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
-    return function (closure$width, closure$init) {
-      return function (y) {
-        var $receiver = until(0, closure$width);
-        var destination = ArrayList_init(collectionSizeOrDefault($receiver, 10));
-        var tmp$;
-        tmp$ = $receiver.iterator();
-        while (tmp$.hasNext()) {
-          var item = tmp$.next();
-          destination.add_11rb$(closure$init(item, y));
-        }
-        return destination;
-      };
-    };
-  });
   var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_287e2$;
   var addAll = Kotlin.kotlin.collections.addAll_ipc267$;
   var copyToArray = Kotlin.kotlin.collections.copyToArray;
@@ -1349,11 +1153,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   State$Companion.prototype.serializer = function () {
     return State$$serializer_getInstance();
   };
-  State$Companion.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: 'Companion',
-    interfaces: []
-  };
+  State$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
   var State$Companion_instance = null;
   function State$Companion_getInstance() {
     if (State$Companion_instance === null) {
@@ -1369,11 +1169,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.descriptor.addElement_ivxn3r$('victor');
     State$$serializer_instance = this;
   }
-  Object.defineProperty(State$$serializer.prototype, 'descriptor', {
-    get: function () {
-      return this.descriptor_fsmc49$_0;
-    }
-  });
+  Object.defineProperty(State$$serializer.prototype, 'descriptor', {get: function () {
+    return this.descriptor_fsmc49$_0;
+  }});
   State$$serializer.prototype.serialize_awe97i$ = function (output_0, obj) {
     var output = output_0.beginStructure_r0sa6z$(this.descriptor, []);
     output.encodeSerializableElement_blecud$(this.descriptor, 0, new EnumSerializer(Kotlin.getKClass(Player)), obj.playersTurn);
@@ -1385,10 +1183,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   State$$serializer.prototype.deserialize_nts5qn$ = function (input_0) {
     var index, readAll = false;
     var bitMask0 = 0;
-    var local0
-    , local1
-    , local2
-    , local3;
+    var local0, local1, local2, local3;
     var input = input_0.beginStructure_r0sa6z$(this.descriptor, []);
     loopLabel: while (true) {
       index = input.decodeElementIndex_qatsm0$(this.descriptor);
@@ -1423,11 +1218,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     input.endStructure_qatsm0$(this.descriptor);
     return State_init(bitMask0, local0, local1, local2, local3, null);
   };
-  State$$serializer.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: '$serializer',
-    interfaces: [KSerializer]
-  };
+  State$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [KSerializer]};
   var State$$serializer_instance = null;
   function State$$serializer_getInstance() {
     if (State$$serializer_instance === null) {
@@ -1455,11 +1246,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       $this.victor = victor;
     return $this;
   }
-  State.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'State',
-    interfaces: []
-  };
+  State.$metadata$ = {kind: Kind_CLASS, simpleName: 'State', interfaces: []};
   State.prototype.component1 = function () {
     return this.playersTurn;
   };
@@ -1499,21 +1286,15 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.height_es4e7s$_0 = height;
     this.elems_hyvcx$_0 = elems;
   }
-  Object.defineProperty(GameGrid.prototype, 'width', {
-    get: function () {
-      return this.width_8z46m7$_0;
-    }
-  });
-  Object.defineProperty(GameGrid.prototype, 'height', {
-    get: function () {
-      return this.height_es4e7s$_0;
-    }
-  });
-  Object.defineProperty(GameGrid.prototype, 'elems', {
-    get: function () {
-      return this.elems_hyvcx$_0;
-    }
-  });
+  Object.defineProperty(GameGrid.prototype, 'width', {get: function () {
+    return this.width_8z46m7$_0;
+  }});
+  Object.defineProperty(GameGrid.prototype, 'height', {get: function () {
+    return this.height_es4e7s$_0;
+  }});
+  Object.defineProperty(GameGrid.prototype, 'elems', {get: function () {
+    return this.elems_hyvcx$_0;
+  }});
   GameGrid.prototype.get_vux9f0$ = function (x, y) {
     var tmp$, tmp$_0, tmp$_1;
     tmp$ = this.width - 1 | 0;
@@ -1552,11 +1333,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   GameGrid$Companion.prototype.serializer = function () {
     return GameGrid$$serializer_getInstance();
   };
-  GameGrid$Companion.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: 'Companion',
-    interfaces: []
-  };
+  GameGrid$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
   var GameGrid$Companion_instance = null;
   function GameGrid$Companion_getInstance() {
     if (GameGrid$Companion_instance === null) {
@@ -1571,11 +1348,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.descriptor.addElement_ivxn3r$('elems');
     GameGrid$$serializer_instance = this;
   }
-  Object.defineProperty(GameGrid$$serializer.prototype, 'descriptor', {
-    get: function () {
-      return this.descriptor_s2imx4$_0;
-    }
-  });
+  Object.defineProperty(GameGrid$$serializer.prototype, 'descriptor', {get: function () {
+    return this.descriptor_s2imx4$_0;
+  }});
   GameGrid$$serializer.prototype.serialize_awe97i$ = function (output_0, obj) {
     var output = output_0.beginStructure_r0sa6z$(this.descriptor, []);
     output.encodeIntElement_4wpqag$(this.descriptor, 0, obj.width);
@@ -1586,9 +1361,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   GameGrid$$serializer.prototype.deserialize_nts5qn$ = function (input_0) {
     var index, readAll = false;
     var bitMask0 = 0;
-    var local0
-    , local1
-    , local2;
+    var local0, local1, local2;
     var input = input_0.beginStructure_r0sa6z$(this.descriptor, []);
     loopLabel: while (true) {
       index = input.decodeElementIndex_qatsm0$(this.descriptor);
@@ -1618,11 +1391,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     input.endStructure_qatsm0$(this.descriptor);
     return GameGrid_init(bitMask0, local0, local1, local2, null);
   };
-  GameGrid$$serializer.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: '$serializer',
-    interfaces: [KSerializer]
-  };
+  GameGrid$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [KSerializer]};
   var GameGrid$$serializer_instance = null;
   function GameGrid$$serializer_getInstance() {
     if (GameGrid$$serializer_instance === null) {
@@ -1646,11 +1415,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       $this.elems_hyvcx$_0 = elems;
     return $this;
   }
-  GameGrid.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'GameGrid',
-    interfaces: [Grid]
-  };
+  GameGrid.$metadata$ = {kind: Kind_CLASS, simpleName: 'GameGrid', interfaces: [Grid]};
   function toGameGrid($receiver) {
     return new GameGrid($receiver.width, $receiver.height, $receiver.elems);
   }
@@ -1659,21 +1424,15 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.height_7qzw7d$_0 = height;
     this.elems_xn6fgu$_0 = elems;
   }
-  Object.defineProperty(GenericGrid.prototype, 'width', {
-    get: function () {
-      return this.width_p6147k$_0;
-    }
-  });
-  Object.defineProperty(GenericGrid.prototype, 'height', {
-    get: function () {
-      return this.height_7qzw7d$_0;
-    }
-  });
-  Object.defineProperty(GenericGrid.prototype, 'elems', {
-    get: function () {
-      return this.elems_xn6fgu$_0;
-    }
-  });
+  Object.defineProperty(GenericGrid.prototype, 'width', {get: function () {
+    return this.width_p6147k$_0;
+  }});
+  Object.defineProperty(GenericGrid.prototype, 'height', {get: function () {
+    return this.height_7qzw7d$_0;
+  }});
+  Object.defineProperty(GenericGrid.prototype, 'elems', {get: function () {
+    return this.elems_xn6fgu$_0;
+  }});
   GenericGrid.prototype.get_vux9f0$ = function (x, y) {
     var tmp$, tmp$_0, tmp$_1;
     tmp$ = this.width - 1 | 0;
@@ -1706,11 +1465,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     result = (31 * result | 0) + contentHashCode(this.elems) | 0;
     return result;
   };
-  GenericGrid.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'GenericGrid',
-    interfaces: [Grid]
-  };
+  GenericGrid.$metadata$ = {kind: Kind_CLASS, simpleName: 'GenericGrid', interfaces: [Grid]};
   GenericGrid.prototype.component1 = function () {
     return this.width;
   };
@@ -1779,11 +1534,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       return new GenericGrid_init(width, height, copyToArray(destination));
     };
   }));
-  Grid$Companion.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: 'Companion',
-    interfaces: []
-  };
+  Grid$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
   var Grid$Companion_instance = null;
   function Grid$Companion_getInstance() {
     if (Grid$Companion_instance === null) {
@@ -1791,148 +1542,17 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
     return Grid$Companion_instance;
   }
-  Grid.$metadata$ = {
-    kind: Kind_INTERFACE,
-    simpleName: 'Grid',
-    interfaces: []
-  };
+  Grid.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'Grid', interfaces: []};
   function get_0($receiver, p) {
     return $receiver.get_vux9f0$(p.x, p.y);
   }
-  var forEach = defineInlineFunction('gogogo-common.de.earley.gogogo.game.grid.forEach_mx7rez$', wrapFunction(function () {
-    var until = Kotlin.kotlin.ranges.until_dqglrj$;
-    return function ($receiver, action) {
-      var tmp$;
-      tmp$ = until(0, $receiver.height).iterator();
-      while (tmp$.hasNext()) {
-        var element = tmp$.next();
-        var tmp$_0;
-        tmp$_0 = until(0, $receiver.width).iterator();
-        while (tmp$_0.hasNext()) {
-          var element_0 = tmp$_0.next();
-          action(element_0, element, $receiver.get_vux9f0$(element_0, element));
-        }
-      }
-    };
-  }));
-  var copy = defineInlineFunction('gogogo-common.de.earley.gogogo.game.grid.copy_xd445k$', wrapFunction(function () {
-    var Alterations_init = _.de.earley.gogogo.game.grid.Alterations;
-    var Point_init = _.de.earley.gogogo.game.Point;
-    var wrapFunction = Kotlin.wrapFunction;
-    var until = Kotlin.kotlin.ranges.until_dqglrj$;
-    var GenericGrid_init = _.de.earley.gogogo.game.grid.GenericGrid;
-    var Grid$Companion$create$lambda = wrapFunction(function () {
-      var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
-      var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
-      return function (closure$width, closure$init) {
-        return function (y) {
-          var $receiver = until(0, closure$width);
-          var destination = ArrayList_init(collectionSizeOrDefault($receiver, 10));
-          var tmp$;
-          tmp$ = $receiver.iterator();
-          while (tmp$.hasNext()) {
-            var item = tmp$.next();
-            destination.add_11rb$(closure$init(item, y));
-          }
-          return destination;
-        };
-      };
-    });
-    var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_287e2$;
-    var addAll = Kotlin.kotlin.collections.addAll_ipc267$;
-    var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
-    var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
-    var copyToArray = Kotlin.kotlin.collections.copyToArray;
-    return function (T_0, isT, $receiver, alterations) {
-      var $receiver_0 = new Alterations_init();
-      alterations($receiver_0);
-      var width = $receiver.width;
-      var height = $receiver.height;
-      var $receiver_1 = until(0, height);
-      var destination = ArrayList_init();
-      var tmp$;
-      tmp$ = $receiver_1.iterator();
-      while (tmp$.hasNext()) {
-        var element = tmp$.next();
-        var $receiver_2 = until(0, width);
-        var destination_0 = ArrayList_init_0(collectionSizeOrDefault($receiver_2, 10));
-        var tmp$_0;
-        tmp$_0 = $receiver_2.iterator();
-        while (tmp$_0.hasNext()) {
-          var item = tmp$_0.next();
-          var tmp$_1 = destination_0.add_11rb$;
-          var p = new Point_init(item, element);
-          tmp$_1.call(destination_0, $receiver_0.ops.containsKey_11rb$(p) ? $receiver_0.ops.get_11rb$(p) : $receiver.get_vux9f0$(item, element));
-        }
-        var list = destination_0;
-        addAll(destination, list);
-      }
-      return new GenericGrid_init(width, height, copyToArray(destination));
-    };
-  }));
   function Alterations() {
     this.ops = HashMap_init();
   }
   Alterations.prototype.replace_jprfea$ = function (p, value) {
     this.ops.put_xwzc9p$(p, value);
   };
-  Alterations.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'Alterations',
-    interfaces: []
-  };
-  var create = defineInlineFunction('gogogo-common.de.earley.gogogo.game.grid.create_7lu0h$', wrapFunction(function () {
-    var Point_init = _.de.earley.gogogo.game.Point;
-    var wrapFunction = Kotlin.wrapFunction;
-    var until = Kotlin.kotlin.ranges.until_dqglrj$;
-    var GenericGrid_init = _.de.earley.gogogo.game.grid.GenericGrid;
-    var Grid$Companion$create$lambda = wrapFunction(function () {
-      var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
-      var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
-      return function (closure$width, closure$init) {
-        return function (y) {
-          var $receiver = until(0, closure$width);
-          var destination = ArrayList_init(collectionSizeOrDefault($receiver, 10));
-          var tmp$;
-          tmp$ = $receiver.iterator();
-          while (tmp$.hasNext()) {
-            var item = tmp$.next();
-            destination.add_11rb$(closure$init(item, y));
-          }
-          return destination;
-        };
-      };
-    });
-    var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_287e2$;
-    var addAll = Kotlin.kotlin.collections.addAll_ipc267$;
-    var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
-    var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
-    var copyToArray = Kotlin.kotlin.collections.copyToArray;
-    return function (T_0, isT, $receiver, grid) {
-      var width = grid.width;
-      var height = grid.height;
-      var $receiver_0 = until(0, height);
-      var destination = ArrayList_init();
-      var tmp$;
-      tmp$ = $receiver_0.iterator();
-      while (tmp$.hasNext()) {
-        var element = tmp$.next();
-        var $receiver_1 = until(0, width);
-        var destination_0 = ArrayList_init_0(collectionSizeOrDefault($receiver_1, 10));
-        var tmp$_0;
-        tmp$_0 = $receiver_1.iterator();
-        while (tmp$_0.hasNext()) {
-          var item = tmp$_0.next();
-          var tmp$_1 = destination_0.add_11rb$;
-          var p = new Point_init(item, element);
-          tmp$_1.call(destination_0, $receiver.ops.containsKey_11rb$(p) ? $receiver.ops.get_11rb$(p) : grid.get_vux9f0$(item, element));
-        }
-        var list = destination_0;
-        addAll(destination, list);
-      }
-      return new GenericGrid_init(width, height, copyToArray(destination));
-    };
-  }));
+  Alterations.$metadata$ = {kind: Kind_CLASS, simpleName: 'Alterations', interfaces: []};
   function sumBy($receiver, value) {
     var sum = {v: 0};
     var tmp$;
@@ -1951,11 +1571,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   function PlayerInfo(name) {
     this.name = name;
   }
-  PlayerInfo.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'PlayerInfo',
-    interfaces: []
-  };
+  PlayerInfo.$metadata$ = {kind: Kind_CLASS, simpleName: 'PlayerInfo', interfaces: []};
   PlayerInfo.prototype.component1 = function () {
     return this.name;
   };
@@ -1977,11 +1593,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.player = player;
     this.other = other;
   }
-  MatchInfo.$metadata$ = {
-    kind: Kind_CLASS,
-    simpleName: 'MatchInfo',
-    interfaces: []
-  };
+  MatchInfo.$metadata$ = {kind: Kind_CLASS, simpleName: 'MatchInfo', interfaces: []};
   MatchInfo.prototype.component1 = function () {
     return this.player;
   };
@@ -2034,11 +1646,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
     return new MatchInfo(Player$valueOf(player), new PlayerInfo(name));
   };
-  Messages.$metadata$ = {
-    kind: Kind_OBJECT,
-    simpleName: 'Messages',
-    interfaces: []
-  };
+  Messages.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Messages', interfaces: []};
   var Messages_instance = null;
   function Messages_getInstance() {
     if (Messages_instance === null) {
@@ -2060,122 +1668,45 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   package$ai.debugBestMove_rxsk4c$ = debugBestMove;
   package$ai.AI = AI;
   package$ai.stratPerPlayer_nmhdos$ = stratPerPlayer;
-  $$importsForInline$$['gogogo-common'] = _;
   package$ai.findAllMoves_1pq5d1$ = findAllMoves;
-  Object.defineProperty(package$ai, 'progressMult', {
-    get: function () {
-      return progressMult;
-    }
-  });
-  Object.defineProperty(package$ai, 'pushedPenalty', {
-    get: function () {
-      return pushedPenalty;
-    }
-  });
-  Object.defineProperty(package$ai, 'tokenBonus', {
-    get: function () {
-      return tokenBonus;
-    }
-  });
-  Object.defineProperty(package$ai, 'easy', {
-    get: function () {
-      return easy;
-    }
-  });
-  Object.defineProperty(package$ai, 'hard', {
-    get: function () {
-      return hard;
-    }
-  });
   package$ai.recMed_a25z8o$ = recMed;
-  Object.defineProperty(package$ai, 'medium', {
-    get: function () {
-      return medium;
-    }
-  });
   package$ai.MemState = MemState;
   package$ai.memoize_x6rkih$ = memoize;
-  package$ai.minMax_2n9wpm$ = minMax;
-  Object.defineProperty(package$ai, 'pruneDiff', {
-    get: function () {
-      return pruneDiff;
-    }
-  });
   var package$game = package$gogogo.game || (package$gogogo.game = {});
   package$game.ControlledGame = ControlledGame;
   package$game.UIHook = UIHook;
-  Object.defineProperty(package$game, 'GAME_WIDTH', {
-    get: function () {
-      return GAME_WIDTH;
-    }
-  });
-  Object.defineProperty(package$game, 'GAME_HEIGHT', {
-    get: function () {
-      return GAME_HEIGHT;
-    }
-  });
-  Object.defineProperty(Point, 'Companion', {
-    get: Point$Companion_getInstance
-  });
-  Object.defineProperty(Point, '$serializer', {
-    get: Point$$serializer_getInstance
-  });
+  Object.defineProperty(Point, 'Companion', {get: Point$Companion_getInstance});
+  Object.defineProperty(Point, '$serializer', {get: Point$$serializer_getInstance});
   package$game.Point = Point;
   package$game.Game = Game;
-  Object.defineProperty(package$game, 'standardStartGrid', {
-    get: function () {
-      return standardStartGrid;
-    }
-  });
-  Object.defineProperty(Player, 'Red', {
-    get: Player$Red_getInstance
-  });
-  Object.defineProperty(Player, 'Blue', {
-    get: Player$Blue_getInstance
-  });
+  Object.defineProperty(Player, 'Red', {get: Player$Red_getInstance});
+  Object.defineProperty(Player, 'Blue', {get: Player$Blue_getInstance});
   package$game.Player = Player;
   package$game.next_txv5hr$ = next;
-  Object.defineProperty(Move, 'Companion', {
-    get: Move$Companion_getInstance
-  });
-  Object.defineProperty(Move, '$serializer', {
-    get: Move$$serializer_getInstance
-  });
+  Object.defineProperty(Move, 'Companion', {get: Move$Companion_getInstance});
+  Object.defineProperty(Move, '$serializer', {get: Move$$serializer_getInstance});
   package$game.Move = Move;
   package$game.PlayerController = PlayerController;
-  Object.defineProperty(State, 'Companion', {
-    get: State$Companion_getInstance
-  });
-  Object.defineProperty(State, '$serializer', {
-    get: State$$serializer_getInstance
-  });
+  Object.defineProperty(State, 'Companion', {get: State$Companion_getInstance});
+  Object.defineProperty(State, '$serializer', {get: State$$serializer_getInstance});
   package$game.State = State;
   package$game.nextOver_56t7qy$ = nextOver;
   package$game.isAdjacent_56t7qy$ = isAdjacent;
-  Object.defineProperty(GameGrid, 'Companion', {
-    get: GameGrid$Companion_getInstance
-  });
-  Object.defineProperty(GameGrid, '$serializer', {
-    get: GameGrid$$serializer_getInstance
-  });
+  Object.defineProperty(GameGrid, 'Companion', {get: GameGrid$Companion_getInstance});
+  Object.defineProperty(GameGrid, '$serializer', {get: GameGrid$$serializer_getInstance});
   var package$grid = package$game.grid || (package$game.grid = {});
   package$grid.GameGrid = GameGrid;
   package$grid.toGameGrid_s2f0pm$ = toGameGrid;
   package$grid.GenericGrid = GenericGrid;
-  Object.defineProperty(Grid, 'Companion', {
-    get: Grid$Companion_getInstance
-  });
+  Object.defineProperty(Grid, 'Companion', {get: Grid$Companion_getInstance});
   package$grid.Grid = Grid;
   package$grid.get_qg01xr$ = get_0;
-  package$grid.forEach_mx7rez$ = forEach;
   package$grid.Alterations = Alterations;
   package$grid.sumBy_1luysu$ = sumBy;
   var package$net = package$gogogo.net || (package$gogogo.net = {});
   package$net.PlayerInfo = PlayerInfo;
   package$net.MatchInfo = MatchInfo;
-  Object.defineProperty(package$net, 'Messages', {
-    get: Messages_getInstance
-  });
+  Object.defineProperty(package$net, 'Messages', {get: Messages_getInstance});
   package$game.toNetFormat_blsywv$ = toNetFormat;
   package$game.moveFromNetFormat_pdl1vz$ = moveFromNetFormat;
   Point$$serializer.prototype.patch_mynpiu$ = KSerializer.prototype.patch_mynpiu$;
@@ -2189,23 +1720,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   hard = hard$lambda;
   medium = medium$lambda;
   pruneDiff = 100;
-  var Grid$Companion$create$lambda_0 = wrapFunction(function () {
-    var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
-    var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
-    return function (closure$width, closure$init) {
-      return function (y) {
-        var $receiver = until(0, closure$width);
-        var destination = ArrayList_init(collectionSizeOrDefault($receiver, 10));
-        var tmp$;
-        tmp$ = $receiver.iterator();
-        while (tmp$.hasNext()) {
-          var item = tmp$.next();
-          destination.add_11rb$(closure$init(item, y));
-        }
-        return destination;
-      };
-    };
-  });
   GAME_WIDTH = 6;
   GAME_HEIGHT = 5;
   var $receiver = until(0, 5);
@@ -2241,6 +1755,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     addAll(destination, list);
   }
   standardStartGrid = toGameGrid(new GenericGrid(6, 5, copyToArray(destination)));
-  Kotlin.defineModule('gogogo-common', _);
   return _;
 }(typeof this['gogogo-common'] === 'undefined' ? {} : this['gogogo-common'], kotlin, this['kotlinx-coroutines-core'], this['kotlinx-serialization-runtime-js']);
+
+//# sourceMappingURL=gogogo-common.js.map

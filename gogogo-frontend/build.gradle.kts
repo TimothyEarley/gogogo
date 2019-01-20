@@ -1,15 +1,23 @@
+import org.apache.tools.ant.taskdefs.optional.depend.Depend
+import org.apache.tools.ant.types.optional.depend.DependScanner
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 
 plugins {
-    id("kotlin2js") version "1.3.10"
+    id("kotlin2js") version Versions.kotlin
+}
+
+apply {
+    plugin("kotlin-dce-js") // already in kotlin-gradle-plugin, hence the apply
 }
 
 dependencies {
     compile(project(":gogogo-common"))
 
-    compile(kotlin("stdlib-js", "1.3.11"))
-    compile("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.1.0")
-    compile("org.jetbrains.kotlinx:kotlinx-html-js:0.6.12")
+    compile(Depends.JS.kotlin)
+    compile(Depends.JS.coroutines)
+    compile(Depends.JS.html)
+    // indirect dependency, but otherwise not picked up by dce
+    compile(Depends.JS.serialisation)
 }
 
 
@@ -27,21 +35,13 @@ tasks {
         description = "Assemble the web application"
         includeEmptyDirs = false
 
-        // kotlin std lib
-        configurations.compile.get().forEach { file ->
-            from(zipTree(file.absolutePath)) {
-                include { fte ->
-                    val path = fte.path
-                    path.endsWith(".js") && (
-                            path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/")
-                    )
-                }
-            }
-        }
+        dependsOn("runDceKotlinJs")
 
-        from(sourceSets["main"].output) {
-            exclude("**/*.kjsm")
-        }
+        // get resources
+        from(sourceSets["main"].resources)
+
+        // use the minified version
+        from(File("${project.buildDir}/kotlin-js-min/main"))
 
         into("${rootProject.rootDir}/web")
 

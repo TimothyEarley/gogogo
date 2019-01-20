@@ -21,5 +21,9 @@ class Matchmaking(private val playerInfo: PlayerInfo) {
 		return connection.setupMatch(playerInfo)
 	}
 
+	fun disconnect() {
+		connection.close()
+	}
+
 
 }

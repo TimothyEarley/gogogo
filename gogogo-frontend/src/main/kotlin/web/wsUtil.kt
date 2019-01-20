@@ -10,7 +10,7 @@ import kotlin.coroutines.CoroutineContext
 interface WebsocketConnection {
 	fun send(s: String)
 	suspend fun receive(): String
-	// val messages: ReceiveChannel<String>
+	fun close()
 }
 
 class WebsocketConnectionImpl(
@@ -35,6 +35,10 @@ class WebsocketConnectionImpl(
 
 	override suspend fun receive(): String {
 		return messages.receive()
+	}
+
+	override fun close() {
+		ws.close()
 	}
 
 	init {
