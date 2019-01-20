@@ -18,6 +18,7 @@ class GamePresenter(
 
 	private var selected: Point? = null
 	private lateinit var game: ControlledGame
+	private lateinit var matchmaking: Matchmaking
 
 	suspend fun start() {
 		restart()
@@ -87,8 +88,7 @@ class GamePresenter(
 
 		return if (mode == GameMode.Online) {
 			// setup connection
-			//TODO name
-			val matchmaking = Matchmaking(PlayerInfo(gameUI.getName()))
+			matchmaking = Matchmaking(PlayerInfo(gameUI.getName()))
 			val info = matchmaking.findMatch()
 			println("Playing against ${info.other.name} as ${info.player}")
 			// get player side
@@ -146,4 +146,8 @@ class GamePresenter(
 	private fun getLocalController(player: Player): PlayerController =
 				if (gameUI.isAI(player)) AI().withUIAwareness()
 				else HumanController()
+
+	fun exitGame() {
+		matchmaking?.disconnect()
+	}
 }

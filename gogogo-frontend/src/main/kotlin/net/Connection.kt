@@ -27,6 +27,10 @@ class Connection(
 		return Messages.parseMatchStart(ws.receive())
 	}
 
+	fun close() {
+		ws.close()
+	}
+
 	companion object {
 
 		fun connect(url: String): Connection {

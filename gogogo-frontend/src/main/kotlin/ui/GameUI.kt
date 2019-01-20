@@ -155,8 +155,9 @@ class GameUI private constructor(
 		// unregister listeners
 		eventListeners.forEach { (elem, action) ->
 			elem.removeOnClick(action)
-
 		}
+
+		presenter.exitGame()
 
 		// return to menu
 		menu.closeGame()
