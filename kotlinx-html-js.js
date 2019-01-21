@@ -98,6 +98,8 @@
   TextAreaWrap.prototype.constructor = TextAreaWrap;
   ThScope.prototype = Object.create(Enum.prototype);
   ThScope.prototype.constructor = ThScope;
+  OPTION.prototype = Object.create(HTMLTag.prototype);
+  OPTION.prototype.constructor = OPTION;
   TABLE.prototype = Object.create(HTMLTag.prototype);
   TABLE.prototype.constructor = TABLE;
   TD.prototype = Object.create(HTMLTag.prototype);
@@ -215,6 +217,20 @@
   JSDOMBuilder.$metadata$ = {kind: Kind_CLASS, simpleName: 'JSDOMBuilder', interfaces: [TagConsumer]};
   function get_create($receiver) {
     return new JSDOMBuilder($receiver);
+  }
+  function option$lambda(closure$content) {
+    return function ($receiver) {
+      $receiver.unaryPlus_pdl1vz$(closure$content);
+      return Unit;
+    };
+  }
+  function option($receiver, classes, content) {
+    if (classes === void 0)
+      classes = null;
+    if (content === void 0)
+      content = '';
+    var tmp$;
+    return Kotlin.isType(tmp$ = visitAndFinalize(new OPTION(attributesMapOf_0('class', classes), $receiver), $receiver, option$lambda(content)), HTMLOptionElement) ? tmp$ : throwCCE();
   }
   function table$lambda($receiver) {
     return Unit;
@@ -1856,6 +1872,34 @@
   function FlowOrInteractiveOrPhrasingContent() {
   }
   FlowOrInteractiveOrPhrasingContent.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'FlowOrInteractiveOrPhrasingContent', interfaces: [Tag]};
+  function OPTION(initialAttributes, consumer) {
+    HTMLTag.call(this, 'option', consumer, initialAttributes, null, true, false);
+    this.consumer_lt7f6f$_0 = consumer;
+  }
+  Object.defineProperty(OPTION.prototype, 'consumer', {get: function () {
+    return this.consumer_lt7f6f$_0;
+  }});
+  Object.defineProperty(OPTION.prototype, 'disabled', {get: function () {
+    return attributeBooleanTicker.get_txhc1s$(this, 'disabled');
+  }, set: function (newValue) {
+    attributeBooleanTicker.set_fid0sb$(this, 'disabled', newValue);
+  }});
+  Object.defineProperty(OPTION.prototype, 'selected', {get: function () {
+    return attributeBooleanTicker.get_txhc1s$(this, 'selected');
+  }, set: function (newValue) {
+    attributeBooleanTicker.set_fid0sb$(this, 'selected', newValue);
+  }});
+  Object.defineProperty(OPTION.prototype, 'label', {get: function () {
+    return attributeStringString.get_txhc1s$(this, 'label');
+  }, set: function (newValue) {
+    attributeStringString.set_fid0sb$(this, 'label', newValue);
+  }});
+  Object.defineProperty(OPTION.prototype, 'value', {get: function () {
+    return attributeStringString.get_txhc1s$(this, 'value');
+  }, set: function (newValue) {
+    attributeStringString.set_fid0sb$(this, 'value', newValue);
+  }});
+  OPTION.$metadata$ = {kind: Kind_CLASS, simpleName: 'OPTION', interfaces: [CommonAttributeGroupFacade, HTMLTag]};
   function TABLE(initialAttributes, consumer) {
     HTMLTag.call(this, 'table', consumer, initialAttributes, null, false, false);
     this.consumer_gxb6a0$_0 = consumer;
@@ -1981,6 +2025,7 @@
   var package$dom = package$html.dom || (package$html.dom = {});
   package$dom.JSDOMBuilder = JSDOMBuilder;
   package$dom.get_create_4wc2mh$ = get_create;
+  package$js.option_61vnh7$ = option;
   package$js.table_uk5qws$ = table;
   package$html.TagConsumer = TagConsumer;
   package$html.Tag = Tag;
@@ -2131,6 +2176,7 @@
   package$html.FlowOrPhrasingOrMetaDataContent = FlowOrPhrasingOrMetaDataContent;
   package$html.SectioningOrFlowContent = SectioningOrFlowContent;
   package$html.FlowOrInteractiveOrPhrasingContent = FlowOrInteractiveOrPhrasingContent;
+  package$html.OPTION = OPTION;
   package$html.TABLE = TABLE;
   package$html.tr_7wec05$ = tr_1;
   package$html.TD = TD;

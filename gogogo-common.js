@@ -117,9 +117,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     println('Player ' + player + ' thinks the move is worth: ' + best.first + ' points');
     return best.second;
   }
-  function AI() {
+  function AI(strat) {
+    this.strat_0 = strat;
     this.name_p9lk9c$_0 = 'AI';
-    this.strat_0 = stratPerPlayer(hard, hard);
   }
   Object.defineProperty(AI.prototype, 'name', {get: function () {
     return this.name_p9lk9c$_0;
@@ -130,20 +130,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     return new Move(from, to);
   };
   AI.$metadata$ = {kind: Kind_CLASS, simpleName: 'AI', interfaces: [PlayerController]};
-  function stratPerPlayer$lambda(closure$red, closure$blue) {
-    return function (p, s) {
-      switch (p.name) {
-        case 'Red':
-          return closure$red(p, s);
-        case 'Blue':
-          return closure$blue(p, s);
-        default:return Kotlin.noWhenBranchMatched();
-      }
-    };
-  }
-  function stratPerPlayer(blue, red) {
-    return stratPerPlayer$lambda(red, blue);
-  }
   var until = Kotlin.kotlin.ranges.until_dqglrj$;
   function findAllMoves$lambda(this$findAllMoves_0) {
     return function ($receiver_0, continuation_0, suspended) {
@@ -1667,9 +1653,17 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   package$ai.bestMove_rxsk4c$ = bestMove;
   package$ai.debugBestMove_rxsk4c$ = debugBestMove;
   package$ai.AI = AI;
-  package$ai.stratPerPlayer_nmhdos$ = stratPerPlayer;
   package$ai.findAllMoves_1pq5d1$ = findAllMoves;
+  Object.defineProperty(package$ai, 'easy', {get: function () {
+    return easy;
+  }});
+  Object.defineProperty(package$ai, 'hard', {get: function () {
+    return hard;
+  }});
   package$ai.recMed_a25z8o$ = recMed;
+  Object.defineProperty(package$ai, 'medium', {get: function () {
+    return medium;
+  }});
   package$ai.MemState = MemState;
   package$ai.memoize_x6rkih$ = memoize;
   var package$game = package$gogogo.game || (package$gogogo.game = {});
