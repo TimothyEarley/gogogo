@@ -22,6 +22,8 @@ class Matchmaking(private val playerInfo: PlayerInfo) {
 	}
 
 	fun disconnect() {
+		if (!running) return
+		running = false
 		connection.close()
 	}
 

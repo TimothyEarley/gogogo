@@ -1,4 +1,4 @@
-package de.earley.gogogo.web
+package de.earley.gogogo.net
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -19,8 +19,9 @@ class WebsocketConnectionImpl(
 
 	private val open = CompletableDeferred<Nothing?>()
 
+	private val job = Job()
 	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.Default + Job()
+		get() = Dispatchers.Default + job
 
 	private val messages: Channel<String> = Channel()
 
@@ -52,6 +53,7 @@ class WebsocketConnectionImpl(
 
 		ws.onmessage = {evt ->
 			if (evt is MessageEvent) launch {
+				println("Received ${evt.data}")
 				messages.send(evt.data.toString())
 			}
 		}

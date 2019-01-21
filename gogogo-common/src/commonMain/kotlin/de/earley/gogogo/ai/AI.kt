@@ -20,10 +20,8 @@ fun Strat.debugBestMove(player: Player, state: State): Triple<Point, Point, Stat
 }
 
 
-class AI : PlayerController {
+class AI(private val strat: Strat) : PlayerController {
 	override val name: String = "AI"
-
-	private val strat: Strat = stratPerPlayer(hard, hard)
 
 	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Move {
 
@@ -32,13 +30,6 @@ class AI : PlayerController {
 		}
 	}
 
-}
-
-fun stratPerPlayer(blue: Strat, red: Strat): Strat = { p, s ->
-	when (p) {
-		Player.Red -> red(p, s)
-		Player.Blue -> blue(p, s)
-	}
 }
 
 fun State.findAllMoves(): List<Triple<Point, Point, State>> = sequence {

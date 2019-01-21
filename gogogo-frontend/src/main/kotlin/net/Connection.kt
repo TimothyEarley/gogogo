@@ -1,13 +1,11 @@
 package de.earley.gogogo.net
 
-import de.earley.gogogo.game.*
-import de.earley.gogogo.web.WebsocketConnection
-import de.earley.gogogo.web.WebsocketConnectionImpl
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import de.earley.gogogo.game.Move
+import de.earley.gogogo.game.moveFromNetFormat
+import de.earley.gogogo.game.toNetFormat
 import org.w3c.dom.WebSocket
-import kotlin.coroutines.CoroutineContext
+
+class ClosedException : Exception()
 
 class Connection(
 	private val ws: WebsocketConnection
@@ -19,7 +17,9 @@ class Connection(
 
 	suspend fun getMove(lastMove: Move?): Move {
 		if (lastMove != null) sendMove(lastMove)
-		return ws.receive().moveFromNetFormat()
+		val msg = ws.receive()
+		if (msg == "CLOSE") throw ClosedException()
+		else return msg.moveFromNetFormat()
 	}
 
 	suspend fun setupMatch(playerInfo: PlayerInfo): MatchInfo {

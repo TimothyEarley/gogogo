@@ -56,8 +56,19 @@ data class ConnectedPlayer(
 	}
 
 	suspend fun close() {
+		// remove from queue (if we where there)
 		matchMaker.unregister(this)
+		// inform opponent
+		val s = state
+		if (s is State.INGAME) {
+			s.opponent.sendClose()
+		}
 		job.cancelAndJoin()
+	}
+
+	private suspend fun sendClose() {
+		println("Sending close!")
+		ws.send("CLOSE")
 	}
 
 	companion object {
