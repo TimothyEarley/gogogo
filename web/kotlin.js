@@ -4637,6 +4637,12 @@
       return this.cause_th0jdv$_0;
     }});
     Exception.$metadata$ = {kind: Kind_CLASS, simpleName: 'Exception', interfaces: [Throwable]};
+    function Exception_init($this) {
+      $this = $this || Object.create(Exception.prototype);
+      Exception.call($this, null, null);
+      get_js(getKClass(Exception)).call($this, null, null);
+      return $this;
+    }
     function RuntimeException(message, cause) {
       Exception.call(this, message, cause);
       this.name = 'RuntimeException';
@@ -7837,6 +7843,7 @@
     _.throwUPAE = throwUPAE;
     package$kotlin.Error_init_pdl1vj$ = Error_init_0;
     package$kotlin.Error = Error_0;
+    package$kotlin.Exception_init = Exception_init;
     package$kotlin.Exception = Exception;
     package$kotlin.RuntimeException_init_pdl1vj$ = RuntimeException_init_0;
     package$kotlin.RuntimeException = RuntimeException;

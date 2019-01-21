@@ -20,43 +20,54 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   var Kind_CLASS = Kotlin.Kind.CLASS;
   var PlayerController = $module$gogogo_common.de.earley.gogogo.game.PlayerController;
   var println = Kotlin.kotlin.io.println_s8jyv4$;
-  var Unit = Kotlin.kotlin.Unit;
+  var Exception_init = Kotlin.kotlin.Exception_init;
+  var Exception = Kotlin.kotlin.Exception;
   var toNetFormat = $module$gogogo_common.de.earley.gogogo.game.toNetFormat_blsywv$;
+  var equals = Kotlin.equals;
   var moveFromNetFormat = $module$gogogo_common.de.earley.gogogo.game.moveFromNetFormat_pdl1vz$;
   var net = $module$gogogo_common.de.earley.gogogo.net;
   var Kind_OBJECT = Kotlin.Kind.OBJECT;
   var throwUPAE = Kotlin.throwUPAE;
   var IllegalStateException_init = Kotlin.kotlin.IllegalStateException_init_pdl1vj$;
+  var Kind_INTERFACE = Kotlin.Kind.INTERFACE;
+  var coroutines = $module$kotlinx_coroutines_core.kotlinx.coroutines;
+  var Unit = Kotlin.kotlin.Unit;
+  var launch = $module$kotlinx_coroutines_core.kotlinx.coroutines.launch_s496o7$;
+  var CompletableDeferred = $module$kotlinx_coroutines_core.kotlinx.coroutines.CompletableDeferred_xptg6w$;
+  var Job = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job_5dx9e$;
+  var Channel = $module$kotlinx_coroutines_core.kotlinx.coroutines.channels.Channel_ww73n8$;
+  var toString = Kotlin.toString;
+  var CoroutineScope = $module$kotlinx_coroutines_core.kotlinx.coroutines.CoroutineScope;
+  var getCallableRef = Kotlin.getCallableRef;
+  var ai = $module$gogogo_common.de.earley.gogogo.ai;
+  var AI = $module$gogogo_common.de.earley.gogogo.ai.AI;
+  var Enum = Kotlin.kotlin.Enum;
+  var throwISE = Kotlin.throwISE;
   var removeClass = Kotlin.kotlin.dom.removeClass_hhb33f$;
   var Point = $module$gogogo_common.de.earley.gogogo.game.Point;
-  var toString = Kotlin.toString;
   var ensureNotNull = Kotlin.ensureNotNull;
   var L100 = Kotlin.Long.fromInt(100);
   var PlayerInfo = $module$gogogo_common.de.earley.gogogo.net.PlayerInfo;
   var Player = $module$gogogo_common.de.earley.gogogo.game.Player;
   var ControlledGame = $module$gogogo_common.de.earley.gogogo.game.ControlledGame;
-  var coroutines = $module$kotlinx_coroutines_core.kotlinx.coroutines;
-  var launch = $module$kotlinx_coroutines_core.kotlinx.coroutines.launch_s496o7$;
-  var AI = $module$gogogo_common.de.earley.gogogo.ai.AI;
   var UIHook = $module$gogogo_common.de.earley.gogogo.game.UIHook;
-  var Enum = Kotlin.kotlin.Enum;
-  var throwISE = Kotlin.throwISE;
-  var clear = Kotlin.kotlin.dom.clear_asww5s$;
-  var Job = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job_5dx9e$;
   var get_create = $module$kotlinx_html_js.kotlinx.html.dom.get_create_4wc2mh$;
   var set_id = $module$kotlinx_html_js.kotlinx.html.set_id_ueiko3$;
   var until = Kotlin.kotlin.ranges.until_dqglrj$;
   var td = $module$kotlinx_html_js.kotlinx.html.td_vlzo05$;
   var tr = $module$kotlinx_html_js.kotlinx.html.tr_7wec05$;
   var table = $module$kotlinx_html_js.kotlinx.html.js.table_uk5qws$;
+  var clear = Kotlin.kotlin.dom.clear_asww5s$;
   var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_287e2$;
-  var CoroutineScope = $module$kotlinx_coroutines_core.kotlinx.coroutines.CoroutineScope;
+  var L10 = Kotlin.Long.fromInt(10);
   var Move = $module$gogogo_common.de.earley.gogogo.game.Move;
-  var Channel = $module$kotlinx_coroutines_core.kotlinx.coroutines.channels.Channel_ww73n8$;
   var NoSuchElementException = Kotlin.kotlin.NoSuchElementException;
   var to = Kotlin.kotlin.to_ujzrz7$;
-  var Kind_INTERFACE = Kotlin.Kind.INTERFACE;
-  var CompletableDeferred = $module$kotlinx_coroutines_core.kotlinx.coroutines.CompletableDeferred_xptg6w$;
+  var option = $module$kotlinx_html_js.kotlinx.html.js.option_61vnh7$;
+  ClosedException.prototype = Object.create(Exception.prototype);
+  ClosedException.prototype.constructor = ClosedException;
+  ControllerTypes.prototype = Object.create(Enum.prototype);
+  ControllerTypes.prototype.constructor = ControllerTypes;
   GameMode.prototype = Object.create(Enum.prototype);
   GameMode.prototype.constructor = GameMode;
   function DelayedController(pc) {
@@ -134,6 +145,11 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     println('Hello world!');
     window.onload = main$lambda;
   }
+  function ClosedException() {
+    Exception_init(this);
+    this.name = 'ClosedException';
+  }
+  ClosedException.$metadata$ = {kind: Kind_CLASS, simpleName: 'ClosedException', interfaces: [Exception]};
   function Connection(ws) {
     Connection$Companion_getInstance();
     this.ws_0 = ws;
@@ -172,7 +188,16 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
           case 1:
             throw this.exception_0;
           case 2:
-            return moveFromNetFormat(this.result_0);
+            var msg = this.result_0;
+            if (equals(msg, 'CLOSE')) {
+              throw new ClosedException();
+            }
+             else {
+              return moveFromNetFormat(msg);
+            }
+
+          case 3:
+            return;
           default:this.state_0 = 1;
             throw new Error('State Machine Unreachable execution');
         }
@@ -287,6 +312,9 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     return this.connection_0.setupMatch_56l50f$(this.playerInfo_0, continuation);
   };
   Matchmaking.prototype.disconnect = function () {
+    if (!this.running_0)
+      return;
+    this.running_0 = false;
     this.connection_0.close();
   };
   Matchmaking.$metadata$ = {kind: Kind_CLASS, simpleName: 'Matchmaking', interfaces: []};
@@ -297,19 +325,303 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   Object.defineProperty(NetworkController.prototype, 'name', {get: function () {
     return this.name_hep9nf$_0;
   }});
-  NetworkController.prototype.getMove_jr41iw$ = function (lastMove, state, fromSelectCallback, continuation) {
-    return this.connection_0.getMove_blsywf$(lastMove, continuation);
+  NetworkController.prototype.getMove_jr41iw$ = function (lastMove_0, state, fromSelectCallback, continuation_0, suspended) {
+    var instance = new Coroutine$getMove_jr41iw$_0(this, lastMove_0, state, fromSelectCallback, continuation_0);
+    if (suspended)
+      return instance;
+    else
+      return instance.doResume(null);
+  };
+  function Coroutine$getMove_jr41iw$_0($this, lastMove_0, state, fromSelectCallback, continuation_0) {
+    CoroutineImpl.call(this, continuation_0);
+    this.exceptionState_0 = 4;
+    this.$this = $this;
+    this.local$lastMove = lastMove_0;
+  }
+  Coroutine$getMove_jr41iw$_0.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
+  Coroutine$getMove_jr41iw$_0.prototype = Object.create(CoroutineImpl.prototype);
+  Coroutine$getMove_jr41iw$_0.prototype.constructor = Coroutine$getMove_jr41iw$_0;
+  Coroutine$getMove_jr41iw$_0.prototype.doResume = function () {
+    do
+      try {
+        switch (this.state_0) {
+          case 0:
+            this.exceptionState_0 = 2;
+            this.state_0 = 1;
+            this.result_0 = this.$this.connection_0.getMove_blsywf$(this.local$lastMove, this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 1:
+            return this.result_0;
+          case 2:
+            this.exceptionState_0 = 4;
+            var e = this.exception_0;
+            if (Kotlin.isType(e, ClosedException)) {
+              window.alert('Opponent has disconnected');
+              throw e;
+            }
+             else
+              throw e;
+          case 3:
+            return;
+          case 4:
+            throw this.exception_0;
+          default:this.state_0 = 4;
+            throw new Error('State Machine Unreachable execution');
+        }
+      }
+       catch (e) {
+        if (this.state_0 === 4) {
+          this.exceptionState_0 = this.state_0;
+          throw e;
+        }
+         else {
+          this.state_0 = this.exceptionState_0;
+          this.exception_0 = e;
+        }
+      }
+     while (true);
   };
   NetworkController.prototype.sendVictory_47hwoe$ = function (lastMove) {
+    println('Actually sending it!');
     this.connection_0.sendMove_47hwoe$(lastMove);
   };
   NetworkController.$metadata$ = {kind: Kind_CLASS, simpleName: 'NetworkController', interfaces: [PlayerController]};
+  function WebsocketConnection() {
+  }
+  WebsocketConnection.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'WebsocketConnection', interfaces: []};
+  function WebsocketConnectionImpl(ws) {
+    this.ws_0 = ws;
+    this.open_0 = CompletableDeferred();
+    this.job_0 = Job();
+    this.messages_0 = Channel();
+    this.ws_0.onopen = WebsocketConnectionImpl_init$lambda(this);
+    this.ws_0.onclose = WebsocketConnectionImpl_init$lambda_0(this);
+    this.ws_0.onmessage = WebsocketConnectionImpl_init$lambda_1(this);
+  }
+  Object.defineProperty(WebsocketConnectionImpl.prototype, 'coroutineContext', {get: function () {
+    return coroutines.Dispatchers.Default.plus_1fupul$(this.job_0);
+  }});
+  function WebsocketConnectionImpl$send$lambda(this$WebsocketConnectionImpl_0, closure$s_0) {
+    return function ($receiver, continuation_0, suspended) {
+      var instance = new Coroutine$WebsocketConnectionImpl$send$lambda(this$WebsocketConnectionImpl_0, closure$s_0, $receiver, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
+  function Coroutine$WebsocketConnectionImpl$send$lambda(this$WebsocketConnectionImpl_0, closure$s_0, $receiver, controller, continuation_0) {
+    CoroutineImpl.call(this, continuation_0);
+    this.$controller = controller;
+    this.exceptionState_0 = 1;
+    this.local$this$WebsocketConnectionImpl = this$WebsocketConnectionImpl_0;
+    this.local$closure$s = closure$s_0;
+  }
+  Coroutine$WebsocketConnectionImpl$send$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
+  Coroutine$WebsocketConnectionImpl$send$lambda.prototype = Object.create(CoroutineImpl.prototype);
+  Coroutine$WebsocketConnectionImpl$send$lambda.prototype.constructor = Coroutine$WebsocketConnectionImpl$send$lambda;
+  Coroutine$WebsocketConnectionImpl$send$lambda.prototype.doResume = function () {
+    do
+      try {
+        switch (this.state_0) {
+          case 0:
+            this.state_0 = 2;
+            this.result_0 = this.local$this$WebsocketConnectionImpl.open_0.await(this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 1:
+            throw this.exception_0;
+          case 2:
+            return this.local$this$WebsocketConnectionImpl.ws_0.send(this.local$closure$s), Unit;
+          default:this.state_0 = 1;
+            throw new Error('State Machine Unreachable execution');
+        }
+      }
+       catch (e) {
+        if (this.state_0 === 1) {
+          this.exceptionState_0 = this.state_0;
+          throw e;
+        }
+         else {
+          this.state_0 = this.exceptionState_0;
+          this.exception_0 = e;
+        }
+      }
+     while (true);
+  };
+  WebsocketConnectionImpl.prototype.send_61zpoe$ = function (s) {
+    launch(this, void 0, void 0, WebsocketConnectionImpl$send$lambda(this, s));
+  };
+  WebsocketConnectionImpl.prototype.receive = function (continuation) {
+    return this.messages_0.receive(continuation);
+  };
+  WebsocketConnectionImpl.prototype.close = function () {
+    this.ws_0.close();
+  };
+  function WebsocketConnectionImpl_init$lambda(this$WebsocketConnectionImpl) {
+    return function (it) {
+      return this$WebsocketConnectionImpl.open_0.complete_11rb$(null);
+    };
+  }
+  var Job_0 = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job;
+  function WebsocketConnectionImpl_init$lambda_0(this$WebsocketConnectionImpl) {
+    return function (it) {
+      var $receiver = this$WebsocketConnectionImpl;
+      var tmp$;
+      var tmp$_0;
+      if ((tmp$ = $receiver.coroutineContext.get_j3r2sn$(Job_0.Key)) != null)
+        tmp$_0 = tmp$;
+      else {
+        throw IllegalStateException_init(('Scope cannot be cancelled because it does not have a job: ' + $receiver).toString());
+      }
+      var job = tmp$_0;
+      job.cancel();
+      return Unit;
+    };
+  }
+  function WebsocketConnectionImpl_init$lambda$lambda(closure$evt_0, this$WebsocketConnectionImpl_0) {
+    return function ($receiver, continuation_0, suspended) {
+      var instance = new Coroutine$WebsocketConnectionImpl_init$lambda$lambda(closure$evt_0, this$WebsocketConnectionImpl_0, $receiver, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
+  function Coroutine$WebsocketConnectionImpl_init$lambda$lambda(closure$evt_0, this$WebsocketConnectionImpl_0, $receiver, controller, continuation_0) {
+    CoroutineImpl.call(this, continuation_0);
+    this.$controller = controller;
+    this.exceptionState_0 = 1;
+    this.local$closure$evt = closure$evt_0;
+    this.local$this$WebsocketConnectionImpl = this$WebsocketConnectionImpl_0;
+  }
+  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
+  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.prototype = Object.create(CoroutineImpl.prototype);
+  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.prototype.constructor = Coroutine$WebsocketConnectionImpl_init$lambda$lambda;
+  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.prototype.doResume = function () {
+    do
+      try {
+        switch (this.state_0) {
+          case 0:
+            println('Received ' + toString(this.local$closure$evt.data));
+            this.state_0 = 2;
+            this.result_0 = this.local$this$WebsocketConnectionImpl.messages_0.send_11rb$(toString(this.local$closure$evt.data), this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 1:
+            throw this.exception_0;
+          case 2:
+            return this.result_0;
+          default:this.state_0 = 1;
+            throw new Error('State Machine Unreachable execution');
+        }
+      }
+       catch (e) {
+        if (this.state_0 === 1) {
+          this.exceptionState_0 = this.state_0;
+          throw e;
+        }
+         else {
+          this.state_0 = this.exceptionState_0;
+          this.exception_0 = e;
+        }
+      }
+     while (true);
+  };
+  function WebsocketConnectionImpl_init$lambda_1(this$WebsocketConnectionImpl) {
+    return function (evt) {
+      if (Kotlin.isType(evt, MessageEvent))
+        launch(this$WebsocketConnectionImpl, void 0, void 0, WebsocketConnectionImpl_init$lambda$lambda(evt, this$WebsocketConnectionImpl));
+      return Unit;
+    };
+  }
+  WebsocketConnectionImpl.$metadata$ = {kind: Kind_CLASS, simpleName: 'WebsocketConnectionImpl', interfaces: [CoroutineScope, WebsocketConnection]};
+  function ControllerTypes(name, ordinal, build) {
+    Enum.call(this);
+    this.build = build;
+    this.name$ = name;
+    this.ordinal$ = ordinal;
+  }
+  function ControllerTypes_initFields() {
+    ControllerTypes_initFields = function () {
+    };
+    ControllerTypes$Human_instance = new ControllerTypes('Human', 0, getCallableRef('HumanController', function () {
+      return new HumanController();
+    }));
+    ControllerTypes$Easy_instance = new ControllerTypes('Easy', 1, getCallableRef('withUIAwareness', function ($receiver) {
+      return withUIAwareness($receiver);
+    }.bind(null, new AI(ai.easy))));
+    ControllerTypes$Medium_instance = new ControllerTypes('Medium', 2, getCallableRef('withUIAwareness', function ($receiver) {
+      return withUIAwareness($receiver);
+    }.bind(null, new AI(ai.medium))));
+    ControllerTypes$Hard_instance = new ControllerTypes('Hard', 3, getCallableRef('withUIAwareness', function ($receiver) {
+      return withUIAwareness($receiver);
+    }.bind(null, new AI(ai.hard))));
+  }
+  var ControllerTypes$Human_instance;
+  function ControllerTypes$Human_getInstance() {
+    ControllerTypes_initFields();
+    return ControllerTypes$Human_instance;
+  }
+  var ControllerTypes$Easy_instance;
+  function ControllerTypes$Easy_getInstance() {
+    ControllerTypes_initFields();
+    return ControllerTypes$Easy_instance;
+  }
+  var ControllerTypes$Medium_instance;
+  function ControllerTypes$Medium_getInstance() {
+    ControllerTypes_initFields();
+    return ControllerTypes$Medium_instance;
+  }
+  var ControllerTypes$Hard_instance;
+  function ControllerTypes$Hard_getInstance() {
+    ControllerTypes_initFields();
+    return ControllerTypes$Hard_instance;
+  }
+  ControllerTypes.$metadata$ = {kind: Kind_CLASS, simpleName: 'ControllerTypes', interfaces: [Enum]};
+  function ControllerTypes$values() {
+    return [ControllerTypes$Human_getInstance(), ControllerTypes$Easy_getInstance(), ControllerTypes$Medium_getInstance(), ControllerTypes$Hard_getInstance()];
+  }
+  ControllerTypes.values = ControllerTypes$values;
+  function ControllerTypes$valueOf(name) {
+    switch (name) {
+      case 'Human':
+        return ControllerTypes$Human_getInstance();
+      case 'Easy':
+        return ControllerTypes$Easy_getInstance();
+      case 'Medium':
+        return ControllerTypes$Medium_getInstance();
+      case 'Hard':
+        return ControllerTypes$Hard_getInstance();
+      default:throwISE('No enum constant de.earley.gogogo.ui.ControllerTypes.' + name);
+    }
+  }
+  ControllerTypes.valueOf_61zpoe$ = ControllerTypes$valueOf;
+  var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
+  function controllerTypesAsString() {
+    var $receiver = ControllerTypes$values();
+    var destination = ArrayList_init_0($receiver.length);
+    var tmp$;
+    for (tmp$ = 0; tmp$ !== $receiver.length; ++tmp$) {
+      var item = $receiver[tmp$];
+      destination.add_11rb$(item.toString());
+    }
+    return destination;
+  }
+  function toControllerType($receiver) {
+    return ControllerTypes$valueOf($receiver);
+  }
   function GamePresenter(gameUI, mode) {
     this.gameUI_0 = gameUI;
     this.mode_0 = mode;
     this.selected_0 = null;
     this.game_8j9hzp$_0 = this.game_8j9hzp$_0;
-    this.matchmaking_tys5gd$_0 = this.matchmaking_tys5gd$_0;
+    this.matchmaking_0 = null;
+    this.matchinfo_0 = null;
   }
   Object.defineProperty(GamePresenter.prototype, 'game_0', {get: function () {
     if (this.game_8j9hzp$_0 == null)
@@ -317,13 +629,6 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     return this.game_8j9hzp$_0;
   }, set: function (game) {
     this.game_8j9hzp$_0 = game;
-  }});
-  Object.defineProperty(GamePresenter.prototype, 'matchmaking_0', {get: function () {
-    if (this.matchmaking_tys5gd$_0 == null)
-      return throwUPAE('matchmaking');
-    return this.matchmaking_tys5gd$_0;
-  }, set: function (matchmaking) {
-    this.matchmaking_tys5gd$_0 = matchmaking;
   }});
   GamePresenter.prototype.start = function (continuation_0, suspended) {
     var instance = new Coroutine$start(this, continuation_0);
@@ -456,9 +761,10 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     }
   };
   GamePresenter.prototype.onGameEnd = function () {
-    var tmp$, tmp$_0;
-    if (this.mode_0 === GameMode$Online_getInstance()) {
-      (tmp$_0 = Kotlin.isType(tmp$ = this.game_0.activeController, NetworkController) ? tmp$ : null) != null ? (tmp$_0.sendVictory_47hwoe$(ensureNotNull(this.game_0.lastMove)), Unit) : null;
+    var tmp$, tmp$_0, tmp$_1;
+    if (this.mode_0 === GameMode$Online_getInstance() && equals(this.game_0.victor, (tmp$ = this.matchinfo_0) != null ? tmp$.player : null)) {
+      println('Sending victory to opponent');
+      (tmp$_1 = (tmp$_0 = this.matchmaking_0) != null ? tmp$_0.opponent : null) != null ? (tmp$_1.sendVictory_47hwoe$(ensureNotNull(this.game_0.lastMove)), Unit) : null;
     }
     this.unselect_0();
   };
@@ -521,6 +827,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     this.exceptionState_0 = 1;
     this.$this = $this;
     this.local$tmp$ = void 0;
+    this.local$matchmaking = void 0;
   }
   Coroutine$createGame_0.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
   Coroutine$createGame_0.prototype = Object.create(CoroutineImpl.prototype);
@@ -531,9 +838,10 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
         switch (this.state_0) {
           case 0:
             if (this.$this.mode_0 === GameMode$Online_getInstance()) {
-              this.$this.matchmaking_0 = new Matchmaking(new PlayerInfo(this.$this.gameUI_0.getName()));
+              this.local$matchmaking = new Matchmaking(new PlayerInfo(this.$this.gameUI_0.getName()));
+              this.$this.matchmaking_0 = this.local$matchmaking;
               this.state_0 = 2;
-              this.result_0 = this.$this.matchmaking_0.findMatch(this);
+              this.result_0 = this.local$matchmaking.findMatch(this);
               if (this.result_0 === COROUTINE_SUSPENDED)
                 return COROUTINE_SUSPENDED;
               continue;
@@ -548,9 +856,10 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
             throw this.exception_0;
           case 2:
             var info = this.result_0;
+            this.$this.matchinfo_0 = info;
             println('Playing against ' + info.other.name + ' as ' + info.player);
-            var red = info.player === Player.Red ? new HumanController() : withUIAwareness(this.$this.matchmaking_0.opponent);
-            var blue = info.player === Player.Blue ? new HumanController() : withUIAwareness(this.$this.matchmaking_0.opponent);
+            var red = info.player === Player.Red ? new HumanController() : withUIAwareness(this.local$matchmaking.opponent);
+            var blue = info.player === Player.Blue ? new HumanController() : withUIAwareness(this.local$matchmaking.opponent);
             this.$this.gameUI_0.showOwnPlayer_x97jf4$(info.player, info.other.name);
             this.local$tmp$ = new ControlledGame(red, blue, this.$this);
             this.state_0 = 3;
@@ -641,14 +950,22 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   GamePresenter.prototype.canUndo = function () {
     return this.game_0.canUndo();
   };
-  GamePresenter.prototype.setRedAI_6taknv$ = function (active) {
+  GamePresenter.prototype.changeRedController = function () {
+    if (!(this.mode_0 === GameMode$Local_getInstance())) {
+      var message = 'Only allowed in local play!';
+      throw IllegalArgumentException_init(message.toString());
+    }
     this.game_0.switchRed_wszlfq$(this.getLocalController_0(Player.Red));
   };
-  GamePresenter.prototype.setBlueAI_6taknv$ = function (active) {
+  GamePresenter.prototype.changeBlueController = function () {
+    if (!(this.mode_0 === GameMode$Local_getInstance())) {
+      var message = 'Only allowed in local play!';
+      throw IllegalArgumentException_init(message.toString());
+    }
     this.game_0.switchBlue_wszlfq$(this.getLocalController_0(Player.Blue));
   };
   GamePresenter.prototype.getLocalController_0 = function (player) {
-    return this.gameUI_0.isAI_3999j6$(player) ? withUIAwareness(new AI()) : new HumanController();
+    return toControllerType(this.gameUI_0.getController_3999j6$(player)).build();
   };
   GamePresenter.prototype.exitGame = function () {
     var tmp$;
@@ -695,19 +1012,20 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   }
   GameMode.valueOf_61zpoe$ = GameMode$valueOf;
   var name_0;
-  function GameUI(rootDiv, menu, mode) {
+  function GameUI(table, menu, mode) {
     GameUI$Companion_getInstance();
-    this.rootDiv_0 = rootDiv;
+    this.table_0 = table;
     this.menu_0 = menu;
     this.mode_0 = mode;
-    this.aiCheckboxBlue_0 = get_0(document, 'ai-blue-check');
-    this.aiCheckboxRed_0 = get_0(document, 'ai-red-check');
+    this.blueController_0 = get_0(document, 'blue-controller');
+    this.redController_0 = get_0(document, 'red-controller');
     this.turnIndicator_0 = get_0(document, 'turn-indicator');
     this.undo_0 = get_0(document, 'btn-undo');
     this.restart_0 = get_0(document, 'btn-restart');
     this.localControls_0 = get_0(document, 'local-controls');
     this.serverControls_0 = get_0(document, 'server-controls');
-    this.onwPlayer_0 = get_0(document, 'server-own-player');
+    this.ownPlayer_0 = get_0(document, 'server-own-player');
+    this.spinner_0 = get_0(document, 'connect-spinner');
     this.eventListeners_0 = ArrayList_init();
     this.presenter_0 = new GamePresenter(this, this.mode_0);
     this.cells = this.createCells_0(6, 5);
@@ -716,8 +1034,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   function GameUI$Companion() {
     GameUI$Companion_instance = this;
   }
-  GameUI$Companion.prototype.open_5reo23$ = function (rootDiv, menu, mode) {
-    clear(rootDiv);
+  GameUI$Companion.prototype.open_ca0b88$ = function (rootDiv, menu, mode) {
     return new GameUI(rootDiv, menu, mode);
   };
   GameUI$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
@@ -769,11 +1086,10 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   var GenericGrid_init = $module$gogogo_common.de.earley.gogogo.game.grid.GenericGrid;
   var addAll = Kotlin.kotlin.collections.addAll_ipc267$;
   var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
-  var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
   var copyToArray = Kotlin.kotlin.collections.copyToArray;
   GameUI.prototype.createCells_0 = function (width, height) {
     var ui = table(get_create(document), void 0, GameUI$createCells$lambda(height, width));
-    this.rootDiv_0.append(ui);
+    this.table_0.replaceWith(ui);
     var $receiver = until(0, height);
     var destination = ArrayList_init();
     var tmp$;
@@ -793,6 +1109,19 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     }
     return new GenericGrid_init(width, height, copyToArray(destination));
   };
+  GameUI.prototype.setupSelects_0 = function () {
+    clear(this.redController_0);
+    clear(this.blueController_0);
+    var tmp$;
+    tmp$ = controllerTypesAsString().iterator();
+    while (tmp$.hasNext()) {
+      var element = tmp$.next();
+      addOption(this.redController_0, element);
+      addOption(this.blueController_0, element);
+    }
+    this.blueController_0.selectedIndex = 0;
+    this.redController_0.selectedIndex = 3;
+  };
   GameUI.prototype.updateUI = function () {
     var $receiver = this.cells;
     var tmp$;
@@ -809,24 +1138,17 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     this.turnIndicator_0.innerText = this.presenter_0.turnText();
     this.undo_0.disabled = !this.presenter_0.canUndo();
   };
-  GameUI.prototype.isAI_3999j6$ = function (player) {
-    switch (player.name) {
-      case 'Red':
-        return this.aiCheckboxRed_0.checked;
-      case 'Blue':
-        return this.aiCheckboxBlue_0.checked;
-      default:return Kotlin.noWhenBranchMatched();
-    }
-  };
   GameUI.prototype.checkGameMode_0 = function () {
     switch (this.mode_0.name) {
       case 'Local':
-        this.localControls_0.hidden = false;
-        this.serverControls_0.hidden = true;
+        unhide(this.localControls_0);
+        hide(this.serverControls_0);
+        hide(this.spinner_0);
         break;
       case 'Online':
-        this.localControls_0.hidden = true;
-        this.serverControls_0.hidden = false;
+        hide(this.localControls_0);
+        unhide(this.serverControls_0);
+        unhide(this.spinner_0);
         break;
     }
   };
@@ -898,19 +1220,19 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   }
   function GameUI$registerEventListeners$lambda_1(this$GameUI) {
     return function (it) {
-      this$GameUI.presenter_0.setRedAI_6taknv$(this$GameUI.aiCheckboxRed_0.checked);
+      this$GameUI.exitGame_0();
       return Unit;
     };
   }
   function GameUI$registerEventListeners$lambda_2(this$GameUI) {
     return function (it) {
-      this$GameUI.presenter_0.setBlueAI_6taknv$(this$GameUI.aiCheckboxRed_0.checked);
+      this$GameUI.presenter_0.changeBlueController();
       return Unit;
     };
   }
   function GameUI$registerEventListeners$lambda_3(this$GameUI) {
     return function (it) {
-      this$GameUI.exitGame_0();
+      this$GameUI.presenter_0.changeRedController();
       return Unit;
     };
   }
@@ -939,13 +1261,13 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     var element_4 = onClick(this.undo_0, GameUI$registerEventListeners$lambda_0(this));
     $receiver_2.add_11rb$(element_4);
     var $receiver_3 = this.eventListeners_0;
-    var element_5 = onClick(this.aiCheckboxRed_0, GameUI$registerEventListeners$lambda_1(this));
+    var element_5 = onClick(get_0(document, 'btn-exit-game'), GameUI$registerEventListeners$lambda_1(this));
     $receiver_3.add_11rb$(element_5);
     var $receiver_4 = this.eventListeners_0;
-    var element_6 = onClick(this.aiCheckboxBlue_0, GameUI$registerEventListeners$lambda_2(this));
+    var element_6 = onChange(this.blueController_0, GameUI$registerEventListeners$lambda_2(this));
     $receiver_4.add_11rb$(element_6);
     var $receiver_5 = this.eventListeners_0;
-    var element_7 = onClick(get_0(document, 'btn-exit-game'), GameUI$registerEventListeners$lambda_3(this));
+    var element_7 = onChange(this.redController_0, GameUI$registerEventListeners$lambda_3(this));
     $receiver_5.add_11rb$(element_7);
   };
   GameUI.prototype.exitGame_0 = function () {
@@ -960,7 +1282,8 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     this.menu_0.closeGame();
   };
   GameUI.prototype.showOwnPlayer_x97jf4$ = function (player, opponent) {
-    this.onwPlayer_0.innerText = 'Your are playing as ' + player + ' against ' + opponent;
+    hide(this.spinner_0);
+    this.ownPlayer_0.innerText = 'Your are playing as ' + player + ' against ' + opponent;
   };
   GameUI.prototype.getName = function () {
     if (name_0 != null)
@@ -972,6 +1295,22 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
         return response;
       }
     }
+  };
+  GameUI.prototype.getController_3999j6$ = function (player) {
+    var tmp$;
+    switch (player.name) {
+      case 'Blue':
+        tmp$ = this.blueController_0.value;
+        break;
+      case 'Red':
+        tmp$ = this.redController_0.value;
+        break;
+      default:tmp$ = Kotlin.noWhenBranchMatched();
+        break;
+    }
+    var $receiver = tmp$;
+    println('Queried value for ' + player + ' is ' + $receiver);
+    return $receiver;
   };
   function GameUI_init$lambda(this$GameUI_0) {
     return function ($receiver, continuation_0, suspended) {
@@ -996,17 +1335,24 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       try {
         switch (this.state_0) {
           case 0:
+            this.local$this$GameUI.setupSelects_0();
+            this.local$this$GameUI.registerEventListeners_0();
+            this.local$this$GameUI.checkGameMode_0();
             this.state_0 = 2;
-            this.result_0 = this.local$this$GameUI.presenter_0.start(this);
+            this.result_0 = delay(L10, this);
             if (this.result_0 === COROUTINE_SUSPENDED)
               return COROUTINE_SUSPENDED;
             continue;
           case 1:
             throw this.exception_0;
           case 2:
-            this.local$this$GameUI.checkGameMode_0();
-            this.local$this$GameUI.updateUI();
-            return this.local$this$GameUI.registerEventListeners_0(), Unit;
+            this.state_0 = 3;
+            this.result_0 = this.local$this$GameUI.presenter_0.start(this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 3:
+            return this.local$this$GameUI.updateUI(), Unit;
           default:this.state_0 = 1;
             throw new Error('State Machine Unreachable execution');
         }
@@ -1036,23 +1382,23 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     return this.name_nf5ttb$_0;
   }});
   HumanController.prototype.getMove_jr41iw$ = function (lastMove, state_0, fromSelectCallback_0, continuation_0, suspended) {
-    var instance = new Coroutine$getMove_jr41iw$_0(this, lastMove, state_0, fromSelectCallback_0, continuation_0);
+    var instance = new Coroutine$getMove_jr41iw$_1(this, lastMove, state_0, fromSelectCallback_0, continuation_0);
     if (suspended)
       return instance;
     else
       return instance.doResume(null);
   };
-  function Coroutine$getMove_jr41iw$_0($this, lastMove, state_0, fromSelectCallback_0, continuation_0) {
+  function Coroutine$getMove_jr41iw$_1($this, lastMove, state_0, fromSelectCallback_0, continuation_0) {
     CoroutineImpl.call(this, continuation_0);
     this.exceptionState_0 = 1;
     this.$this = $this;
     this.local$state = state_0;
     this.local$fromSelectCallback = fromSelectCallback_0;
   }
-  Coroutine$getMove_jr41iw$_0.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
-  Coroutine$getMove_jr41iw$_0.prototype = Object.create(CoroutineImpl.prototype);
-  Coroutine$getMove_jr41iw$_0.prototype.constructor = Coroutine$getMove_jr41iw$_0;
-  Coroutine$getMove_jr41iw$_0.prototype.doResume = function () {
+  Coroutine$getMove_jr41iw$_1.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
+  Coroutine$getMove_jr41iw$_1.prototype = Object.create(CoroutineImpl.prototype);
+  Coroutine$getMove_jr41iw$_1.prototype.constructor = Coroutine$getMove_jr41iw$_1;
+  Coroutine$getMove_jr41iw$_1.prototype.doResume = function () {
     do
       try {
         switch (this.state_0) {
@@ -1129,42 +1475,45 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     this.menu_0 = get_0(document, 'main-menu');
     this.rules_0 = get_0(document, 'rules');
     this.game_0 = get_0(document, 'game-ui');
+    this.gameGrid_0 = get_0(document, 'game-grid');
+    hide(this.game_0);
+    hide(this.rules_0);
     onClick(this.btnPlayLocal_0, MenuUI_init$lambda(this));
     onClick(this.btnPlayOnline_0, MenuUI_init$lambda_0(this));
     onClick(this.btnRules_0, MenuUI_init$lambda_1(this));
     onClick(this.btnBack_0, MenuUI_init$lambda_2(this));
   }
   MenuUI.prototype.closeGame = function () {
-    this.game_0.hidden = true;
-    this.menu_0.hidden = false;
+    hide(this.game_0);
+    unhide(this.menu_0);
   };
   function MenuUI_init$lambda(this$MenuUI) {
     return function (it) {
-      this$MenuUI.menu_0.hidden = true;
-      this$MenuUI.game_0.hidden = false;
-      GameUI$Companion_getInstance().open_5reo23$(get_0(document, 'game'), this$MenuUI, GameMode$Local_getInstance());
+      hide(this$MenuUI.menu_0);
+      unhide(this$MenuUI.game_0);
+      GameUI$Companion_getInstance().open_ca0b88$(this$MenuUI.gameGrid_0, this$MenuUI, GameMode$Local_getInstance());
       return Unit;
     };
   }
   function MenuUI_init$lambda_0(this$MenuUI) {
     return function (it) {
-      this$MenuUI.menu_0.hidden = true;
-      this$MenuUI.game_0.hidden = false;
-      GameUI$Companion_getInstance().open_5reo23$(get_0(document, 'game'), this$MenuUI, GameMode$Online_getInstance());
+      hide(this$MenuUI.menu_0);
+      unhide(this$MenuUI.game_0);
+      GameUI$Companion_getInstance().open_ca0b88$(this$MenuUI.gameGrid_0, this$MenuUI, GameMode$Online_getInstance());
       return Unit;
     };
   }
   function MenuUI_init$lambda_1(this$MenuUI) {
     return function (it) {
-      this$MenuUI.rules_0.hidden = false;
-      this$MenuUI.menu_0.hidden = true;
+      unhide(this$MenuUI.rules_0);
+      hide(this$MenuUI.menu_0);
       return Unit;
     };
   }
   function MenuUI_init$lambda_2(this$MenuUI) {
     return function (it) {
-      this$MenuUI.rules_0.hidden = true;
-      this$MenuUI.menu_0.hidden = false;
+      hide(this$MenuUI.rules_0);
+      unhide(this$MenuUI.menu_0);
       return Unit;
     };
   }
@@ -1181,159 +1530,29 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     $receiver.addEventListener('click', action);
     return to($receiver, action);
   }
+  function onChange$lambda(closure$action, this$onChange) {
+    return function (f) {
+      closure$action(this$onChange.value);
+      return Unit;
+    };
+  }
+  function onChange($receiver, action) {
+    var callback = onChange$lambda(action, $receiver);
+    $receiver.addEventListener('change', callback);
+    return to($receiver, callback);
+  }
   function removeOnClick($receiver, action) {
     $receiver.removeEventListener('click', action);
   }
-  function WebsocketConnection() {
+  function addOption($receiver, option_0) {
+    $receiver.options.add(option(get_create(document), void 0, option_0));
   }
-  WebsocketConnection.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'WebsocketConnection', interfaces: []};
-  function WebsocketConnectionImpl(ws) {
-    this.ws_0 = ws;
-    this.open_0 = CompletableDeferred();
-    this.messages_0 = Channel();
-    this.ws_0.onopen = WebsocketConnectionImpl_init$lambda(this);
-    this.ws_0.onclose = WebsocketConnectionImpl_init$lambda_0(this);
-    this.ws_0.onmessage = WebsocketConnectionImpl_init$lambda_1(this);
+  function hide($receiver) {
+    $receiver.classList.add('hidden');
   }
-  Object.defineProperty(WebsocketConnectionImpl.prototype, 'coroutineContext', {get: function () {
-    return coroutines.Dispatchers.Default.plus_1fupul$(Job());
-  }});
-  function WebsocketConnectionImpl$send$lambda(this$WebsocketConnectionImpl_0, closure$s_0) {
-    return function ($receiver, continuation_0, suspended) {
-      var instance = new Coroutine$WebsocketConnectionImpl$send$lambda(this$WebsocketConnectionImpl_0, closure$s_0, $receiver, this, continuation_0);
-      if (suspended)
-        return instance;
-      else
-        return instance.doResume(null);
-    };
+  function unhide($receiver) {
+    $receiver.classList.remove('hidden');
   }
-  function Coroutine$WebsocketConnectionImpl$send$lambda(this$WebsocketConnectionImpl_0, closure$s_0, $receiver, controller, continuation_0) {
-    CoroutineImpl.call(this, continuation_0);
-    this.$controller = controller;
-    this.exceptionState_0 = 1;
-    this.local$this$WebsocketConnectionImpl = this$WebsocketConnectionImpl_0;
-    this.local$closure$s = closure$s_0;
-  }
-  Coroutine$WebsocketConnectionImpl$send$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
-  Coroutine$WebsocketConnectionImpl$send$lambda.prototype = Object.create(CoroutineImpl.prototype);
-  Coroutine$WebsocketConnectionImpl$send$lambda.prototype.constructor = Coroutine$WebsocketConnectionImpl$send$lambda;
-  Coroutine$WebsocketConnectionImpl$send$lambda.prototype.doResume = function () {
-    do
-      try {
-        switch (this.state_0) {
-          case 0:
-            this.state_0 = 2;
-            this.result_0 = this.local$this$WebsocketConnectionImpl.open_0.await(this);
-            if (this.result_0 === COROUTINE_SUSPENDED)
-              return COROUTINE_SUSPENDED;
-            continue;
-          case 1:
-            throw this.exception_0;
-          case 2:
-            return this.local$this$WebsocketConnectionImpl.ws_0.send(this.local$closure$s), Unit;
-          default:this.state_0 = 1;
-            throw new Error('State Machine Unreachable execution');
-        }
-      }
-       catch (e) {
-        if (this.state_0 === 1) {
-          this.exceptionState_0 = this.state_0;
-          throw e;
-        }
-         else {
-          this.state_0 = this.exceptionState_0;
-          this.exception_0 = e;
-        }
-      }
-     while (true);
-  };
-  WebsocketConnectionImpl.prototype.send_61zpoe$ = function (s) {
-    launch(this, void 0, void 0, WebsocketConnectionImpl$send$lambda(this, s));
-  };
-  WebsocketConnectionImpl.prototype.receive = function (continuation) {
-    return this.messages_0.receive(continuation);
-  };
-  WebsocketConnectionImpl.prototype.close = function () {
-    this.ws_0.close();
-  };
-  function WebsocketConnectionImpl_init$lambda(this$WebsocketConnectionImpl) {
-    return function (it) {
-      return this$WebsocketConnectionImpl.open_0.complete_11rb$(null);
-    };
-  }
-  var Job_0 = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job;
-  function WebsocketConnectionImpl_init$lambda_0(this$WebsocketConnectionImpl) {
-    return function (it) {
-      var $receiver = this$WebsocketConnectionImpl;
-      var tmp$;
-      var tmp$_0;
-      if ((tmp$ = $receiver.coroutineContext.get_j3r2sn$(Job_0.Key)) != null)
-        tmp$_0 = tmp$;
-      else {
-        throw IllegalStateException_init(('Scope cannot be cancelled because it does not have a job: ' + $receiver).toString());
-      }
-      var job = tmp$_0;
-      job.cancel();
-      return Unit;
-    };
-  }
-  function WebsocketConnectionImpl_init$lambda$lambda(this$WebsocketConnectionImpl_0, closure$evt_0) {
-    return function ($receiver, continuation_0, suspended) {
-      var instance = new Coroutine$WebsocketConnectionImpl_init$lambda$lambda(this$WebsocketConnectionImpl_0, closure$evt_0, $receiver, this, continuation_0);
-      if (suspended)
-        return instance;
-      else
-        return instance.doResume(null);
-    };
-  }
-  function Coroutine$WebsocketConnectionImpl_init$lambda$lambda(this$WebsocketConnectionImpl_0, closure$evt_0, $receiver, controller, continuation_0) {
-    CoroutineImpl.call(this, continuation_0);
-    this.$controller = controller;
-    this.exceptionState_0 = 1;
-    this.local$this$WebsocketConnectionImpl = this$WebsocketConnectionImpl_0;
-    this.local$closure$evt = closure$evt_0;
-  }
-  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
-  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.prototype = Object.create(CoroutineImpl.prototype);
-  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.prototype.constructor = Coroutine$WebsocketConnectionImpl_init$lambda$lambda;
-  Coroutine$WebsocketConnectionImpl_init$lambda$lambda.prototype.doResume = function () {
-    do
-      try {
-        switch (this.state_0) {
-          case 0:
-            this.state_0 = 2;
-            this.result_0 = this.local$this$WebsocketConnectionImpl.messages_0.send_11rb$(toString(this.local$closure$evt.data), this);
-            if (this.result_0 === COROUTINE_SUSPENDED)
-              return COROUTINE_SUSPENDED;
-            continue;
-          case 1:
-            throw this.exception_0;
-          case 2:
-            return this.result_0;
-          default:this.state_0 = 1;
-            throw new Error('State Machine Unreachable execution');
-        }
-      }
-       catch (e) {
-        if (this.state_0 === 1) {
-          this.exceptionState_0 = this.state_0;
-          throw e;
-        }
-         else {
-          this.state_0 = this.exceptionState_0;
-          this.exception_0 = e;
-        }
-      }
-     while (true);
-  };
-  function WebsocketConnectionImpl_init$lambda_1(this$WebsocketConnectionImpl) {
-    return function (evt) {
-      if (Kotlin.isType(evt, MessageEvent))
-        launch(this$WebsocketConnectionImpl, void 0, void 0, WebsocketConnectionImpl_init$lambda$lambda(this$WebsocketConnectionImpl, evt));
-      return Unit;
-    };
-  }
-  WebsocketConnectionImpl.$metadata$ = {kind: Kind_CLASS, simpleName: 'WebsocketConnectionImpl', interfaces: [CoroutineScope, WebsocketConnection]};
   var package$de = _.de || (_.de = {});
   var package$earley = package$de.earley || (package$de.earley = {});
   var package$gogogo = package$earley.gogogo || (package$earley.gogogo = {});
@@ -1341,12 +1560,23 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   package$ai.DelayedController = DelayedController;
   package$ai.withUIAwareness_mj2ouj$ = withUIAwareness;
   package$gogogo.main_kand9s$ = main;
-  Object.defineProperty(Connection, 'Companion', {get: Connection$Companion_getInstance});
   var package$net = package$gogogo.net || (package$gogogo.net = {});
+  package$net.ClosedException = ClosedException;
+  Object.defineProperty(Connection, 'Companion', {get: Connection$Companion_getInstance});
   package$net.Connection = Connection;
   package$net.Matchmaking = Matchmaking;
   package$net.NetworkController = NetworkController;
+  package$net.WebsocketConnection = WebsocketConnection;
+  $$importsForInline$$['kotlinx-coroutines-core'] = $module$kotlinx_coroutines_core;
+  package$net.WebsocketConnectionImpl = WebsocketConnectionImpl;
+  Object.defineProperty(ControllerTypes, 'Human', {get: ControllerTypes$Human_getInstance});
+  Object.defineProperty(ControllerTypes, 'Easy', {get: ControllerTypes$Easy_getInstance});
+  Object.defineProperty(ControllerTypes, 'Medium', {get: ControllerTypes$Medium_getInstance});
+  Object.defineProperty(ControllerTypes, 'Hard', {get: ControllerTypes$Hard_getInstance});
   var package$ui = package$gogogo.ui || (package$gogogo.ui = {});
+  package$ui.ControllerTypes = ControllerTypes;
+  package$ui.controllerTypesAsString = controllerTypesAsString;
+  package$ui.toControllerType_pdl1vz$ = toControllerType;
   package$ui.GamePresenter = GamePresenter;
   package$ui.asClass_txv5hr$ = asClass;
   Object.defineProperty(GameMode, 'Local', {get: GameMode$Local_getInstance});
@@ -1359,11 +1589,11 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   package$ui.MenuUI = MenuUI;
   package$ui.get_o90r4$ = get_0;
   package$ui.onClick_2lnv0o$ = onClick;
+  package$ui.onChange_7k8njo$ = onChange;
   package$ui.removeOnClick_27kyd6$ = removeOnClick;
-  var package$web = package$gogogo.web || (package$gogogo.web = {});
-  package$web.WebsocketConnection = WebsocketConnection;
-  $$importsForInline$$['kotlinx-coroutines-core'] = $module$kotlinx_coroutines_core;
-  package$web.WebsocketConnectionImpl = WebsocketConnectionImpl;
+  package$ui.addOption_8ao98n$ = addOption;
+  package$ui.hide_y4uc6z$ = hide;
+  package$ui.unhide_y4uc6z$ = unhide;
   server = 'wss://gogogo-server.herokuapp.com/';
   name_0 = null;
   main([]);

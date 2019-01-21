@@ -6,10 +6,7 @@ import de.earley.gogogo.game.GAME_WIDTH
 import de.earley.gogogo.game.Player
 import de.earley.gogogo.game.grid.Grid
 import de.earley.gogogo.game.grid.forEach
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.html.dom.create
 import kotlinx.html.id
 import kotlinx.html.js.table
@@ -31,14 +28,15 @@ enum class GameMode {
 private var name: String? = null
 
 class GameUI private constructor(
-	private val rootDiv: HTMLDivElement,
+	private val table: HTMLTableElement,
 	private val menu: MenuUI,
 	private val mode: GameMode
 ): CoroutineScope {
 
 	companion object {
-		fun open(rootDiv: HTMLDivElement, menu: MenuUI, mode: GameMode): GameUI {
-			rootDiv.clear()
+		fun open(rootDiv: HTMLTableElement, menu: MenuUI, mode: GameMode): GameUI {
+			//TODO not needed
+//			rootDiv.clear()
 			return GameUI(rootDiv, menu, mode)
 		}
 	}
@@ -47,14 +45,16 @@ class GameUI private constructor(
 	override val coroutineContext: CoroutineContext
 		get() = Dispatchers.Default + Job()
 
-	private val aiCheckboxBlue: HTMLInputElement = document.get("ai-blue-check")
-	private val aiCheckboxRed: HTMLInputElement = document.get("ai-red-check")
+	private val blueController: HTMLSelectElement = document.get("blue-controller")
+	private val redController: HTMLSelectElement = document.get("red-controller")
 	private val turnIndicator: HTMLParagraphElement = document.get("turn-indicator")
 	private val undo: HTMLButtonElement = document.get("btn-undo")
 	private val restart = document.get<HTMLButtonElement>("btn-restart")
 	private val localControls = document.get<HTMLDivElement>("local-controls")
 	private val serverControls = document.get<HTMLDivElement>("server-controls")
-	private val onwPlayer = document.get<HTMLParagraphElement>("server-own-player")
+	private val ownPlayer = document.get<HTMLParagraphElement>("server-own-player")
+	private val spinner = document.get<HTMLDivElement>("connect-spinner")
+
 
 	private val eventListeners: MutableList<Pair<HTMLElement, (Event) -> Unit>> = ArrayList()
 
@@ -76,7 +76,7 @@ class GameUI private constructor(
 			}
 		}
 
-		rootDiv.append(ui)
+		table.replaceWith(ui)
 
 		return Grid.create(width, height) { x, y ->
 			document.get<HTMLTableCellElement>("game-cell-$x-$y")
@@ -85,11 +85,24 @@ class GameUI private constructor(
 
 	init {
 		launch {
-			presenter.start()
-			checkGameMode()
-			updateUI()
+			setupSelects()
 			registerEventListeners()
+			checkGameMode()
+			delay(10)
+			presenter.start()
+			updateUI()
 		}
+	}
+
+	private fun setupSelects() {
+		redController.clear()
+		blueController.clear()
+		controllerTypesAsString().forEach {
+			redController.addOption(it)
+			blueController.addOption(it)
+		}
+		blueController.selectedIndex = 0
+		redController.selectedIndex = 3
 	}
 
 	fun updateUI() {
@@ -102,20 +115,17 @@ class GameUI private constructor(
 		undo.disabled = ! presenter.canUndo()
 	}
 
-	fun isAI(player: Player) = when (player) {
-		Player.Red -> aiCheckboxRed.checked
-		Player.Blue -> aiCheckboxBlue.checked
-	}
-
 	private fun checkGameMode() {
 		when (mode) {
 			GameMode.Local -> {
-				localControls.hidden = false
-				serverControls.hidden = true
+				localControls.unhide()
+				serverControls.hide()
+				spinner.hide()
 			}
 			GameMode.Online -> {
-				localControls.hidden = true
-				serverControls.hidden = false
+				localControls.hide()
+				serverControls.unhide()
+				spinner.unhide()
 			}
 		}
 	}
@@ -137,16 +147,16 @@ class GameUI private constructor(
 			presenter.undo()
 		}
 
-		eventListeners += aiCheckboxRed.onClick {
-			presenter.setRedAI(aiCheckboxRed.checked)
-		}
-
-		eventListeners += aiCheckboxBlue.onClick {
-			presenter.setBlueAI(aiCheckboxRed.checked)
-		}
-
 		eventListeners += document.get<HTMLButtonElement>("btn-exit-game").onClick {
 			exitGame()
+		}
+
+		eventListeners += blueController.onChange {
+			presenter.changeBlueController()
+		}
+
+		eventListeners += redController.onChange {
+			presenter.changeRedController()
 		}
 	}
 
@@ -165,7 +175,9 @@ class GameUI private constructor(
 	}
 
 	fun showOwnPlayer(player: Player, opponent: String) {
-		onwPlayer.innerText = "Your are playing as $player against $opponent"
+		// we have a connection, so stop showing the spinner
+		spinner.hide()
+		ownPlayer.innerText = "Your are playing as $player against $opponent"
 	}
 
 	fun getName(): String {
@@ -176,6 +188,13 @@ class GameUI private constructor(
 				name = it
 			}
 		}
+	}
+
+	fun getController(player: Player): String = when (player) {
+		Player.Blue -> blueController.value
+		Player.Red -> redController.value
+	}.also {
+		println("Queried value for $player is $it")
 	}
 
 }

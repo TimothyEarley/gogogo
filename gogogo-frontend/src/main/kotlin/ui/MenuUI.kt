@@ -2,6 +2,7 @@ package de.earley.gogogo.ui
 
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLTableElement
 import kotlin.browser.document
 
 class MenuUI {
@@ -16,35 +17,41 @@ class MenuUI {
 	private val rules: HTMLDivElement = document.get("rules")
 	private val game: HTMLDivElement = document.get("game-ui")
 
+	private val gameGrid: HTMLTableElement = document.get("game-grid")
+
 	init {
+
+		game.hide()
+		rules.hide()
+
 		btnPlayLocal.onClick {
-			menu.hidden = true
-			game.hidden = false
-			GameUI.open(document.get("game"), this, GameMode.Local)
+			menu.hide()
+			game.unhide()
+			GameUI.open(gameGrid, this, GameMode.Local)
 		}
 
 		btnPlayOnline.onClick {
-			menu.hidden = true
-			game.hidden = false
-			GameUI.open(document.get("game"), this, GameMode.Online)
+			menu.hide()
+			game.unhide()
+			GameUI.open(gameGrid, this, GameMode.Online)
 		}
 
 		btnRules.onClick {
-			rules.hidden = false
-			menu.hidden = true
+			rules.unhide()
+			menu.hide()
 		}
 
 		btnBack.onClick {
-			rules.hidden = true
-			menu.hidden = false
+			rules.hide()
+			menu.unhide()
 		}
 
 	}
 
 
 	fun closeGame() {
-		game.hidden = true
-		menu.hidden = false
+		game.hide()
+		menu.unhide()
 	}
 
 

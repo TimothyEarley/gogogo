@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<title>GoGoGo</title>
 	<link rel="stylesheet" href="style.css">
-	
+
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 </head>
 <body>
@@ -19,47 +19,51 @@
 	<h1>GoGoGo</h1>
 
 	<div id="menu" class="center">
-		<div id="main-menu">
-			<button id="btn-play-local">Play local</button>
-			<button id="btn-play-online">Play online</button>
-			<button id="btn-rules">Rules</button>
-		</div>
+		<ul id="main-menu">
+			<li><button id="btn-play-local" class="btn">Play local</button></li>
+			<li><button id="btn-play-online" class="btn">Play online</button></li>
+			<li><button id="btn-rules" class="btn">Rules</button></li>
+		</ul>
 
-		<div id="rules" hidden>
-			<p>Here are the rules.....</p>
-			<button id="btn-back">back</button>
+		<div id="rules" class="hidden">
+			<p>The goal is simple: reach the other end. The rules of movement are:</p>
+			<ol>
+				<li>Each turn, move one piece to an adjacent square.</li>
+				<li>You may push at most one other piece along with you.</li>
+				<li>The pushed piece is immobilized; it cannot move during the opponent's turn.</li>
+				<li>If a piece falls off the edge it's gone<./li>
+				<li>If you have no moves available you lose.</li>
+			</ol>
+			<button id="btn-back" class="btn" >Return</button>
 		</div>
 	</div>
 
-	<div id="game-ui" hidden>
-		<div id="game"></div>
+	<div id="game-ui" class="hidden">
+		<button id="btn-exit-game" class="center btn btn-red btn-small">◀ Exit</button>
 
 		<p id="turn-indicator">Blue's turn</p>
 
-		<div class="center" id="local-controls">
-			<label>
-				<input id="ai-blue-check" type="checkbox"/>
-				Blue AI
-			</label>
-			<label>
-				<input id="ai-red-check" type="checkbox" checked/>
-				Red AI
-			</label>
-			<br>
+		<div id="game">
+			<div id="connect-spinner" class="lds-dual-ring"></div>
+			<table id="game-grid"></table>
+		</div>
 
-			<button id="btn-undo">Undo</button>
-			<button id="btn-restart">Restart</button>
+		<div class="center" id="local-controls">
+			<select id="blue-controller"></select>
+			vs.
+			<select id="red-controller"></select>
+
+			<div id="local-btns">
+				<!--TODO FIX These buttons are synchronised - click on one and both go down -->
+				<button id="btn-undo" class="btn btn-small">Undo</button>
+				<button id="btn-restart" class="btn btn-small">Restart</button>
+			</div>
 		</div>
 
 		<div class="center" id="server-controls">
 			<p id="server-own-player"></p>
 		</div>
 
-		<button id="btn-exit-game" class="center">Exit game</button>
 	</div>
-
-
-	<!--TODO instructions-->
-
 </body>
 </html>

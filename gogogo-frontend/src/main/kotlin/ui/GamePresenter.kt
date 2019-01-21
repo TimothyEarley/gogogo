@@ -3,6 +3,7 @@ package de.earley.gogogo.ui
 import de.earley.gogogo.ai.AI
 import de.earley.gogogo.ai.withUIAwareness
 import de.earley.gogogo.game.*
+import de.earley.gogogo.net.MatchInfo
 import de.earley.gogogo.net.Matchmaking
 import de.earley.gogogo.net.NetworkController
 import de.earley.gogogo.net.PlayerInfo
@@ -18,7 +19,10 @@ class GamePresenter(
 
 	private var selected: Point? = null
 	private lateinit var game: ControlledGame
-	private lateinit var matchmaking: Matchmaking
+
+	// multi player
+	private var matchmaking: Matchmaking? = null
+	private var matchinfo: MatchInfo? = null
 
 	suspend fun start() {
 		restart()
@@ -70,9 +74,10 @@ class GamePresenter(
 	}
 
 	override fun onGameEnd() {
-		// inform other player in multiplayer scenario
-		if (mode == GameMode.Online) {
-			(game.activeController as? NetworkController)?.sendVictory(game.lastMove!!)
+		// inform other player in multiplayer scenario (but only if we won)
+		if (mode == GameMode.Online && game.victor == matchinfo?.player) {
+			println("Sending victory to opponent")
+			matchmaking?.opponent?.sendVictory(game.lastMove!!)
 		}
 		unselect()
 	}
@@ -88,8 +93,10 @@ class GamePresenter(
 
 		return if (mode == GameMode.Online) {
 			// setup connection
-			matchmaking = Matchmaking(PlayerInfo(gameUI.getName()))
+			val matchmaking = Matchmaking(PlayerInfo(gameUI.getName()))
+			this.matchmaking = matchmaking
 			val info = matchmaking.findMatch()
+			matchinfo = info
 			println("Playing against ${info.other.name} as ${info.player}")
 			// get player side
 			val red = if (info.player == Player.Red) HumanController() else matchmaking.opponent.withUIAwareness()
@@ -135,17 +142,18 @@ class GamePresenter(
 	//TODO multiplayer
 	fun canUndo(): Boolean = game.canUndo()
 
-	fun setRedAI(active: Boolean) {
+	fun changeRedController() {
+		require(mode == GameMode.Local) { "Only allowed in local play!" }
 		game.switchRed(getLocalController(Player.Red))
 	}
 
-	fun setBlueAI(active: Boolean) {
+	fun changeBlueController() {
+		require(mode == GameMode.Local) { "Only allowed in local play!" }
 		game.switchBlue(getLocalController(Player.Blue))
 	}
 
 	private fun getLocalController(player: Player): PlayerController =
-				if (gameUI.isAI(player)) AI().withUIAwareness()
-				else HumanController()
+		gameUI.getController(player).toControllerType().build()
 
 	fun exitGame() {
 		matchmaking?.disconnect()
