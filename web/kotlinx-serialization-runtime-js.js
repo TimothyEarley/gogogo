@@ -171,6 +171,8 @@
   EnumDescriptor.prototype.constructor = EnumDescriptor;
   EnumSerializer.prototype = Object.create(CommonEnumSerializer.prototype);
   EnumSerializer.prototype.constructor = EnumSerializer;
+  IntDescriptor.prototype = Object.create(PrimitiveDescriptor.prototype);
+  IntDescriptor.prototype.constructor = IntDescriptor;
   UnitDescriptor.prototype = Object.create(PrimitiveDescriptor.prototype);
   UnitDescriptor.prototype.constructor = UnitDescriptor;
   MissingDescriptorException.prototype = Object.create(SerializationException.prototype);
@@ -1166,6 +1168,7 @@
   EnumSerializer.$metadata$ = {kind: Kind_CLASS, simpleName: 'EnumSerializer', interfaces: [CommonEnumSerializer]};
   function GeneratedSerializer() {
   }
+  GeneratedSerializer.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'GeneratedSerializer', interfaces: [KSerializer]};
   function NullableSerializer(element) {
     this.element_0 = element;
     this.descriptor_kbvl2k$_0 = new NullableSerializer$SerialDescriptorForNullable(this.element_0.descriptor);
@@ -1273,7 +1276,18 @@
     return this.name;
   };
   PrimitiveDescriptor.$metadata$ = {kind: Kind_CLASS, simpleName: 'PrimitiveDescriptor', interfaces: [SerialDescriptor]};
+  function IntDescriptor() {
+    IntDescriptor_instance = this;
+    PrimitiveDescriptor.call(this, 'kotlin.Int', PrimitiveKind$INT_getInstance());
+  }
+  IntDescriptor.$metadata$ = {kind: Kind_OBJECT, simpleName: 'IntDescriptor', interfaces: [PrimitiveDescriptor]};
   var IntDescriptor_instance = null;
+  function IntDescriptor_getInstance() {
+    if (IntDescriptor_instance === null) {
+      new IntDescriptor();
+    }
+    return IntDescriptor_instance;
+  }
   function UnitDescriptor() {
     UnitDescriptor_instance = this;
     PrimitiveDescriptor.call(this, 'kotlin.Unit', PrimitiveKind$UNIT_getInstance());
@@ -1334,7 +1348,23 @@
     IntSerializer_instance = this;
     this.descriptor_xrjflq$_0 = IntDescriptor_getInstance();
   }
+  Object.defineProperty(IntSerializer.prototype, 'descriptor', {get: function () {
+    return this.descriptor_xrjflq$_0;
+  }});
+  IntSerializer.prototype.serialize_awe97i$ = function (output, obj) {
+    output.encodeInt_za3lpa$(obj);
+  };
+  IntSerializer.prototype.deserialize_nts5qn$ = function (input) {
+    return input.decodeInt();
+  };
+  IntSerializer.$metadata$ = {kind: Kind_OBJECT, simpleName: 'IntSerializer', interfaces: [KSerializer]};
   var IntSerializer_instance = null;
+  function IntSerializer_getInstance() {
+    if (IntSerializer_instance === null) {
+      new IntSerializer();
+    }
+    return IntSerializer_instance;
+  }
   function LongSerializer() {
     LongSerializer_instance = this;
     this.descriptor_q4z687$_0 = LongDescriptor_getInstance();
@@ -2930,8 +2960,10 @@
   package$internal.GeneratedSerializer = GeneratedSerializer;
   package$internal.NullableSerializer = NullableSerializer;
   package$internal.PrimitiveDescriptor = PrimitiveDescriptor;
+  Object.defineProperty(package$internal, 'IntDescriptor', {get: IntDescriptor_getInstance});
   Object.defineProperty(package$internal, 'UnitDescriptor', {get: UnitDescriptor_getInstance});
   Object.defineProperty(package$internal, 'UnitSerializer', {get: UnitSerializer_getInstance});
+  Object.defineProperty(package$internal, 'IntSerializer', {get: IntSerializer_getInstance});
   package$internal.MissingDescriptorException = MissingDescriptorException;
   package$internal.SerialClassDescImpl = SerialClassDescImpl;
   package$internal.KeyValueSerializer = KeyValueSerializer;

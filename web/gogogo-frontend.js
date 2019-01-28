@@ -1283,7 +1283,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   };
   GameUI.prototype.showOwnPlayer_x97jf4$ = function (player, opponent) {
     hide(this.spinner_0);
-    this.ownPlayer_0.innerText = 'Your are playing as ' + player + ' against ' + opponent;
+    this.ownPlayer_0.innerText = 'You are playing as ' + player + ' against ' + opponent;
   };
   GameUI.prototype.getName = function () {
     if (name_0 != null)
