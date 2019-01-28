@@ -177,7 +177,7 @@ class GameUI private constructor(
 	fun showOwnPlayer(player: Player, opponent: String) {
 		// we have a connection, so stop showing the spinner
 		spinner.hide()
-		ownPlayer.innerText = "Your are playing as $player against $opponent"
+		ownPlayer.innerText = "You are playing as $player against $opponent"
 	}
 
 	fun getName(): String {

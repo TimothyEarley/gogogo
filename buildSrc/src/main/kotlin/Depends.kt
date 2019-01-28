@@ -1,11 +1,25 @@
 object Depends {
 
-	object JS {
-		const val kotlin = "org.jetbrains.kotlin:kotlin-stdlib-js:${Versions.kotlin}"
-		const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${Versions.coroutines}"
-		const val html = "org.jetbrains.kotlinx:kotlinx-html-js:${Versions.html}"
-		const val serialisation = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:${Versions.serialisationRuntime}"
+	object Stdlib {
+		const val common = "org.jetbrains.kotlin:kotlin-stdlib-common:${Versions.kotlin}"
+		const val js = "org.jetbrains.kotlin:kotlin-stdlib-js:${Versions.kotlin}"
+		const val jvm = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
+	}
 
+	object Coroutines {
+		const val common = "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${Versions.coroutines}"
+		const val js = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${Versions.coroutines}"
+		const val jvm = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
+	}
+
+	object Serialisation {
+		const val common = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${Versions.serialisationRuntime}"
+		const val js = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:${Versions.serialisationRuntime}"
+		const val jvm = "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.serialisationRuntime}"
+	}
+
+	object JS {
+		const val html = "org.jetbrains.kotlinx:kotlinx-html-js:${Versions.html}"
 	}
 
 	object Ktor {

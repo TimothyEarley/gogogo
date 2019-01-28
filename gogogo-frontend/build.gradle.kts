@@ -13,11 +13,11 @@ apply {
 dependencies {
     compile(project(":gogogo-common"))
 
-    compile(Depends.JS.kotlin)
-    compile(Depends.JS.coroutines)
+    compile(Depends.Stdlib.js)
+    compile(Depends.Coroutines.js)
     compile(Depends.JS.html)
     // indirect dependency, but otherwise not picked up by dce
-    compile(Depends.JS.serialisation)
+    compile(Depends.Serialisation.js)
 }
 
 
