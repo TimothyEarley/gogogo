@@ -37,13 +37,15 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   var SerialClassDescImpl = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.SerialClassDescImpl;
   var NullableSerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.NullableSerializer;
   var UnknownFieldException = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.UnknownFieldException;
-  var KSerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.KSerializer;
+  var internal = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal;
+  var GeneratedSerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.GeneratedSerializer;
   var MissingFieldException = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.MissingFieldException;
   var last = Kotlin.kotlin.collections.last_2p1efm$;
   var get_lastIndex = Kotlin.kotlin.collections.get_lastIndex_55thoc$;
   var mutableListOf = Kotlin.kotlin.collections.mutableListOf_i5x0yv$;
   var Enum = Kotlin.kotlin.Enum;
   var throwISE = Kotlin.throwISE;
+  var getKClass = Kotlin.getKClass;
   var EnumSerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.EnumSerializer;
   var abs = Kotlin.kotlin.math.abs_za3lpa$;
   var throwCCE = Kotlin.throwCCE;
@@ -131,15 +133,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   };
   AI.$metadata$ = {kind: Kind_CLASS, simpleName: 'AI', interfaces: [PlayerController]};
   var until = Kotlin.kotlin.ranges.until_dqglrj$;
-  function findAllMoves$lambda(this$findAllMoves_0) {
-    return function ($receiver_0, continuation_0, suspended) {
-      var instance = new Coroutine$findAllMoves$lambda(this$findAllMoves_0, $receiver_0, this, continuation_0);
-      if (suspended)
-        return instance;
-      else
-        return instance.doResume(null);
-    };
-  }
   function Coroutine$findAllMoves$lambda(this$findAllMoves_0, $receiver_0, controller, continuation_0) {
     CoroutineImpl.call(this, continuation_0);
     this.$controller = controller;
@@ -270,6 +263,15 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       }
      while (true);
   };
+  function findAllMoves$lambda(this$findAllMoves_0) {
+    return function ($receiver_0, continuation_0, suspended) {
+      var instance = new Coroutine$findAllMoves$lambda(this$findAllMoves_0, $receiver_0, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
   function findAllMoves($receiver) {
     return toList(sequence(findAllMoves$lambda($receiver)));
   }
@@ -405,16 +407,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       default:return Kotlin.noWhenBranchMatched();
     }
   }});
-  function ControlledGame$doMove$lambda(this$ControlledGame_0) {
-    return function ($receiver, continuation_0, suspended) {
-      var instance = new Coroutine$ControlledGame$doMove$lambda(this$ControlledGame_0, $receiver, this, continuation_0);
-      if (suspended)
-        return instance;
-      else
-        return instance.doResume(null);
-    };
-  }
-  function Coroutine$ControlledGame$doMove$lambda(this$ControlledGame_0, $receiver, controller, continuation_0) {
+  function Coroutine$ControlledGame$doMove$lambda(this$ControlledGame_0, $receiver_0, controller, continuation_0) {
     CoroutineImpl.call(this, continuation_0);
     this.$controller = controller;
     this.exceptionState_0 = 1;
@@ -455,13 +448,15 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       }
      while (true);
   };
-  ControlledGame.prototype.doMove_0 = function (continuation_0, suspended) {
-    var instance = new Coroutine$doMove_0(this, continuation_0);
-    if (suspended)
-      return instance;
-    else
-      return instance.doResume(null);
-  };
+  function ControlledGame$doMove$lambda(this$ControlledGame_0) {
+    return function ($receiver_0, continuation_0, suspended) {
+      var instance = new Coroutine$ControlledGame$doMove$lambda(this$ControlledGame_0, $receiver_0, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
   function Coroutine$doMove_0($this, continuation_0) {
     CoroutineImpl.call(this, continuation_0);
     this.exceptionState_0 = 5;
@@ -539,8 +534,8 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       }
      while (true);
   };
-  ControlledGame.prototype.gameLoop_0 = function (continuation_0, suspended) {
-    var instance = new Coroutine$gameLoop_0(this, continuation_0);
+  ControlledGame.prototype.doMove_0 = function (continuation_0, suspended) {
+    var instance = new Coroutine$doMove_0(this, continuation_0);
     if (suspended)
       return instance;
     else
@@ -601,16 +596,14 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       }
      while (true);
   };
-  function ControlledGame$start$lambda(this$ControlledGame_0) {
-    return function ($receiver, continuation_0, suspended) {
-      var instance = new Coroutine$ControlledGame$start$lambda(this$ControlledGame_0, $receiver, this, continuation_0);
-      if (suspended)
-        return instance;
-      else
-        return instance.doResume(null);
-    };
-  }
-  function Coroutine$ControlledGame$start$lambda(this$ControlledGame_0, $receiver, controller, continuation_0) {
+  ControlledGame.prototype.gameLoop_0 = function (continuation_0, suspended) {
+    var instance = new Coroutine$gameLoop_0(this, continuation_0);
+    if (suspended)
+      return instance;
+    else
+      return instance.doResume(null);
+  };
+  function Coroutine$ControlledGame$start$lambda(this$ControlledGame_0, $receiver_0, controller, continuation_0) {
     CoroutineImpl.call(this, continuation_0);
     this.$controller = controller;
     this.exceptionState_0 = 1;
@@ -649,6 +642,15 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       }
      while (true);
   };
+  function ControlledGame$start$lambda(this$ControlledGame_0) {
+    return function ($receiver_0, continuation_0, suspended) {
+      var instance = new Coroutine$ControlledGame$start$lambda(this$ControlledGame_0, $receiver_0, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
   ControlledGame.prototype.start_e9pf1l$ = function ($receiver) {
     this.scope_0 = $receiver;
     launch($receiver, void 0, void 0, ControlledGame$start$lambda(this));
@@ -663,16 +665,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.blueController_0 = controller;
     this.resetMoveAwait_0();
   };
-  function ControlledGame$resetMoveAwait$lambda(this$ControlledGame_0) {
-    return function ($receiver, continuation_0, suspended) {
-      var instance = new Coroutine$ControlledGame$resetMoveAwait$lambda(this$ControlledGame_0, $receiver, this, continuation_0);
-      if (suspended)
-        return instance;
-      else
-        return instance.doResume(null);
-    };
-  }
-  function Coroutine$ControlledGame$resetMoveAwait$lambda(this$ControlledGame_0, $receiver, controller, continuation_0) {
+  function Coroutine$ControlledGame$resetMoveAwait$lambda(this$ControlledGame_0, $receiver_0, controller, continuation_0) {
     CoroutineImpl.call(this, continuation_0);
     this.$controller = controller;
     this.exceptionState_0 = 1;
@@ -724,6 +717,15 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       }
      while (true);
   };
+  function ControlledGame$resetMoveAwait$lambda(this$ControlledGame_0) {
+    return function ($receiver_0, continuation_0, suspended) {
+      var instance = new Coroutine$ControlledGame$resetMoveAwait$lambda(this$ControlledGame_0, $receiver_0, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
   ControlledGame.prototype.resetMoveAwait_0 = function () {
     launch(this.scope_0, void 0, void 0, ControlledGame$resetMoveAwait$lambda(this));
   };
@@ -753,9 +755,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     return Point$Companion_instance;
   }
   function Point$$serializer() {
-    this.descriptor_xiv488$_0 = new SerialClassDescImpl('de.earley.gogogo.game.Point');
-    this.descriptor.addElement_ivxn3r$('x');
-    this.descriptor.addElement_ivxn3r$('y');
+    this.descriptor_xiv488$_0 = new SerialClassDescImpl('de.earley.gogogo.game.Point', this);
+    this.descriptor.addElement_ivxn3r$('x', false);
+    this.descriptor.addElement_ivxn3r$('y', false);
     Point$$serializer_instance = this;
   }
   Object.defineProperty(Point$$serializer.prototype, 'descriptor', {get: function () {
@@ -795,7 +797,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     input.endStructure_qatsm0$(this.descriptor);
     return Point_init(bitMask0, local0, local1, null);
   };
-  Point$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [KSerializer]};
+  Point$$serializer.prototype.childSerializers = function () {
+    return [internal.IntSerializer, internal.IntSerializer];
+  };
+  Point$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [GeneratedSerializer]};
   var Point$$serializer_instance = null;
   function Point$$serializer_getInstance() {
     if (Point$$serializer_instance === null) {
@@ -943,9 +948,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     return Move$Companion_instance;
   }
   function Move$$serializer() {
-    this.descriptor_oi8hql$_0 = new SerialClassDescImpl('de.earley.gogogo.game.Move');
-    this.descriptor.addElement_ivxn3r$('from');
-    this.descriptor.addElement_ivxn3r$('to');
+    this.descriptor_oi8hql$_0 = new SerialClassDescImpl('de.earley.gogogo.game.Move', this);
+    this.descriptor.addElement_ivxn3r$('from', false);
+    this.descriptor.addElement_ivxn3r$('to', false);
     Move$$serializer_instance = this;
   }
   Object.defineProperty(Move$$serializer.prototype, 'descriptor', {get: function () {
@@ -985,7 +990,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     input.endStructure_qatsm0$(this.descriptor);
     return Move_init(bitMask0, local0, local1, null);
   };
-  Move$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [KSerializer]};
+  Move$$serializer.prototype.childSerializers = function () {
+    return [Point$$serializer_getInstance(), Point$$serializer_getInstance()];
+  };
+  Move$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [GeneratedSerializer]};
   var Move$$serializer_instance = null;
   function Move$$serializer_getInstance() {
     if (Move$$serializer_instance === null) {
@@ -1148,11 +1156,11 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     return State$Companion_instance;
   }
   function State$$serializer() {
-    this.descriptor_fsmc49$_0 = new SerialClassDescImpl('de.earley.gogogo.game.State');
-    this.descriptor.addElement_ivxn3r$('playersTurn');
-    this.descriptor.addElement_ivxn3r$('lastPushed');
-    this.descriptor.addElement_ivxn3r$('grid');
-    this.descriptor.addElement_ivxn3r$('victor');
+    this.descriptor_fsmc49$_0 = new SerialClassDescImpl('de.earley.gogogo.game.State', this);
+    this.descriptor.addElement_ivxn3r$('playersTurn', false);
+    this.descriptor.addElement_ivxn3r$('lastPushed', false);
+    this.descriptor.addElement_ivxn3r$('grid', false);
+    this.descriptor.addElement_ivxn3r$('victor', false);
     State$$serializer_instance = this;
   }
   Object.defineProperty(State$$serializer.prototype, 'descriptor', {get: function () {
@@ -1160,10 +1168,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   }});
   State$$serializer.prototype.serialize_awe97i$ = function (output_0, obj) {
     var output = output_0.beginStructure_r0sa6z$(this.descriptor, []);
-    output.encodeSerializableElement_blecud$(this.descriptor, 0, new EnumSerializer(Kotlin.getKClass(Player)), obj.playersTurn);
+    output.encodeSerializableElement_blecud$(this.descriptor, 0, new EnumSerializer(getKClass(Player)), obj.playersTurn);
     output.encodeNullableSerializableElement_orpvvi$(this.descriptor, 1, Point$$serializer_getInstance(), obj.lastPushed);
     output.encodeSerializableElement_blecud$(this.descriptor, 2, GameGrid$$serializer_getInstance(), obj.grid);
-    output.encodeNullableSerializableElement_orpvvi$(this.descriptor, 3, new EnumSerializer(Kotlin.getKClass(Player)), obj.victor);
+    output.encodeNullableSerializableElement_orpvvi$(this.descriptor, 3, new EnumSerializer(getKClass(Player)), obj.victor);
     output.endStructure_qatsm0$(this.descriptor);
   };
   State$$serializer.prototype.deserialize_nts5qn$ = function (input_0) {
@@ -1177,7 +1185,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
         case -2:
           readAll = true;
         case 0:
-          local0 = (bitMask0 & 1) === 0 ? input.decodeSerializableElement_s44l7r$(this.descriptor, 0, new EnumSerializer(Kotlin.getKClass(Player))) : input.updateSerializableElement_ehubvl$(this.descriptor, 0, new EnumSerializer(Kotlin.getKClass(Player)), local0);
+          local0 = (bitMask0 & 1) === 0 ? input.decodeSerializableElement_s44l7r$(this.descriptor, 0, new EnumSerializer(getKClass(Player))) : input.updateSerializableElement_ehubvl$(this.descriptor, 0, new EnumSerializer(getKClass(Player)), local0);
           bitMask0 |= 1;
           if (!readAll)
             break;
@@ -1192,7 +1200,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
           if (!readAll)
             break;
         case 3:
-          local3 = (bitMask0 & 8) === 0 ? input.decodeNullableSerializableElement_cwlm4k$(this.descriptor, 3, new EnumSerializer(Kotlin.getKClass(Player))) : input.updateNullableSerializableElement_u33s02$(this.descriptor, 3, new EnumSerializer(Kotlin.getKClass(Player)), local3);
+          local3 = (bitMask0 & 8) === 0 ? input.decodeNullableSerializableElement_cwlm4k$(this.descriptor, 3, new EnumSerializer(getKClass(Player))) : input.updateNullableSerializableElement_u33s02$(this.descriptor, 3, new EnumSerializer(getKClass(Player)), local3);
           bitMask0 |= 8;
           if (!readAll)
             break;
@@ -1204,7 +1212,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     input.endStructure_qatsm0$(this.descriptor);
     return State_init(bitMask0, local0, local1, local2, local3, null);
   };
-  State$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [KSerializer]};
+  State$$serializer.prototype.childSerializers = function () {
+    return [new EnumSerializer(getKClass(Player)), new NullableSerializer(Point$$serializer_getInstance()), GameGrid$$serializer_getInstance(), new NullableSerializer(new EnumSerializer(getKClass(Player)))];
+  };
+  State$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [GeneratedSerializer]};
   var State$$serializer_instance = null;
   function State$$serializer_getInstance() {
     if (State$$serializer_instance === null) {
@@ -1328,10 +1339,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     return GameGrid$Companion_instance;
   }
   function GameGrid$$serializer() {
-    this.descriptor_s2imx4$_0 = new SerialClassDescImpl('de.earley.gogogo.game.grid.GameGrid');
-    this.descriptor.addElement_ivxn3r$('width');
-    this.descriptor.addElement_ivxn3r$('height');
-    this.descriptor.addElement_ivxn3r$('elems');
+    this.descriptor_s2imx4$_0 = new SerialClassDescImpl('de.earley.gogogo.game.grid.GameGrid', this);
+    this.descriptor.addElement_ivxn3r$('width', false);
+    this.descriptor.addElement_ivxn3r$('height', false);
+    this.descriptor.addElement_ivxn3r$('elems', false);
     GameGrid$$serializer_instance = this;
   }
   Object.defineProperty(GameGrid$$serializer.prototype, 'descriptor', {get: function () {
@@ -1341,7 +1352,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     var output = output_0.beginStructure_r0sa6z$(this.descriptor, []);
     output.encodeIntElement_4wpqag$(this.descriptor, 0, obj.width);
     output.encodeIntElement_4wpqag$(this.descriptor, 1, obj.height);
-    output.encodeSerializableElement_blecud$(this.descriptor, 2, new ReferenceArraySerializer(Kotlin.getKClass(Player), new NullableSerializer(new EnumSerializer(Kotlin.getKClass(Player)))), obj.elems);
+    output.encodeSerializableElement_blecud$(this.descriptor, 2, new ReferenceArraySerializer(getKClass(Player), new NullableSerializer(new EnumSerializer(getKClass(Player)))), obj.elems);
     output.endStructure_qatsm0$(this.descriptor);
   };
   GameGrid$$serializer.prototype.deserialize_nts5qn$ = function (input_0) {
@@ -1365,7 +1376,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
           if (!readAll)
             break;
         case 2:
-          local2 = (bitMask0 & 4) === 0 ? input.decodeSerializableElement_s44l7r$(this.descriptor, 2, new ReferenceArraySerializer(Kotlin.getKClass(Player), new NullableSerializer(new EnumSerializer(Kotlin.getKClass(Player))))) : input.updateSerializableElement_ehubvl$(this.descriptor, 2, new ReferenceArraySerializer(Kotlin.getKClass(Player), new NullableSerializer(new EnumSerializer(Kotlin.getKClass(Player)))), local2);
+          local2 = (bitMask0 & 4) === 0 ? input.decodeSerializableElement_s44l7r$(this.descriptor, 2, new ReferenceArraySerializer(getKClass(Player), new NullableSerializer(new EnumSerializer(getKClass(Player))))) : input.updateSerializableElement_ehubvl$(this.descriptor, 2, new ReferenceArraySerializer(getKClass(Player), new NullableSerializer(new EnumSerializer(getKClass(Player)))), local2);
           bitMask0 |= 4;
           if (!readAll)
             break;
@@ -1377,7 +1388,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     input.endStructure_qatsm0$(this.descriptor);
     return GameGrid_init(bitMask0, local0, local1, local2, null);
   };
-  GameGrid$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [KSerializer]};
+  GameGrid$$serializer.prototype.childSerializers = function () {
+    return [internal.IntSerializer, internal.IntSerializer, new ReferenceArraySerializer(getKClass(Player), new NullableSerializer(new EnumSerializer(getKClass(Player))))];
+  };
+  GameGrid$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [GeneratedSerializer]};
   var GameGrid$$serializer_instance = null;
   function GameGrid$$serializer_getInstance() {
     if (GameGrid$$serializer_instance === null) {
@@ -1703,10 +1717,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Object.defineProperty(package$net, 'Messages', {get: Messages_getInstance});
   package$game.toNetFormat_blsywv$ = toNetFormat;
   package$game.moveFromNetFormat_pdl1vz$ = moveFromNetFormat;
-  Point$$serializer.prototype.patch_mynpiu$ = KSerializer.prototype.patch_mynpiu$;
-  Move$$serializer.prototype.patch_mynpiu$ = KSerializer.prototype.patch_mynpiu$;
-  State$$serializer.prototype.patch_mynpiu$ = KSerializer.prototype.patch_mynpiu$;
-  GameGrid$$serializer.prototype.patch_mynpiu$ = KSerializer.prototype.patch_mynpiu$;
+  Point$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
+  Move$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
+  State$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
+  GameGrid$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
   progressMult = 10;
   pushedPenalty = 6;
   tokenBonus = 10;
