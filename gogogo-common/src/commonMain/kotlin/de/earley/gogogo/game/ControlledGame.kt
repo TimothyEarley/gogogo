@@ -1,8 +1,6 @@
 package de.earley.gogogo.game
 
 import kotlinx.coroutines.*
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 class ControlledGame(
 	private var redController: PlayerController,
@@ -34,11 +32,11 @@ class ControlledGame(
 			moveJob = job
 
 			try {
-				move = scope.async(job) {
+				move = withContext(scope.coroutineContext + job) {
 					activeController.getMove(lastMove, state, uiHook::onSelect)
-				}.await()
+				}
 			} catch(_: CancellationException) {
-				// seems like the controller was swapped, try again with new one
+				// seems like the controller was swapped/state reset, try again with new one
 			}
 		}
 
@@ -80,6 +78,12 @@ class ControlledGame(
 		scope.launch {
 			moveJob?.cancelAndJoin()
 		}
+	}
+
+	override fun undo() {
+		super.undo()
+		// after the undo we need to reset the controller
+		resetMoveAwait()
 	}
 
 }

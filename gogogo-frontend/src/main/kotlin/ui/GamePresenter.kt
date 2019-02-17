@@ -1,5 +1,6 @@
 package de.earley.gogogo.ui
 
+import de.earley.gogogo.Log
 import de.earley.gogogo.ai.AI
 import de.earley.gogogo.ai.withUIAwareness
 import de.earley.gogogo.game.*
@@ -76,7 +77,7 @@ class GamePresenter(
 	override fun onGameEnd() {
 		// inform other player in multiplayer scenario (but only if we won)
 		if (mode == GameMode.Online && game.victor == matchinfo?.player) {
-			println("Sending victory to opponent")
+			Log.debug { "Sending victory to opponent" }
 			matchmaking?.opponent?.sendVictory(game.lastMove!!)
 		}
 		unselect()
@@ -97,7 +98,7 @@ class GamePresenter(
 			this.matchmaking = matchmaking
 			val info = matchmaking.findMatch()
 			matchinfo = info
-			println("Playing against ${info.other.name} as ${info.player}")
+			Log.debug { "Playing against ${info.other.name} as ${info.player}" }
 			// get player side
 			val red = if (info.player == Player.Red) HumanController() else matchmaking.opponent.withUIAwareness()
 			val blue = if (info.player == Player.Blue) HumanController() else matchmaking.opponent.withUIAwareness()

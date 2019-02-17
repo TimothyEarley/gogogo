@@ -21,7 +21,7 @@ open class Game {
 
 	fun canUndo(): Boolean = states.size > 1
 
-	fun undo() {
+	open fun undo() {
 		if (!canUndo()) return
 
 		states.removeAt(states.lastIndex)

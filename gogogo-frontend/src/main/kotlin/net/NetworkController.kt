@@ -1,5 +1,6 @@
 package de.earley.gogogo.net
 
+import de.earley.gogogo.Log
 import de.earley.gogogo.game.Move
 
 import de.earley.gogogo.game.PlayerController
@@ -24,7 +25,7 @@ class NetworkController(
 	}
 
 	fun sendVictory(lastMove: Move) {
-		println("Actually sending it!")
 		connection.sendMove(lastMove)
+		Log.debug { "Victory sent" }
 	}
 }

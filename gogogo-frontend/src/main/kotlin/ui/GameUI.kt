@@ -1,6 +1,7 @@
 package de.earley.gogogo.ui
 
 
+import de.earley.gogogo.Log
 import de.earley.gogogo.game.GAME_HEIGHT
 import de.earley.gogogo.game.GAME_WIDTH
 import de.earley.gogogo.game.Player
@@ -134,6 +135,7 @@ class GameUI private constructor(
 		cells.forEach { x, y, element ->
 			element?.let {
 				eventListeners += it.onClick {
+					Log.debug { "Clicked $x, $y" }
 					presenter.handleClick(x, y)
 				}
 			}
@@ -194,7 +196,7 @@ class GameUI private constructor(
 		Player.Blue -> blueController.value
 		Player.Red -> redController.value
 	}.also {
-		println("Queried value for $player is $it")
+		Log.debug { "Queried value for $player is $it" }
 	}
 
 }

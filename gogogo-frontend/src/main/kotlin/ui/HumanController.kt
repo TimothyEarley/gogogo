@@ -1,5 +1,6 @@
 package de.earley.gogogo.ui
 
+import de.earley.gogogo.Log
 import de.earley.gogogo.game.Move
 import de.earley.gogogo.game.PlayerController
 import de.earley.gogogo.game.Point
@@ -36,6 +37,7 @@ class HumanController : PlayerController {
 
 
 	fun supplyClick(point: Point) {
+		Log.debug { "Human clicked $point. From: $from" }
 
 		val s = state
 		require(s != null) { "Can't evaluate move since the state is unknown" }
@@ -44,6 +46,7 @@ class HumanController : PlayerController {
 		if (from == null) {
 
 			if (!s.isEligibleToMove(point)) {
+				Log.info { "Illegal from: $point" }
 				// Cannot move the clicked so not doing anything
 				return
 			}
@@ -59,6 +62,7 @@ class HumanController : PlayerController {
 
 		// is this an invalid click?
 		if (s.move(f, point) == null) {
+			Log.info { "Illegal move, resetting" }
 			// illegal move -> unselect
 			from = null
 			selectCallback?.invoke(null)
@@ -67,6 +71,8 @@ class HumanController : PlayerController {
 
 		//last option is the move is legal, so do the move
 		to = point
+
+		Log.debug { "Move $from to $to" }
 
 		require(commit.offer(Move(from!!, to!!))) { "Could not send commit" }
 	}

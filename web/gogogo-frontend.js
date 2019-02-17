@@ -19,14 +19,16 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   var delay = $module$kotlinx_coroutines_core.kotlinx.coroutines.delay_s8cxhz$;
   var Kind_CLASS = Kotlin.Kind.CLASS;
   var PlayerController = $module$gogogo_common.de.earley.gogogo.game.PlayerController;
+  var Enum = Kotlin.kotlin.Enum;
+  var throwISE = Kotlin.throwISE;
   var println = Kotlin.kotlin.io.println_s8jyv4$;
+  var Kind_OBJECT = Kotlin.Kind.OBJECT;
   var Exception_init = Kotlin.kotlin.Exception_init;
   var Exception = Kotlin.kotlin.Exception;
   var toNetFormat = $module$gogogo_common.de.earley.gogogo.game.toNetFormat_blsywv$;
   var equals = Kotlin.equals;
   var moveFromNetFormat = $module$gogogo_common.de.earley.gogogo.game.moveFromNetFormat_pdl1vz$;
   var net = $module$gogogo_common.de.earley.gogogo.net;
-  var Kind_OBJECT = Kotlin.Kind.OBJECT;
   var throwUPAE = Kotlin.throwUPAE;
   var IllegalStateException_init = Kotlin.kotlin.IllegalStateException_init_pdl1vj$;
   var Kind_INTERFACE = Kotlin.Kind.INTERFACE;
@@ -41,8 +43,6 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   var getCallableRef = Kotlin.getCallableRef;
   var ai = $module$gogogo_common.de.earley.gogogo.ai;
   var AI = $module$gogogo_common.de.earley.gogogo.ai.AI;
-  var Enum = Kotlin.kotlin.Enum;
-  var throwISE = Kotlin.throwISE;
   var removeClass = Kotlin.kotlin.dom.removeClass_hhb33f$;
   var Point = $module$gogogo_common.de.earley.gogogo.game.Point;
   var ensureNotNull = Kotlin.ensureNotNull;
@@ -64,6 +64,8 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   var NoSuchElementException = Kotlin.kotlin.NoSuchElementException;
   var to = Kotlin.kotlin.to_ujzrz7$;
   var option = $module$kotlinx_html_js.kotlinx.html.js.option_61vnh7$;
+  Log$Level.prototype = Object.create(Enum.prototype);
+  Log$Level.prototype.constructor = Log$Level;
   ClosedException.prototype = Object.create(Exception.prototype);
   ClosedException.prototype.constructor = ClosedException;
   ControllerTypes.prototype = Object.create(Enum.prototype);
@@ -138,12 +140,87 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   function withUIAwareness($receiver) {
     return new DelayedController($receiver);
   }
-  function main$lambda(it) {
+  function Log() {
+    Log_instance = this;
+    this.level = Log$Level$Info_getInstance();
+  }
+  function Log$Level(name, ordinal, value) {
+    Enum.call(this);
+    this.value = value;
+    this.name$ = name;
+    this.ordinal$ = ordinal;
+  }
+  function Log$Level_initFields() {
+    Log$Level_initFields = function () {
+    };
+    Log$Level$Error_instance = new Log$Level('Error', 0, 10);
+    Log$Level$Info_instance = new Log$Level('Info', 1, 5);
+    Log$Level$Debug_instance = new Log$Level('Debug', 2, 0);
+  }
+  var Log$Level$Error_instance;
+  function Log$Level$Error_getInstance() {
+    Log$Level_initFields();
+    return Log$Level$Error_instance;
+  }
+  var Log$Level$Info_instance;
+  function Log$Level$Info_getInstance() {
+    Log$Level_initFields();
+    return Log$Level$Info_instance;
+  }
+  var Log$Level$Debug_instance;
+  function Log$Level$Debug_getInstance() {
+    Log$Level_initFields();
+    return Log$Level$Debug_instance;
+  }
+  Log$Level.$metadata$ = {kind: Kind_CLASS, simpleName: 'Level', interfaces: [Enum]};
+  function Log$Level$values() {
+    return [Log$Level$Error_getInstance(), Log$Level$Info_getInstance(), Log$Level$Debug_getInstance()];
+  }
+  Log$Level.values = Log$Level$values;
+  function Log$Level$valueOf(name) {
+    switch (name) {
+      case 'Error':
+        return Log$Level$Error_getInstance();
+      case 'Info':
+        return Log$Level$Info_getInstance();
+      case 'Debug':
+        return Log$Level$Debug_getInstance();
+      default:throwISE('No enum constant de.earley.gogogo.Log.Level.' + name);
+    }
+  }
+  Log$Level.valueOf_61zpoe$ = Log$Level$valueOf;
+  Log.prototype.error_h4ejuu$ = function (msg) {
+    if (this.isEnabled_0(Log$Level$Error_getInstance()))
+      println(msg());
+  };
+  Log.prototype.info_h4ejuu$ = function (msg) {
+    if (this.isEnabled_0(Log$Level$Info_getInstance()))
+      println(msg());
+  };
+  Log.prototype.debug_h4ejuu$ = function (msg) {
+    if (this.isEnabled_0(Log$Level$Debug_getInstance()))
+      println(msg());
+  };
+  Log.prototype.isEnabled_0 = function ($receiver) {
+    return $receiver.value >= this.level.value;
+  };
+  Log.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Log', interfaces: []};
+  var Log_instance = null;
+  function Log_getInstance() {
+    if (Log_instance === null) {
+      new Log();
+    }
+    return Log_instance;
+  }
+  function main$lambda() {
+    return 'Started main';
+  }
+  function main$lambda_0(it) {
     return new MenuUI();
   }
-  function main(args) {
-    println('Hello world!');
-    window.onload = main$lambda;
+  function main() {
+    Log_getInstance().debug_h4ejuu$(main$lambda);
+    window.onload = main$lambda_0;
   }
   function ClosedException() {
     Exception_init(this);
@@ -383,9 +460,12 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       }
      while (true);
   };
+  function NetworkController$sendVictory$lambda() {
+    return 'Victory sent';
+  }
   NetworkController.prototype.sendVictory_47hwoe$ = function (lastMove) {
-    println('Actually sending it!');
     this.connection_0.sendMove_47hwoe$(lastMove);
+    Log_getInstance().debug_h4ejuu$(NetworkController$sendVictory$lambda);
   };
   NetworkController.$metadata$ = {kind: Kind_CLASS, simpleName: 'NetworkController', interfaces: [PlayerController]};
   function WebsocketConnection() {
@@ -482,6 +562,11 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       return Unit;
     };
   }
+  function WebsocketConnectionImpl_init$lambda$lambda$lambda(closure$evt) {
+    return function () {
+      return 'Received ' + toString(closure$evt.data);
+    };
+  }
   function WebsocketConnectionImpl_init$lambda$lambda(closure$evt_0, this$WebsocketConnectionImpl_0) {
     return function ($receiver, continuation_0, suspended) {
       var instance = new Coroutine$WebsocketConnectionImpl_init$lambda$lambda(closure$evt_0, this$WebsocketConnectionImpl_0, $receiver, this, continuation_0);
@@ -506,7 +591,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       try {
         switch (this.state_0) {
           case 0:
-            println('Received ' + toString(this.local$closure$evt.data));
+            Log_getInstance().debug_h4ejuu$(WebsocketConnectionImpl_init$lambda$lambda$lambda(this.local$closure$evt));
             this.state_0 = 2;
             this.result_0 = this.local$this$WebsocketConnectionImpl.messages_0.send_11rb$(toString(this.local$closure$evt.data), this);
             if (this.result_0 === COROUTINE_SUSPENDED)
@@ -760,10 +845,13 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       ensureNotNull(this.gameUI_0.cells.get_vux9f0$(point.x, point.y)).classList.add('game-cell-selected');
     }
   };
+  function GamePresenter$onGameEnd$lambda() {
+    return 'Sending victory to opponent';
+  }
   GamePresenter.prototype.onGameEnd = function () {
     var tmp$, tmp$_0, tmp$_1;
     if (this.mode_0 === GameMode$Online_getInstance() && equals(this.game_0.victor, (tmp$ = this.matchinfo_0) != null ? tmp$.player : null)) {
-      println('Sending victory to opponent');
+      Log_getInstance().debug_h4ejuu$(GamePresenter$onGameEnd$lambda);
       (tmp$_1 = (tmp$_0 = this.matchmaking_0) != null ? tmp$_0.opponent : null) != null ? (tmp$_1.sendVictory_47hwoe$(ensureNotNull(this.game_0.lastMove)), Unit) : null;
     }
     this.unselect_0();
@@ -815,6 +903,11 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       }
      while (true);
   };
+  function GamePresenter$createGame$lambda(closure$info) {
+    return function () {
+      return 'Playing against ' + closure$info.other.name + ' as ' + closure$info.player;
+    };
+  }
   GamePresenter.prototype.createGame_0 = function (continuation_0, suspended) {
     var instance = new Coroutine$createGame_0(this, continuation_0);
     if (suspended)
@@ -857,7 +950,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
           case 2:
             var info = this.result_0;
             this.$this.matchinfo_0 = info;
-            println('Playing against ' + info.other.name + ' as ' + info.player);
+            Log_getInstance().debug_h4ejuu$(GamePresenter$createGame$lambda(info));
             var red = info.player === Player.Red ? new HumanController() : withUIAwareness(this.local$matchmaking.opponent);
             var blue = info.player === Player.Blue ? new HumanController() : withUIAwareness(this.local$matchmaking.opponent);
             this.$this.gameUI_0.showOwnPlayer_x97jf4$(info.player, info.other.name);
@@ -1152,8 +1245,14 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
         break;
     }
   };
-  function GameUI$registerEventListeners$lambda$lambda$lambda(this$GameUI, closure$x, closure$y) {
+  function GameUI$registerEventListeners$lambda$lambda$lambda$lambda(closure$x, closure$y) {
+    return function () {
+      return 'Clicked ' + closure$x + ', ' + closure$y;
+    };
+  }
+  function GameUI$registerEventListeners$lambda$lambda$lambda(closure$x, closure$y, this$GameUI) {
     return function (it) {
+      Log_getInstance().debug_h4ejuu$(GameUI$registerEventListeners$lambda$lambda$lambda$lambda(closure$x, closure$y));
       this$GameUI.presenter_0.handleClick_vux9f0$(closure$x, closure$y);
       return Unit;
     };
@@ -1249,7 +1348,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
         var element_1 = $receiver.get_vux9f0$(element_0, element);
         if (element_1 != null) {
           var $receiver_0 = this.eventListeners_0;
-          var element_2 = onClick(element_1, GameUI$registerEventListeners$lambda$lambda$lambda(this, element_0, element));
+          var element_2 = onClick(element_1, GameUI$registerEventListeners$lambda$lambda$lambda(element_0, element, this));
           $receiver_0.add_11rb$(element_2);
         }
       }
@@ -1296,6 +1395,11 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       }
     }
   };
+  function GameUI$getController$lambda$lambda(closure$player, closure$it) {
+    return function () {
+      return 'Queried value for ' + closure$player + ' is ' + closure$it;
+    };
+  }
   GameUI.prototype.getController_3999j6$ = function (player) {
     var tmp$;
     switch (player.name) {
@@ -1309,7 +1413,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
         break;
     }
     var $receiver = tmp$;
-    println('Queried value for ' + player + ' is ' + $receiver);
+    Log_getInstance().debug_h4ejuu$(GameUI$getController$lambda$lambda(player, $receiver));
     return $receiver;
   };
   function GameUI_init$lambda(this$GameUI_0) {
@@ -1435,8 +1539,27 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       }
      while (true);
   };
+  function HumanController$supplyClick$lambda(closure$point, this$HumanController) {
+    return function () {
+      return 'Human clicked ' + closure$point + '. From: ' + toString(this$HumanController.from_0);
+    };
+  }
+  function HumanController$supplyClick$lambda_0(closure$point) {
+    return function () {
+      return 'Illegal from: ' + closure$point;
+    };
+  }
+  function HumanController$supplyClick$lambda_1() {
+    return 'Illegal move, resetting';
+  }
+  function HumanController$supplyClick$lambda_2(this$HumanController) {
+    return function () {
+      return 'Move ' + toString(this$HumanController.from_0) + ' to ' + toString(this$HumanController.to_0);
+    };
+  }
   HumanController.prototype.supplyClick_bk5ui5$ = function (point) {
     var tmp$, tmp$_0;
+    Log_getInstance().debug_h4ejuu$(HumanController$supplyClick$lambda(point, this));
     var s = this.state_0;
     if (!(s != null)) {
       var message = "Can't evaluate move since the state is unknown";
@@ -1444,6 +1567,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     }
     if (this.from_0 == null) {
       if (!s.isEligibleToMove_bk5ui5$(point)) {
+        Log_getInstance().info_h4ejuu$(HumanController$supplyClick$lambda_0(point));
         return;
       }
       this.from_0 = point;
@@ -1456,11 +1580,13 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       throw IllegalArgumentException_init(message_0.toString());
     }
     if (s.move_56t7qy$(f, point) == null) {
+      Log_getInstance().info_h4ejuu$(HumanController$supplyClick$lambda_1);
       this.from_0 = null;
       (tmp$_0 = this.selectCallback_0) != null ? tmp$_0(null) : null;
       return;
     }
     this.to_0 = point;
+    Log_getInstance().debug_h4ejuu$(HumanController$supplyClick$lambda_2(this));
     if (!this.commit_0.offer_11rb$(new Move(ensureNotNull(this.from_0), ensureNotNull(this.to_0)))) {
       var message_1 = 'Could not send commit';
       throw IllegalArgumentException_init(message_1.toString());
@@ -1559,7 +1685,12 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   var package$ai = package$gogogo.ai || (package$gogogo.ai = {});
   package$ai.DelayedController = DelayedController;
   package$ai.withUIAwareness_mj2ouj$ = withUIAwareness;
-  package$gogogo.main_kand9s$ = main;
+  Object.defineProperty(Log$Level, 'Error', {get: Log$Level$Error_getInstance});
+  Object.defineProperty(Log$Level, 'Info', {get: Log$Level$Info_getInstance});
+  Object.defineProperty(Log$Level, 'Debug', {get: Log$Level$Debug_getInstance});
+  Log.prototype.Level = Log$Level;
+  Object.defineProperty(package$gogogo, 'Log', {get: Log_getInstance});
+  package$gogogo.main = main;
   var package$net = package$gogogo.net || (package$gogogo.net = {});
   package$net.ClosedException = ClosedException;
   Object.defineProperty(Connection, 'Companion', {get: Connection$Companion_getInstance});
@@ -1596,7 +1727,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   package$ui.unhide_y4uc6z$ = unhide;
   server = 'wss://gogogo-server.herokuapp.com/';
   name_0 = null;
-  main([]);
+  main();
   return _;
 }(typeof this['gogogo-frontend'] === 'undefined' ? {} : this['gogogo-frontend'], kotlin, this['kotlinx-coroutines-core'], this['gogogo-common'], this['kotlinx-html-js']);
 
