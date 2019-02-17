@@ -83,14 +83,16 @@
   CompletionHandlerBase.prototype.constructor = CompletionHandlerBase;
   JobNode.prototype = Object.create(CompletionHandlerBase.prototype);
   JobNode.prototype.constructor = JobNode;
-  DeferredCoroutine.prototype = Object.create(AbstractCoroutine.prototype);
-  DeferredCoroutine.prototype.constructor = DeferredCoroutine;
-  LazyDeferredCoroutine.prototype = Object.create(DeferredCoroutine.prototype);
-  LazyDeferredCoroutine.prototype.constructor = LazyDeferredCoroutine;
   StandaloneCoroutine.prototype = Object.create(AbstractCoroutine.prototype);
   StandaloneCoroutine.prototype.constructor = StandaloneCoroutine;
   LazyStandaloneCoroutine.prototype = Object.create(StandaloneCoroutine.prototype);
   LazyStandaloneCoroutine.prototype.constructor = LazyStandaloneCoroutine;
+  ScopeCoroutine.prototype = Object.create(AbstractCoroutine.prototype);
+  ScopeCoroutine.prototype.constructor = ScopeCoroutine;
+  UndispatchedCoroutine.prototype = Object.create(ScopeCoroutine.prototype);
+  UndispatchedCoroutine.prototype.constructor = UndispatchedCoroutine;
+  DispatchedCoroutine.prototype = Object.create(ScopeCoroutine.prototype);
+  DispatchedCoroutine.prototype.constructor = DispatchedCoroutine;
   RemoveOnCancel.prototype = Object.create(CancelHandler.prototype);
   RemoveOnCancel.prototype.constructor = RemoveOnCancel;
   DisposeOnCancel.prototype = Object.create(CancelHandler.prototype);
@@ -308,98 +310,27 @@
     coroutine.start_b5ul0p$(start, coroutine, block);
     return coroutine;
   }
-  function async($receiver, context, start, block) {
-    if (context === void 0)
-      context = coroutines.EmptyCoroutineContext;
-    if (start === void 0)
-      start = CoroutineStart$DEFAULT_getInstance();
-    var newContext = newCoroutineContext($receiver, context);
-    var coroutine = start.isLazy ? new LazyDeferredCoroutine(newContext, block) : new DeferredCoroutine(newContext, true);
-    coroutine.start_b5ul0p$(start, coroutine, block);
-    return coroutine;
-  }
-  function DeferredCoroutine(parentContext, active) {
-    AbstractCoroutine.call(this, parentContext, active);
-  }
-  Object.defineProperty(DeferredCoroutine.prototype, 'cancelsParent', {get: function () {
-    return true;
-  }});
-  DeferredCoroutine.prototype.getCompleted = function () {
-    var tmp$;
-    return (tmp$ = this.getCompletedInternal_8be2vx$()) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE();
-  };
-  DeferredCoroutine.prototype.await = function (continuation_0, suspended) {
-    var instance = new Coroutine$await(this, continuation_0);
-    if (suspended)
-      return instance;
-    else
-      return instance.doResume(null);
-  };
-  function Coroutine$await($this, continuation_0) {
-    CoroutineImpl.call(this, continuation_0);
-    this.exceptionState_0 = 1;
-    this.$this = $this;
-  }
-  Coroutine$await.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
-  Coroutine$await.prototype = Object.create(CoroutineImpl.prototype);
-  Coroutine$await.prototype.constructor = Coroutine$await;
-  Coroutine$await.prototype.doResume = function () {
-    do
-      try {
-        switch (this.state_0) {
-          case 0:
-            var tmp$;
-            this.state_0 = 2;
-            this.result_0 = this.$this.awaitInternal_8be2vx$(this);
-            if (this.result_0 === COROUTINE_SUSPENDED)
-              return COROUTINE_SUSPENDED;
-            continue;
-          case 1:
-            throw this.exception_0;
-          case 2:
-            return (tmp$ = this.result_0) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE();
-          default:this.state_0 = 1;
-            throw new Error('State Machine Unreachable execution');
-        }
+  function withContext$lambda(closure$context, closure$block) {
+    return function (uCont) {
+      var oldContext = uCont.context;
+      var newContext = oldContext.plus_1fupul$(closure$context);
+      if (newContext === oldContext) {
+        var coroutine = new ScopeCoroutine(newContext, uCont);
+        return startUndispatchedOrReturn(coroutine, coroutine, closure$block);
       }
-       catch (e) {
-        if (this.state_0 === 1) {
-          this.exceptionState_0 = this.state_0;
-          throw e;
-        }
-         else {
-          this.state_0 = this.exceptionState_0;
-          this.exception_0 = e;
-        }
+      if (equals(newContext.get_j3r2sn$(ContinuationInterceptor.Key), oldContext.get_j3r2sn$(ContinuationInterceptor.Key))) {
+        var coroutine_0 = new UndispatchedCoroutine(newContext, uCont);
+        return startUndispatchedOrReturn(coroutine_0, coroutine_0, closure$block);
       }
-     while (true);
-  };
-  Object.defineProperty(DeferredCoroutine.prototype, 'onAwait', {get: function () {
-    return this;
-  }});
-  DeferredCoroutine.prototype.registerSelectClause1_o3xas4$ = function (select, block) {
-    this.registerSelectClause1Internal_u6kgbh$(select, block);
-  };
-  DeferredCoroutine.$metadata$ = {kind: Kind_CLASS, simpleName: 'DeferredCoroutine', interfaces: [SelectClause1, Deferred, AbstractCoroutine]};
-  function LazyDeferredCoroutine(parentContext, block) {
-    DeferredCoroutine.call(this, parentContext, false);
-    this.block_0 = block;
+      var coroutine_1 = new DispatchedCoroutine(newContext, uCont);
+      coroutine_1.initParentJob_8be2vx$();
+      startCoroutineCancellable_0(closure$block, coroutine_1, coroutine_1);
+      return coroutine_1.getResult();
+    };
   }
-  LazyDeferredCoroutine.prototype.onStart = function () {
-    var value = this.block_0;
-    var checkNotNull$result;
-    if (value == null) {
-      var message = 'Already started';
-      throw IllegalStateException_init(message.toString());
-    }
-     else {
-      checkNotNull$result = value;
-    }
-    var block = checkNotNull$result;
-    this.block_0 = null;
-    startCoroutineCancellable_0(block, this, this);
-  };
-  LazyDeferredCoroutine.$metadata$ = {kind: Kind_CLASS, simpleName: 'LazyDeferredCoroutine', interfaces: [DeferredCoroutine]};
+  function withContext(context, block, continuation) {
+    return withContext$lambda(context, block)(continuation);
+  }
   function StandaloneCoroutine(parentContext, active) {
     AbstractCoroutine.call(this, parentContext, active);
   }
@@ -429,9 +360,76 @@
     startCoroutineCancellable_0(block, this, this);
   };
   LazyStandaloneCoroutine.$metadata$ = {kind: Kind_CLASS, simpleName: 'LazyStandaloneCoroutine', interfaces: [StandaloneCoroutine]};
+  function UndispatchedCoroutine(context, uCont) {
+    ScopeCoroutine.call(this, context, uCont);
+  }
+  Object.defineProperty(UndispatchedCoroutine.prototype, 'defaultResumeMode', {get: function () {
+    return 3;
+  }});
+  UndispatchedCoroutine.$metadata$ = {kind: Kind_CLASS, simpleName: 'UndispatchedCoroutine', interfaces: [ScopeCoroutine]};
   var UNDECIDED;
   var SUSPENDED;
   var RESUMED;
+  function DispatchedCoroutine(context, uCont) {
+    ScopeCoroutine.call(this, context, uCont);
+    this._decision_0 = 0;
+  }
+  Object.defineProperty(DispatchedCoroutine.prototype, 'defaultResumeMode', {get: function () {
+    return 0;
+  }});
+  DispatchedCoroutine.prototype.trySuspend_0 = function () {
+    var $receiver = this._decision_0;
+    while (true) {
+      switch (this._decision_0) {
+        case 0:
+          if (function (scope) {
+            return scope._decision_0 === 0 ? function () {
+              scope._decision_0 = 1;
+              return true;
+            }() : false;
+          }(this))
+            return true;
+          break;
+        case 2:
+          return false;
+        default:throw IllegalStateException_init('Already suspended'.toString());
+      }
+    }
+  };
+  DispatchedCoroutine.prototype.tryResume_0 = function () {
+    var $receiver = this._decision_0;
+    while (true) {
+      switch (this._decision_0) {
+        case 0:
+          if (function (scope) {
+            return scope._decision_0 === 0 ? function () {
+              scope._decision_0 = 2;
+              return true;
+            }() : false;
+          }(this))
+            return true;
+          break;
+        case 1:
+          return false;
+        default:throw IllegalStateException_init('Already resumed'.toString());
+      }
+    }
+  };
+  DispatchedCoroutine.prototype.onCompletionInternal_5apgvt$ = function (state, mode, suppressed) {
+    if (this.tryResume_0())
+      return;
+    ScopeCoroutine.prototype.onCompletionInternal_5apgvt$.call(this, state, mode, suppressed);
+  };
+  DispatchedCoroutine.prototype.getResult = function () {
+    var tmp$;
+    if (this.trySuspend_0())
+      return COROUTINE_SUSPENDED;
+    var state = unboxState(this.state_8be2vx$);
+    if (Kotlin.isType(state, CompletedExceptionally))
+      throw state.cause;
+    return (tmp$ = state) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE();
+  };
+  DispatchedCoroutine.$metadata$ = {kind: Kind_CLASS, simpleName: 'DispatchedCoroutine', interfaces: [ScopeCoroutine]};
   function CancellableContinuation() {
   }
   CancellableContinuation.prototype.tryResume_19pj23$ = function (value, idempotent, callback$default) {
@@ -3607,6 +3605,46 @@
         $this.context;
         var $receiver_0 = $this.continuation;
         $receiver_0.resumeWith_tl1gpc$(new Result(createFailure(recoverStackTrace(exception, $receiver_0))));
+        break;
+      case 4:
+        break;
+      default:throw IllegalStateException_init(('Invalid mode ' + mode).toString());
+    }
+  }
+  function resumeUninterceptedMode($receiver, value, mode) {
+    switch (mode) {
+      case 0:
+        intercepted($receiver).resumeWith_tl1gpc$(new Result(value));
+        break;
+      case 1:
+        resumeCancellable(intercepted($receiver), value);
+        break;
+      case 2:
+        $receiver.resumeWith_tl1gpc$(new Result(value));
+        break;
+      case 3:
+        $receiver.context;
+        $receiver.resumeWith_tl1gpc$(new Result(value));
+        break;
+      case 4:
+        break;
+      default:throw IllegalStateException_init(('Invalid mode ' + mode).toString());
+    }
+  }
+  function resumeUninterceptedWithExceptionMode($receiver, exception, mode) {
+    switch (mode) {
+      case 0:
+        intercepted($receiver).resumeWith_tl1gpc$(new Result(createFailure(exception)));
+        break;
+      case 1:
+        resumeCancellableWithException(intercepted($receiver), exception);
+        break;
+      case 2:
+        $receiver.resumeWith_tl1gpc$(new Result(createFailure(exception)));
+        break;
+      case 3:
+        $receiver.context;
+        $receiver.resumeWith_tl1gpc$(new Result(createFailure(exception)));
         break;
       case 4:
         break;
@@ -7173,6 +7211,40 @@
   function AtomicDesc() {
   }
   AtomicDesc.$metadata$ = {kind: Kind_CLASS, simpleName: 'AtomicDesc', interfaces: []};
+  function ScopeCoroutine(context, uCont) {
+    AbstractCoroutine.call(this, context, true);
+    this.uCont = uCont;
+  }
+  Object.defineProperty(ScopeCoroutine.prototype, 'callerFrame', {get: function () {
+    var tmp$;
+    return (tmp$ = this.uCont) == null || Kotlin.isType(tmp$, CoroutineStackFrame) ? tmp$ : throwCCE();
+  }});
+  ScopeCoroutine.prototype.getStackTraceElement = function () {
+    return null;
+  };
+  Object.defineProperty(ScopeCoroutine.prototype, 'defaultResumeMode', {get: function () {
+    return 2;
+  }});
+  ScopeCoroutine.prototype.onCompletionInternal_5apgvt$ = function (state, mode, suppressed) {
+    var tmp$;
+    if (Kotlin.isType(state, CompletedExceptionally)) {
+      var exception = mode === 4 ? state.cause : recoverStackTrace(state.cause, this.uCont);
+      resumeUninterceptedWithExceptionMode(this.uCont, exception, mode);
+    }
+     else {
+      resumeUninterceptedMode(this.uCont, (tmp$ = state) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE(), mode);
+    }
+  };
+  ScopeCoroutine.$metadata$ = {kind: Kind_CLASS, simpleName: 'ScopeCoroutine', interfaces: [CoroutineStackFrame, AbstractCoroutine]};
+  function tryRecover($receiver, exception) {
+    var tmp$, tmp$_0, tmp$_1;
+    tmp$_1 = (tmp$_0 = Kotlin.isType(tmp$ = $receiver, ScopeCoroutine) ? tmp$ : null) != null ? tmp$_0.uCont : null;
+    if (tmp$_1 == null) {
+      return exception;
+    }
+    var cont = tmp$_1;
+    return recoverStackTrace(exception, cont);
+  }
   function Symbol(symbol) {
     this.symbol = symbol;
   }
@@ -7301,6 +7373,40 @@
       }
     }
      while (false);
+  }
+  function startUndispatchedOrReturn($receiver, receiver, block) {
+    $receiver.initParentJob_8be2vx$();
+    var tmp$, tmp$_0;
+    try {
+      tmp$ = block(receiver, $receiver, false);
+    }
+     catch (e) {
+      if (Kotlin.isType(e, Throwable)) {
+        tmp$ = new CompletedExceptionally(e);
+      }
+       else
+        throw e;
+    }
+    var result = tmp$;
+    if (result === COROUTINE_SUSPENDED)
+      tmp$_0 = COROUTINE_SUSPENDED;
+    else if ($receiver.makeCompletingOnce_42w2xh$(result, 4)) {
+      var state = $receiver.state_8be2vx$;
+      if (Kotlin.isType(state, CompletedExceptionally)) {
+        if (true)
+          throw tryRecover($receiver, state.cause);
+        else if (Kotlin.isType(result, CompletedExceptionally))
+          throw tryRecover($receiver, result.cause);
+        else
+          tmp$_0 = result;
+      }
+       else {
+        tmp$_0 = unboxState(state);
+      }
+    }
+     else
+      tmp$_0 = COROUTINE_SUSPENDED;
+    return tmp$_0;
   }
   function SelectBuilder() {
   }
@@ -8385,7 +8491,7 @@
   var package$coroutines = package$kotlinx.coroutines || (package$kotlinx.coroutines = {});
   package$coroutines.AbstractCoroutine = AbstractCoroutine;
   package$coroutines.launch_s496o7$ = launch;
-  package$coroutines.async_pda6u4$ = async;
+  package$coroutines.withContext_i5cbzn$ = withContext;
   package$coroutines.CancellableContinuation = CancellableContinuation;
   package$coroutines.removeOnCancellation_1u31dd$ = removeOnCancellation;
   package$coroutines.disposeOnCancellation_xredcy$ = disposeOnCancellation;
@@ -8450,6 +8556,8 @@
   package$coroutines.get_isDispatchedMode_8e50z4$ = get_isDispatchedMode;
   package$coroutines.resumeMode_mpdt7i$ = resumeMode;
   package$coroutines.resumeWithExceptionMode_gffq93$ = resumeWithExceptionMode;
+  package$coroutines.resumeUninterceptedMode_mpdt7i$ = resumeUninterceptedMode;
+  package$coroutines.resumeUninterceptedWithExceptionMode_gffq93$ = resumeUninterceptedWithExceptionMode;
   Object.defineProperty(package$coroutines, 'Unconfined', {get: Unconfined_getInstance});
   package$coroutines.checkCompletion_tcgsej$ = checkCompletion;
   var package$channels = package$coroutines.channels || (package$coroutines.channels = {});
@@ -8479,6 +8587,8 @@
   package$internal.OpDescriptor = OpDescriptor;
   package$internal.AtomicOp = AtomicOp;
   package$internal.AtomicDesc = AtomicDesc;
+  package$internal.ScopeCoroutine = ScopeCoroutine;
+  package$internal.tryRecover_2f0hiv$ = tryRecover;
   package$internal.Symbol = Symbol;
   var package$intrinsics = package$coroutines.intrinsics || (package$coroutines.intrinsics = {});
   package$intrinsics.startCoroutineCancellable_81hn2s$ = startCoroutineCancellable;
@@ -8487,6 +8597,7 @@
   package$intrinsics.startCoroutineUnintercepted_kew4v3$ = startCoroutineUnintercepted_0;
   package$intrinsics.startCoroutineUndispatched_81hn2s$ = startCoroutineUndispatched;
   package$intrinsics.startCoroutineUndispatched_kew4v3$ = startCoroutineUndispatched_0;
+  package$intrinsics.startUndispatchedOrReturn_j6gkos$ = startUndispatchedOrReturn;
   var package$selects = package$coroutines.selects || (package$coroutines.selects = {});
   package$selects.SelectBuilder = SelectBuilder;
   package$selects.SelectClause0 = SelectClause0;

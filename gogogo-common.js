@@ -27,7 +27,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   var throwUPAE = Kotlin.throwUPAE;
   var Job = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job_5dx9e$;
   var getCallableRef = Kotlin.getCallableRef;
-  var async = $module$kotlinx_coroutines_core.kotlinx.coroutines.async_pda6u4$;
+  var withContext = $module$kotlinx_coroutines_core.kotlinx.coroutines.withContext_i5cbzn$;
   var CancellationException = $module$kotlinx_coroutines_core.kotlinx.coroutines.CancellationException;
   var IllegalStateException_init = Kotlin.kotlin.IllegalStateException_init_pdl1vj$;
   var launch = $module$kotlinx_coroutines_core.kotlinx.coroutines.launch_s496o7$;
@@ -485,7 +485,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
             this.$this.moveJob_0 = job;
             this.exceptionState_0 = 3;
             this.state_0 = 2;
-            this.result_0 = async(this.$this.scope_0, job, void 0, ControlledGame$doMove$lambda(this.$this)).await(this);
+            this.result_0 = withContext(this.$this.scope_0.coroutineContext.plus_1fupul$(job), ControlledGame$doMove$lambda(this.$this), this);
             if (this.result_0 === COROUTINE_SUSPENDED)
               return COROUTINE_SUSPENDED;
             continue;
@@ -728,6 +728,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   }
   ControlledGame.prototype.resetMoveAwait_0 = function () {
     launch(this.scope_0, void 0, void 0, ControlledGame$resetMoveAwait$lambda(this));
+  };
+  ControlledGame.prototype.undo = function () {
+    Game.prototype.undo.call(this);
+    this.resetMoveAwait_0();
   };
   ControlledGame.$metadata$ = {kind: Kind_CLASS, simpleName: 'ControlledGame', interfaces: [Game]};
   function UIHook() {
