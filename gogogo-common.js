@@ -45,6 +45,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   var mutableListOf = Kotlin.kotlin.collections.mutableListOf_i5x0yv$;
   var Enum = Kotlin.kotlin.Enum;
   var throwISE = Kotlin.throwISE;
+  var getPropertyCallableRef = Kotlin.getPropertyCallableRef;
   var getKClass = Kotlin.getKClass;
   var EnumSerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.EnumSerializer;
   var abs = Kotlin.kotlin.math.abs_za3lpa$;
@@ -60,6 +61,20 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   ControlledGame.prototype.constructor = ControlledGame;
   Player.prototype = Object.create(Enum.prototype);
   Player.prototype.constructor = Player;
+  MoveResult$Success.prototype = Object.create(MoveResult.prototype);
+  MoveResult$Success.prototype.constructor = MoveResult$Success;
+  MoveResult$Error.prototype = Object.create(MoveResult.prototype);
+  MoveResult$Error.prototype.constructor = MoveResult$Error;
+  MoveResult$Error$NotPlayersPiece.prototype = Object.create(MoveResult$Error.prototype);
+  MoveResult$Error$NotPlayersPiece.prototype.constructor = MoveResult$Error$NotPlayersPiece;
+  MoveResult$Error$WasPushed.prototype = Object.create(MoveResult$Error.prototype);
+  MoveResult$Error$WasPushed.prototype.constructor = MoveResult$Error$WasPushed;
+  MoveResult$Error$NotAdjacent.prototype = Object.create(MoveResult$Error.prototype);
+  MoveResult$Error$NotAdjacent.prototype.constructor = MoveResult$Error$NotAdjacent;
+  MoveResult$Error$CannotPush.prototype = Object.create(MoveResult$Error.prototype);
+  MoveResult$Error$CannotPush.prototype.constructor = MoveResult$Error$CannotPush;
+  MoveResult$Error$RepeatedMove.prototype = Object.create(MoveResult$Error.prototype);
+  MoveResult$Error$RepeatedMove.prototype.constructor = MoveResult$Error$RepeatedMove;
   function bestMove($receiver, player, state) {
     var $receiver_0 = findAllMoves(state);
     var maxBy$result;
@@ -215,9 +230,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
             this.local$$receiver_0.get_vux9f0$(element_0, this.local$element_0);
             var to = new Point(element_0, this.local$element_0);
             var next = this.local$this$findAllMoves_0.move_56t7qy$(this.local$from, to);
-            if (next != null) {
+            if (Kotlin.isType(next, MoveResult$Success)) {
               this.state_0 = 6;
-              this.result_0 = this.local$$receiver_1.yield_11rb$(new Triple(this.local$from, to, next), this);
+              this.result_0 = this.local$$receiver_1.yield_11rb$(new Triple(this.local$from, to, next.state), this);
               if (this.result_0 === COROUTINE_SUSPENDED)
                 return COROUTINE_SUSPENDED;
               continue;
@@ -847,7 +862,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.x, other.x) && Kotlin.equals(this.y, other.y)))));
   };
   function Game() {
-    this.states_r7t5l$_0 = mutableListOf([new State()]);
+    this.states_r7t5l$_0 = mutableListOf([State$Companion_getInstance().inital]);
   }
   Object.defineProperty(Game.prototype, 'state', {get: function () {
     return last(this.states_r7t5l$_0);
@@ -876,13 +891,13 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     return this.victor != null;
   };
   Game.prototype.move_56t7qy$ = function (from, to) {
-    var tmp$;
-    tmp$ = this.state.move_56t7qy$(from, to);
-    if (tmp$ == null) {
+    var tmp$, tmp$_0;
+    tmp$_0 = Kotlin.isType(tmp$ = this.state.move_56t7qy$(from, to), MoveResult$Success) ? tmp$ : null;
+    if (tmp$_0 == null) {
       return false;
     }
-    var next = tmp$;
-    this.states_r7t5l$_0.add_11rb$(next);
+    var next = tmp$_0;
+    this.states_r7t5l$_0.add_11rb$(next.state);
     return true;
   };
   Game.$metadata$ = {kind: Kind_CLASS, simpleName: 'Game', interfaces: []};
@@ -1042,25 +1057,128 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   function PlayerController() {
   }
   PlayerController.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'PlayerController', interfaces: []};
-  function State(playersTurn, lastPushed, grid) {
+  function MoveResult() {
+  }
+  function MoveResult$Success(state) {
+    MoveResult.call(this);
+    this.state = state;
+  }
+  MoveResult$Success.$metadata$ = {kind: Kind_CLASS, simpleName: 'Success', interfaces: [MoveResult]};
+  MoveResult$Success.prototype.component1 = function () {
+    return this.state;
+  };
+  MoveResult$Success.prototype.copy_biffl8$ = function (state) {
+    return new MoveResult$Success(state === void 0 ? this.state : state);
+  };
+  MoveResult$Success.prototype.toString = function () {
+    return 'Success(state=' + Kotlin.toString(this.state) + ')';
+  };
+  MoveResult$Success.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.state) | 0;
+    return result;
+  };
+  MoveResult$Success.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && Kotlin.equals(this.state, other.state))));
+  };
+  function MoveResult$Error(msg) {
+    MoveResult.call(this);
+    this.msg = msg;
+  }
+  function MoveResult$Error$NotPlayersPiece() {
+    MoveResult$Error$NotPlayersPiece_instance = this;
+    MoveResult$Error.call(this, 'You can only move your own pieces');
+  }
+  MoveResult$Error$NotPlayersPiece.$metadata$ = {kind: Kind_OBJECT, simpleName: 'NotPlayersPiece', interfaces: [MoveResult$Error]};
+  var MoveResult$Error$NotPlayersPiece_instance = null;
+  function MoveResult$Error$NotPlayersPiece_getInstance() {
+    if (MoveResult$Error$NotPlayersPiece_instance === null) {
+      new MoveResult$Error$NotPlayersPiece();
+    }
+    return MoveResult$Error$NotPlayersPiece_instance;
+  }
+  function MoveResult$Error$WasPushed() {
+    MoveResult$Error$WasPushed_instance = this;
+    MoveResult$Error.call(this, 'You cannot move a pushed piece');
+  }
+  MoveResult$Error$WasPushed.$metadata$ = {kind: Kind_OBJECT, simpleName: 'WasPushed', interfaces: [MoveResult$Error]};
+  var MoveResult$Error$WasPushed_instance = null;
+  function MoveResult$Error$WasPushed_getInstance() {
+    if (MoveResult$Error$WasPushed_instance === null) {
+      new MoveResult$Error$WasPushed();
+    }
+    return MoveResult$Error$WasPushed_instance;
+  }
+  function MoveResult$Error$NotAdjacent() {
+    MoveResult$Error$NotAdjacent_instance = this;
+    MoveResult$Error.call(this, 'You can only move to an adjacent square');
+  }
+  MoveResult$Error$NotAdjacent.$metadata$ = {kind: Kind_OBJECT, simpleName: 'NotAdjacent', interfaces: [MoveResult$Error]};
+  var MoveResult$Error$NotAdjacent_instance = null;
+  function MoveResult$Error$NotAdjacent_getInstance() {
+    if (MoveResult$Error$NotAdjacent_instance === null) {
+      new MoveResult$Error$NotAdjacent();
+    }
+    return MoveResult$Error$NotAdjacent_instance;
+  }
+  function MoveResult$Error$CannotPush() {
+    MoveResult$Error$CannotPush_instance = this;
+    MoveResult$Error.call(this, 'You cannot push more than one piece');
+  }
+  MoveResult$Error$CannotPush.$metadata$ = {kind: Kind_OBJECT, simpleName: 'CannotPush', interfaces: [MoveResult$Error]};
+  var MoveResult$Error$CannotPush_instance = null;
+  function MoveResult$Error$CannotPush_getInstance() {
+    if (MoveResult$Error$CannotPush_instance === null) {
+      new MoveResult$Error$CannotPush();
+    }
+    return MoveResult$Error$CannotPush_instance;
+  }
+  function MoveResult$Error$RepeatedMove() {
+    MoveResult$Error$RepeatedMove_instance = this;
+    MoveResult$Error.call(this, 'You cannot repeat a move made four moves ago');
+  }
+  MoveResult$Error$RepeatedMove.$metadata$ = {kind: Kind_OBJECT, simpleName: 'RepeatedMove', interfaces: [MoveResult$Error]};
+  var MoveResult$Error$RepeatedMove_instance = null;
+  function MoveResult$Error$RepeatedMove_getInstance() {
+    if (MoveResult$Error$RepeatedMove_instance === null) {
+      new MoveResult$Error$RepeatedMove();
+    }
+    return MoveResult$Error$RepeatedMove_instance;
+  }
+  MoveResult$Error.$metadata$ = {kind: Kind_CLASS, simpleName: 'Error', interfaces: [MoveResult]};
+  MoveResult.$metadata$ = {kind: Kind_CLASS, simpleName: 'MoveResult', interfaces: []};
+  function State(playersTurn, lastPushed, grid, prev, lastMove) {
     State$Companion_getInstance();
-    if (playersTurn === void 0)
-      playersTurn = Player$Blue_getInstance();
-    if (lastPushed === void 0)
-      lastPushed = null;
-    if (grid === void 0)
-      grid = standardStartGrid;
     this.playersTurn = playersTurn;
     this.lastPushed = lastPushed;
     this.grid = grid;
+    this.prev = prev;
+    this.lastMove = lastMove;
     this.victor = this.isVictory_0();
+  }
+  function State$Companion() {
+    State$Companion_instance = this;
+    this.inital = new State(Player$Blue_getInstance(), null, standardStartGrid, null, null);
+  }
+  State$Companion.prototype.serializer = function () {
+    return State$$serializer_getInstance();
+  };
+  State$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
+  var State$Companion_instance = null;
+  function State$Companion_getInstance() {
+    if (State$Companion_instance === null) {
+      new State$Companion();
+    }
+    return State$Companion_instance;
   }
   var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_287e2$;
   var addAll = Kotlin.kotlin.collections.addAll_ipc267$;
   var copyToArray = Kotlin.kotlin.collections.copyToArray;
   State.prototype.move_56t7qy$ = function (from, to) {
-    if (!this.canMoveTo_0(from, to))
-      return null;
+    var tmp$;
+    if ((tmp$ = this.findMoveError_0(from, to)) != null) {
+      return tmp$;
+    }
     var next_0 = nextOver(from, to);
     var pushing = get_0(this.grid, to) != null;
     var pushed = pushing ? next_0 : null;
@@ -1074,34 +1192,69 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     var height = $receiver.height;
     var $receiver_1 = until(0, height);
     var destination = ArrayList_init_0();
-    var tmp$;
-    tmp$ = $receiver_1.iterator();
-    while (tmp$.hasNext()) {
-      var element = tmp$.next();
+    var tmp$_0;
+    tmp$_0 = $receiver_1.iterator();
+    while (tmp$_0.hasNext()) {
+      var element = tmp$_0.next();
       var $receiver_2 = until(0, width);
       var destination_0 = ArrayList_init(collectionSizeOrDefault($receiver_2, 10));
-      var tmp$_0;
-      tmp$_0 = $receiver_2.iterator();
-      while (tmp$_0.hasNext()) {
-        var item = tmp$_0.next();
-        var tmp$_1 = destination_0.add_11rb$;
+      var tmp$_1;
+      tmp$_1 = $receiver_2.iterator();
+      while (tmp$_1.hasNext()) {
+        var item = tmp$_1.next();
+        var tmp$_2 = destination_0.add_11rb$;
         var p = new Point(item, element);
-        tmp$_1.call(destination_0, $receiver_0.ops.containsKey_11rb$(p) ? $receiver_0.ops.get_11rb$(p) : $receiver.get_vux9f0$(item, element));
+        tmp$_2.call(destination_0, $receiver_0.ops.containsKey_11rb$(p) ? $receiver_0.ops.get_11rb$(p) : $receiver.get_vux9f0$(item, element));
       }
       var list = destination_0;
       addAll(destination, list);
     }
     var newGrid = new GenericGrid(width, height, copyToArray(destination));
-    return new State(next(this.playersTurn), pushed, toGameGrid(newGrid));
+    return new MoveResult$Success(new State(next(this.playersTurn), pushed, toGameGrid(newGrid), this, new Move(from, to)));
   };
-  State.prototype.canMoveTo_0 = function (from, to) {
-    return this.isEligibleToMove_bk5ui5$(from) && isAdjacent(from, to) && this.canPush_0(from, to);
+  State.prototype.findMoveError_0 = function (from, to) {
+    if (!equals(this.playersTurn, get_0(this.grid, from)))
+      return MoveResult$Error$NotPlayersPiece_getInstance();
+    else if (equals(this.lastPushed, from))
+      return MoveResult$Error$WasPushed_getInstance();
+    else if (!isAdjacent(from, to))
+      return MoveResult$Error$NotAdjacent_getInstance();
+    else if (!this.canPush_0(from, to))
+      return MoveResult$Error$CannotPush_getInstance();
+    else if (this.isRepeatedMove_0(from, to))
+      return MoveResult$Error$RepeatedMove_getInstance();
+    else
+      return null;
   };
   State.prototype.isEligibleToMove_bk5ui5$ = function (p) {
     return equals(this.playersTurn, get_0(this.grid, p)) && !equals(this.lastPushed, p);
   };
   State.prototype.canPush_0 = function (from, to) {
     return get_0(this.grid, to) == null || get_0(this.grid, nextOver(from, to)) == null;
+  };
+  State.prototype.isRepeatedMove_0 = function (from, to) {
+    var tmp$, tmp$_0, tmp$_1;
+    tmp$ = applyN(this, 3, getPropertyCallableRef('prev', 1, function ($receiver) {
+      return $receiver.prev;
+    }));
+    if (tmp$ == null) {
+      return false;
+    }
+    var threeMovesAgo = tmp$;
+    if (!equals(threeMovesAgo.lastMove, new Move(from, to)))
+      return false;
+    tmp$_0 = applyN(this, 4, getPropertyCallableRef('prev', 1, function ($receiver) {
+      return $receiver.prev;
+    }));
+    if (tmp$_0 == null) {
+      return false;
+    }
+    var fourMovesAgo = tmp$_0;
+    if (!equals(fourMovesAgo.lastPushed, this.lastPushed))
+      return false;
+    if (!((tmp$_1 = fourMovesAgo.grid) != null ? tmp$_1.equals(this.grid) : null))
+      return false;
+    return true;
   };
   State.prototype.isVictory_0 = function () {
     var $receiver = this.grid;
@@ -1145,25 +1298,13 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   State.prototype.countActiveTokens_0 = function () {
     return sumBy(this.grid, State$countActiveTokens$lambda(this));
   };
-  function State$Companion() {
-    State$Companion_instance = this;
-  }
-  State$Companion.prototype.serializer = function () {
-    return State$$serializer_getInstance();
-  };
-  State$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
-  var State$Companion_instance = null;
-  function State$Companion_getInstance() {
-    if (State$Companion_instance === null) {
-      new State$Companion();
-    }
-    return State$Companion_instance;
-  }
   function State$$serializer() {
     this.descriptor_fsmc49$_0 = new SerialClassDescImpl('de.earley.gogogo.game.State', this);
     this.descriptor.addElement_ivxn3r$('playersTurn', false);
     this.descriptor.addElement_ivxn3r$('lastPushed', false);
     this.descriptor.addElement_ivxn3r$('grid', false);
+    this.descriptor.addElement_ivxn3r$('prev', false);
+    this.descriptor.addElement_ivxn3r$('lastMove', false);
     this.descriptor.addElement_ivxn3r$('victor', false);
     State$$serializer_instance = this;
   }
@@ -1175,13 +1316,15 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     output.encodeSerializableElement_blecud$(this.descriptor, 0, new EnumSerializer(getKClass(Player)), obj.playersTurn);
     output.encodeNullableSerializableElement_orpvvi$(this.descriptor, 1, Point$$serializer_getInstance(), obj.lastPushed);
     output.encodeSerializableElement_blecud$(this.descriptor, 2, GameGrid$$serializer_getInstance(), obj.grid);
-    output.encodeNullableSerializableElement_orpvvi$(this.descriptor, 3, new EnumSerializer(getKClass(Player)), obj.victor);
+    output.encodeNullableSerializableElement_orpvvi$(this.descriptor, 3, State$$serializer_getInstance(), obj.prev);
+    output.encodeNullableSerializableElement_orpvvi$(this.descriptor, 4, Move$$serializer_getInstance(), obj.lastMove);
+    output.encodeNullableSerializableElement_orpvvi$(this.descriptor, 5, new EnumSerializer(getKClass(Player)), obj.victor);
     output.endStructure_qatsm0$(this.descriptor);
   };
   State$$serializer.prototype.deserialize_nts5qn$ = function (input_0) {
     var index, readAll = false;
     var bitMask0 = 0;
-    var local0, local1, local2, local3;
+    var local0, local1, local2, local3, local4, local5;
     var input = input_0.beginStructure_r0sa6z$(this.descriptor, []);
     loopLabel: while (true) {
       index = input.decodeElementIndex_qatsm0$(this.descriptor);
@@ -1204,8 +1347,18 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
           if (!readAll)
             break;
         case 3:
-          local3 = (bitMask0 & 8) === 0 ? input.decodeNullableSerializableElement_cwlm4k$(this.descriptor, 3, new EnumSerializer(getKClass(Player))) : input.updateNullableSerializableElement_u33s02$(this.descriptor, 3, new EnumSerializer(getKClass(Player)), local3);
+          local3 = (bitMask0 & 8) === 0 ? input.decodeNullableSerializableElement_cwlm4k$(this.descriptor, 3, State$$serializer_getInstance()) : input.updateNullableSerializableElement_u33s02$(this.descriptor, 3, State$$serializer_getInstance(), local3);
           bitMask0 |= 8;
+          if (!readAll)
+            break;
+        case 4:
+          local4 = (bitMask0 & 16) === 0 ? input.decodeNullableSerializableElement_cwlm4k$(this.descriptor, 4, Move$$serializer_getInstance()) : input.updateNullableSerializableElement_u33s02$(this.descriptor, 4, Move$$serializer_getInstance(), local4);
+          bitMask0 |= 16;
+          if (!readAll)
+            break;
+        case 5:
+          local5 = (bitMask0 & 32) === 0 ? input.decodeNullableSerializableElement_cwlm4k$(this.descriptor, 5, new EnumSerializer(getKClass(Player))) : input.updateNullableSerializableElement_u33s02$(this.descriptor, 5, new EnumSerializer(getKClass(Player)), local5);
+          bitMask0 |= 32;
           if (!readAll)
             break;
         case -1:
@@ -1214,10 +1367,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       }
     }
     input.endStructure_qatsm0$(this.descriptor);
-    return State_init(bitMask0, local0, local1, local2, local3, null);
+    return State_init(bitMask0, local0, local1, local2, local3, local4, local5, null);
   };
   State$$serializer.prototype.childSerializers = function () {
-    return [new EnumSerializer(getKClass(Player)), new NullableSerializer(Point$$serializer_getInstance()), GameGrid$$serializer_getInstance(), new NullableSerializer(new EnumSerializer(getKClass(Player)))];
+    return [new EnumSerializer(getKClass(Player)), new NullableSerializer(Point$$serializer_getInstance()), GameGrid$$serializer_getInstance(), new NullableSerializer(State$$serializer_getInstance()), new NullableSerializer(Move$$serializer_getInstance()), new NullableSerializer(new EnumSerializer(getKClass(Player)))];
   };
   State$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [GeneratedSerializer]};
   var State$$serializer_instance = null;
@@ -1227,7 +1380,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
     return State$$serializer_instance;
   }
-  function State_init(seen, playersTurn, lastPushed, grid, victor, serializationConstructorMarker) {
+  function State_init(seen, playersTurn, lastPushed, grid, prev, lastMove, victor, serializationConstructorMarker) {
     var $this = Object.create(State.prototype);
     if ((seen & 1) === 0)
       throw new MissingFieldException('playersTurn');
@@ -1242,6 +1395,14 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     else
       $this.grid = grid;
     if ((seen & 8) === 0)
+      throw new MissingFieldException('prev');
+    else
+      $this.prev = prev;
+    if ((seen & 16) === 0)
+      throw new MissingFieldException('lastMove');
+    else
+      $this.lastMove = lastMove;
+    if ((seen & 32) === 0)
       throw new MissingFieldException('victor');
     else
       $this.victor = victor;
@@ -1257,21 +1418,29 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   State.prototype.component3 = function () {
     return this.grid;
   };
-  State.prototype.copy_i0rztd$ = function (playersTurn, lastPushed, grid) {
-    return new State(playersTurn === void 0 ? this.playersTurn : playersTurn, lastPushed === void 0 ? this.lastPushed : lastPushed, grid === void 0 ? this.grid : grid);
+  State.prototype.component4 = function () {
+    return this.prev;
+  };
+  State.prototype.component5 = function () {
+    return this.lastMove;
+  };
+  State.prototype.copy_gcvhh1$ = function (playersTurn, lastPushed, grid, prev, lastMove) {
+    return new State(playersTurn === void 0 ? this.playersTurn : playersTurn, lastPushed === void 0 ? this.lastPushed : lastPushed, grid === void 0 ? this.grid : grid, prev === void 0 ? this.prev : prev, lastMove === void 0 ? this.lastMove : lastMove);
   };
   State.prototype.toString = function () {
-    return 'State(playersTurn=' + Kotlin.toString(this.playersTurn) + (', lastPushed=' + Kotlin.toString(this.lastPushed)) + (', grid=' + Kotlin.toString(this.grid)) + ')';
+    return 'State(playersTurn=' + Kotlin.toString(this.playersTurn) + (', lastPushed=' + Kotlin.toString(this.lastPushed)) + (', grid=' + Kotlin.toString(this.grid)) + (', prev=' + Kotlin.toString(this.prev)) + (', lastMove=' + Kotlin.toString(this.lastMove)) + ')';
   };
   State.prototype.hashCode = function () {
     var result = 0;
     result = result * 31 + Kotlin.hashCode(this.playersTurn) | 0;
     result = result * 31 + Kotlin.hashCode(this.lastPushed) | 0;
     result = result * 31 + Kotlin.hashCode(this.grid) | 0;
+    result = result * 31 + Kotlin.hashCode(this.prev) | 0;
+    result = result * 31 + Kotlin.hashCode(this.lastMove) | 0;
     return result;
   };
   State.prototype.equals = function (other) {
-    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.playersTurn, other.playersTurn) && Kotlin.equals(this.lastPushed, other.lastPushed) && Kotlin.equals(this.grid, other.grid)))));
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.playersTurn, other.playersTurn) && Kotlin.equals(this.lastPushed, other.lastPushed) && Kotlin.equals(this.grid, other.grid) && Kotlin.equals(this.prev, other.prev) && Kotlin.equals(this.lastMove, other.lastMove)))));
   };
   function nextOver(from, to) {
     return new Point(from.x + (2 * (to.x - from.x | 0) | 0) | 0, from.y + (2 * (to.y - from.y | 0) | 0) | 0);
@@ -1280,6 +1449,13 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     var dx = abs(from.x - to.x | 0);
     var dy = abs(from.y - to.y | 0);
     return dx === 1 && dy === 0 || (dx === 0 && dy === 1);
+  }
+  function applyN($receiver, n, next) {
+    var tmp$;
+    if (n === 0)
+      return $receiver;
+    else
+      return (tmp$ = next($receiver)) != null ? applyN(tmp$, n - 1 | 0, next) : null;
   }
   function GameGrid(width, height, elems) {
     GameGrid$Companion_getInstance();
@@ -1699,6 +1875,14 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Object.defineProperty(Move, '$serializer', {get: Move$$serializer_getInstance});
   package$game.Move = Move;
   package$game.PlayerController = PlayerController;
+  MoveResult.Success = MoveResult$Success;
+  Object.defineProperty(MoveResult$Error, 'NotPlayersPiece', {get: MoveResult$Error$NotPlayersPiece_getInstance});
+  Object.defineProperty(MoveResult$Error, 'WasPushed', {get: MoveResult$Error$WasPushed_getInstance});
+  Object.defineProperty(MoveResult$Error, 'NotAdjacent', {get: MoveResult$Error$NotAdjacent_getInstance});
+  Object.defineProperty(MoveResult$Error, 'CannotPush', {get: MoveResult$Error$CannotPush_getInstance});
+  Object.defineProperty(MoveResult$Error, 'RepeatedMove', {get: MoveResult$Error$RepeatedMove_getInstance});
+  MoveResult.Error = MoveResult$Error;
+  package$game.MoveResult = MoveResult;
   Object.defineProperty(State, 'Companion', {get: State$Companion_getInstance});
   Object.defineProperty(State, '$serializer', {get: State$$serializer_getInstance});
   package$game.State = State;

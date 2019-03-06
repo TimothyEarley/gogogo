@@ -60,6 +60,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   var clear = Kotlin.kotlin.dom.clear_asww5s$;
   var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_287e2$;
   var L10 = Kotlin.Long.fromInt(10);
+  var MoveResult$Error = $module$gogogo_common.de.earley.gogogo.game.MoveResult.Error;
   var Move = $module$gogogo_common.de.earley.gogogo.game.Move;
   var NoSuchElementException = Kotlin.kotlin.NoSuchElementException;
   var to = Kotlin.kotlin.to_ujzrz7$;
@@ -1549,8 +1550,10 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       return 'Illegal from: ' + closure$point;
     };
   }
-  function HumanController$supplyClick$lambda_1() {
-    return 'Illegal move, resetting';
+  function HumanController$supplyClick$lambda_1(closure$move) {
+    return function () {
+      return 'Illegal move, resetting: ' + closure$move.msg;
+    };
   }
   function HumanController$supplyClick$lambda_2(this$HumanController) {
     return function () {
@@ -1579,8 +1582,9 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       var message_0 = 'From is null';
       throw IllegalArgumentException_init(message_0.toString());
     }
-    if (s.move_56t7qy$(f, point) == null) {
-      Log_getInstance().info_h4ejuu$(HumanController$supplyClick$lambda_1);
+    var move = s.move_56t7qy$(f, point);
+    if (Kotlin.isType(move, MoveResult$Error)) {
+      Log_getInstance().info_h4ejuu$(HumanController$supplyClick$lambda_1(move));
       this.from_0 = null;
       (tmp$_0 = this.selectCallback_0) != null ? tmp$_0(null) : null;
       return;

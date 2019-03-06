@@ -72,6 +72,17 @@
     f.callableName = name;
     return f;
   };
+  Kotlin.getPropertyCallableRef = function (name, paramCount, getter, setter) {
+    getter.get = getter;
+    getter.set = setter;
+    getter.callableName = name;
+    return getPropertyRefClass(getter, setter, propertyRefClassMetadataCache[paramCount]);
+  };
+  function getPropertyRefClass(obj, setter, cache) {
+    obj.$metadata$ = getPropertyRefMetadata(typeof setter === 'function' ? cache.mutable : cache.immutable);
+    obj.constructor = obj;
+    return obj;
+  }
   var propertyRefClassMetadataCache = [{mutable: {value: null, implementedInterface: function () {
     return Kotlin.kotlin.reflect.KMutableProperty0;
   }}, immutable: {value: null, implementedInterface: function () {
@@ -81,6 +92,12 @@
   }}, immutable: {value: null, implementedInterface: function () {
     return Kotlin.kotlin.reflect.KProperty1;
   }}}];
+  function getPropertyRefMetadata(cache) {
+    if (cache.value === null) {
+      cache.value = {interfaces: [cache.implementedInterface()], baseClass: null, functions: {}, properties: {}, types: {}, staticMembers: {}};
+    }
+    return cache.value;
+  }
   Kotlin.toShort = function (a) {
     return (a & 65535) << 16 >> 16;
   };
