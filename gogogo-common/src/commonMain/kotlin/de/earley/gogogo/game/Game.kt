@@ -13,7 +13,7 @@ data class Point(val x: Int, val y: Int)
 
 open class Game {
 
-	private val states: MutableList<State> = mutableListOf(State())
+	private val states: MutableList<State> = mutableListOf(State.inital)
 	val state: State get() = states.last()
 	val player: Player get() = state.playersTurn
 	val victor: Player? get() = state.victor
@@ -30,8 +30,8 @@ open class Game {
 	fun isEligibleToMove(from: Point): Boolean = state.isEligibleToMove(from)
 	fun isOver(): Boolean = victor != null
 	fun move(from: Point, to: Point): Boolean {
-		val next = state.move(from, to) ?: return false
-		states.add(next)
+		val next = state.move(from, to) as? MoveResult.Success ?: return false
+		states.add(next.state)
 		return true
 	}
 

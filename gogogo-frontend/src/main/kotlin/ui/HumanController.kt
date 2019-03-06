@@ -1,10 +1,7 @@
 package de.earley.gogogo.ui
 
 import de.earley.gogogo.Log
-import de.earley.gogogo.game.Move
-import de.earley.gogogo.game.PlayerController
-import de.earley.gogogo.game.Point
-import de.earley.gogogo.game.State
+import de.earley.gogogo.game.*
 import kotlinx.coroutines.channels.Channel
 
 class HumanController : PlayerController {
@@ -61,8 +58,10 @@ class HumanController : PlayerController {
 		require(f != null) { "From is null" }
 
 		// is this an invalid click?
-		if (s.move(f, point) == null) {
-			Log.info { "Illegal move, resetting" }
+		val move = s.move(f, point)
+		if (move is MoveResult.Error) {
+			Log.info { "Illegal move, resetting: ${move.msg}"}
+			//TODO inform player
 			// illegal move -> unselect
 			from = null
 			selectCallback?.invoke(null)

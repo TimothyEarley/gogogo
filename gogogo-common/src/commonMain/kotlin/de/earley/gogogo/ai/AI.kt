@@ -39,8 +39,8 @@ fun State.findAllMoves(): List<Triple<Point, Point, State>> = sequence {
 			grid.forEach { tx, ty, _ ->
 				val to = Point(tx, ty)
 				val next = move(from, to)
-				if (next != null) {
-					yield(Triple(from, to, next))
+				if (next is MoveResult.Success) {
+					yield(Triple(from, to, next.state))
 				}
 			}
 		}
