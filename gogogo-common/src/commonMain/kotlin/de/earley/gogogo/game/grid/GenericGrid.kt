@@ -4,9 +4,18 @@ data class GenericGrid<T>(
 	override val width: Int,
 	override val height: Int,
 	override val elems: Array<T?>
-) : Grid<T> {
+) : Grid<T>, MutableGrid<T> {
+
 	override operator fun get(x: Int, y: Int): T? =
 		if (x in 0..(width - 1) && y in 0..(height-1)) elems[y * width + x] else null
+
+	override fun set(x: Int, y: Int, t: T?) {
+		elems[y * width + x] = t
+	}
+
+	override fun toMutableGrid(): MutableGrid<T> {
+		return GenericGrid(width, height, elems.copyOf())
+	}
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true

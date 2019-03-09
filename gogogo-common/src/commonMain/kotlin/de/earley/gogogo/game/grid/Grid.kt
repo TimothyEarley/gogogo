@@ -7,6 +7,10 @@ interface Grid<T> {
 	val height: Int
 	val elems: Array<T?>
 	operator fun get(x: Int, y: Int): T?
+	/**
+	 * Create a new mutable grid
+	 */
+	fun toMutableGrid(): MutableGrid<T>
 
 	companion object {
 		inline fun <reified T> create(width: Int, height: Int, init: (Int, Int) -> T?): GenericGrid<T> = GenericGrid(
@@ -21,6 +25,17 @@ interface Grid<T> {
 	}
 }
 
+interface MutableGrid<T> : Grid<T> {
+	operator fun set(x: Int, y: Int, t: T?)
+}
+
+interface IndexableGrid<T> {
+	/**
+	 * Performant alternative to looping through all grid cells
+	 */
+	fun getAllFor(t: T): List<Point>
+}
+
 operator fun <T> Grid<T>.get(p: Point) = get(p.x, p.y)
 
 inline fun <T> Grid<T>.forEach(action: (Int, Int, T?) -> Unit) {
@@ -33,25 +48,26 @@ inline fun <T> Grid<T>.forEach(action: (Int, Int, T?) -> Unit) {
 
 // all these reified things are because of multiplatform (idk)
 
-inline fun <reified T> Grid<T>.copy(alterations: Alterations<T>.() -> Unit) =
-	Alterations<T>().also(alterations).create(this)
+inline fun <reified T> Grid<T>.copy(alterations: Alterations<T, MutableGrid<T>>.() -> Unit) =
+	Alterations(this.toMutableGrid()).also(alterations).create()
 
 
-class Alterations<T> {
-	val ops: MutableMap<Point, T?> = HashMap()
+class Alterations<T, G : MutableGrid<T>>(
+	private val workingGrid: G
+) {
 
-	fun replace(p: Point, value: T?) {
-		ops[p] = value
+	operator fun set(p: Point, value: T?) {
+		workingGrid[p.x, p.y] = value
 	}
+
+	operator fun set(x: Int, y: Int, value: T?) {
+		workingGrid[x, y] = value
+	}
+
+	fun create(): G = workingGrid
 }
 
-inline fun <reified T> Alterations<T>.create(grid: Grid<T>): Grid<T> =
-	Grid.create(grid.width, grid.height) { x, y ->
-		val p = Point(x, y)
-		if (ops.containsKey(p)) ops[p] else grid[x, y]
-	}
-
-fun <T> Grid<T>.sumBy(value: (Int, Int, T?) -> Int): Int {
+inline fun <T> Grid<T>.sumBy(value: (Int, Int, T?) -> Int): Int {
 	var sum = 0
 	this.forEach { x, y, t -> sum += value(x, y, t) }
 	return sum

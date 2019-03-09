@@ -1562,22 +1562,6 @@
       }
       return optimizeReadOnlySet(toCollection_8($receiver, LinkedHashSet_init_0()));
     }
-    function max_10($receiver) {
-      var iterator = $receiver.iterator();
-      if (!iterator.hasNext())
-        return null;
-      var max = iterator.next();
-      if (isNaN_2(max))
-        return max;
-      while (iterator.hasNext()) {
-        var e = iterator.next();
-        if (isNaN_2(e))
-          return e;
-        if (max < e)
-          max = e;
-      }
-      return max;
-    }
     function max_11($receiver) {
       var iterator = $receiver.iterator();
       if (!iterator.hasNext())
@@ -1701,23 +1685,24 @@
         tmp$ = new TakeSequence($receiver, n);
       return tmp$;
     }
-    function toCollection_9($receiver, destination) {
-      var tmp$;
-      tmp$ = $receiver.iterator();
-      while (tmp$.hasNext()) {
-        var item = tmp$.next();
-        destination.add_11rb$(item);
-      }
-      return destination;
-    }
-    function toList_10($receiver) {
-      return optimizeReadOnlyList(toMutableList_10($receiver));
-    }
-    function toMutableList_10($receiver) {
-      return toCollection_9($receiver, ArrayList_init());
-    }
     function map_10($receiver, transform) {
       return new TransformingSequence($receiver, transform);
+    }
+    function max_13($receiver) {
+      var iterator = $receiver.iterator();
+      if (!iterator.hasNext())
+        return null;
+      var max = iterator.next();
+      if (isNaN_2(max))
+        return max;
+      while (iterator.hasNext()) {
+        var e = iterator.next();
+        if (isNaN_2(e))
+          return e;
+        if (max < e)
+          max = e;
+      }
+      return max;
     }
     function asIterable$lambda_8(this$asIterable) {
       return function () {
@@ -6235,8 +6220,23 @@
     function collectionSizeOrDefault($receiver, default_0) {
       return Kotlin.isType($receiver, Collection) ? $receiver.size : default_0;
     }
+    function getOrImplicitDefault($receiver, key) {
+      if (Kotlin.isType($receiver, MapWithDefault))
+        return $receiver.getOrImplicitDefault_11rb$(key);
+      var getOrElseNullable$result;
+      var tmp$;
+      var value = $receiver.get_11rb$(key);
+      if (value == null && !$receiver.containsKey_11rb$(key)) {
+        throw new NoSuchElementException('Key ' + key + ' is missing in the map.');
+      }
+       else {
+        getOrElseNullable$result = (tmp$ = value) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE();
+      }
+      return getOrElseNullable$result;
+    }
     function MapWithDefault() {
     }
+    MapWithDefault.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'MapWithDefault', interfaces: [Map]};
     function MutableMapWithDefault() {
     }
     function MapWithDefaultImpl(map, default_0) {
@@ -6312,6 +6312,9 @@
       return 2147483647;
     }
     var INT_MAX_POWER_OF_TWO;
+    function getValue_2($receiver, key) {
+      return getOrImplicitDefault($receiver, key);
+    }
     function putAll($receiver, pairs) {
       var tmp$;
       for (tmp$ = 0; tmp$ !== pairs.length; ++tmp$) {
@@ -7580,37 +7583,6 @@
     function to($receiver, that) {
       return new Pair($receiver, that);
     }
-    function Triple(first, second, third) {
-      this.first = first;
-      this.second = second;
-      this.third = third;
-    }
-    Triple.prototype.toString = function () {
-      return '(' + this.first + ', ' + this.second + ', ' + this.third + ')';
-    };
-    Triple.$metadata$ = {kind: Kind_CLASS, simpleName: 'Triple', interfaces: [Serializable]};
-    Triple.prototype.component1 = function () {
-      return this.first;
-    };
-    Triple.prototype.component2 = function () {
-      return this.second;
-    };
-    Triple.prototype.component3 = function () {
-      return this.third;
-    };
-    Triple.prototype.copy_1llc0w$ = function (first, second, third) {
-      return new Triple(first === void 0 ? this.first : first, second === void 0 ? this.second : second, third === void 0 ? this.third : third);
-    };
-    Triple.prototype.hashCode = function () {
-      var result = 0;
-      result = result * 31 + Kotlin.hashCode(this.first) | 0;
-      result = result * 31 + Kotlin.hashCode(this.second) | 0;
-      result = result * 31 + Kotlin.hashCode(this.third) | 0;
-      return result;
-    };
-    Triple.prototype.equals = function (other) {
-      return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.first, other.first) && Kotlin.equals(this.second, other.second) && Kotlin.equals(this.third, other.third)))));
-    };
     var UByte$Companion_instance = null;
     var UInt$Companion_instance = null;
     var UIntRange$Companion_instance = null;
@@ -7657,7 +7629,6 @@
     package$collections.toMutableList_4c7yge$ = toMutableList_9;
     package$collections.toSet_7wnvza$ = toSet_8;
     package$collections.Collection = Collection;
-    package$collections.max_lvsncp$ = max_10;
     package$collections.max_exjks8$ = max_11;
     package$collections.joinTo_gcc71v$ = joinTo_8;
     package$collections.joinToString_fmv235$ = joinToString_8;
@@ -7671,10 +7642,8 @@
     var package$sequences = package$kotlin.sequences || (package$kotlin.sequences = {});
     package$sequences.Sequence = Sequence;
     package$sequences.take_wuwhe2$ = take_9;
-    package$sequences.toCollection_gtszxp$ = toCollection_9;
-    package$sequences.toList_veqyi0$ = toList_10;
-    package$sequences.toMutableList_veqyi0$ = toMutableList_10;
     package$sequences.map_z5avom$ = map_10;
+    package$sequences.max_8rwv2f$ = max_13;
     package$sequences.asIterable_veqyi0$ = asIterable_10;
     var package$text = package$kotlin.text || (package$kotlin.text = {});
     package$text.get_lastIndex_gw00vp$ = get_lastIndex_9;
@@ -7941,8 +7910,10 @@
     package$collections.get_indices_gzk92b$ = get_indices_8;
     package$collections.optimizeReadOnlyList_qzupvv$ = optimizeReadOnlyList;
     package$collections.IndexedValue = IndexedValue;
+    package$collections.getOrImplicitDefault_t9ocha$ = getOrImplicitDefault;
     package$collections.emptyMap_q3lmfv$ = emptyMap;
     package$collections.mapOf_qfcya0$ = mapOf_0;
+    package$collections.getValue_t9ocha$ = getValue_2;
     package$collections.putAll_5gv49o$ = putAll;
     package$collections.toMap_ujwnei$ = toMap_2;
     package$collections.removeAll_uhyeqt$ = removeAll_0;
@@ -8002,7 +7973,6 @@
     package$kotlin.NotImplementedError = NotImplementedError;
     package$kotlin.Pair = Pair;
     package$kotlin.to_ujzrz7$ = to;
-    package$kotlin.Triple = Triple;
     CoroutineContext$Element.prototype.plus_1fupul$ = CoroutineContext.prototype.plus_1fupul$;
     ContinuationInterceptor.prototype.fold_3cc69b$ = CoroutineContext$Element.prototype.fold_3cc69b$;
     ContinuationInterceptor.prototype.plus_1fupul$ = CoroutineContext$Element.prototype.plus_1fupul$;

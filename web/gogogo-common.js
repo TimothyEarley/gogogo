@@ -9,24 +9,25 @@ if (typeof this['kotlinx-serialization-runtime-js'] === 'undefined') {
 }
 this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $module$kotlinx_serialization_runtime_js) {
   'use strict';
-  var ensureNotNull = Kotlin.ensureNotNull;
+  var Kind_CLASS = Kotlin.Kind.CLASS;
   var to = Kotlin.kotlin.to_ujzrz7$;
+  var map = Kotlin.kotlin.sequences.map_z5avom$;
   var println = Kotlin.kotlin.io.println_s8jyv4$;
   var COROUTINE_SUSPENDED = Kotlin.kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED;
   var CoroutineImpl = Kotlin.kotlin.coroutines.CoroutineImpl;
-  var Kind_CLASS = Kotlin.Kind.CLASS;
-  var Triple = Kotlin.kotlin.Triple;
   var Unit = Kotlin.kotlin.Unit;
   var sequence = Kotlin.kotlin.sequences.sequence_o0x0bg$;
-  var toList = Kotlin.kotlin.sequences.toList_veqyi0$;
+  var wrapFunction = Kotlin.wrapFunction;
   var equals = Kotlin.equals;
+  var getCallableRef = Kotlin.getCallableRef;
   var kotlin_js_internal_FloatCompanionObject = Kotlin.kotlin.js.internal.FloatCompanionObject;
-  var Random = Kotlin.kotlin.random.Random;
-  var max = Kotlin.kotlin.collections.max_lvsncp$;
-  var HashMap_init = Kotlin.kotlin.collections.HashMap_init_q3lmfv$;
+  var max = Kotlin.kotlin.sequences.max_8rwv2f$;
+  var isNaN_0 = Kotlin.kotlin.isNaN_81szk$;
+  var LinkedHashMap_init = Kotlin.kotlin.collections.LinkedHashMap_init_q3lmfv$;
+  var L0 = Kotlin.Long.ZERO;
+  var MutableMap = Kotlin.kotlin.collections.MutableMap;
   var throwUPAE = Kotlin.throwUPAE;
   var Job = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job_5dx9e$;
-  var getCallableRef = Kotlin.getCallableRef;
   var withContext = $module$kotlinx_coroutines_core.kotlinx.coroutines.withContext_i5cbzn$;
   var CancellationException = $module$kotlinx_coroutines_core.kotlinx.coroutines.CancellationException;
   var IllegalStateException_init = Kotlin.kotlin.IllegalStateException_init_pdl1vj$;
@@ -45,16 +46,22 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   var mutableListOf = Kotlin.kotlin.collections.mutableListOf_i5x0yv$;
   var Enum = Kotlin.kotlin.Enum;
   var throwISE = Kotlin.throwISE;
+  var throwCCE = Kotlin.throwCCE;
   var getPropertyCallableRef = Kotlin.getPropertyCallableRef;
   var getKClass = Kotlin.getKClass;
   var EnumSerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.EnumSerializer;
   var abs = Kotlin.kotlin.math.abs_za3lpa$;
-  var throwCCE = Kotlin.throwCCE;
+  var StringBuilder_init = Kotlin.kotlin.text.StringBuilder_init;
+  var toString = Kotlin.toString;
+  var toBoxedChar = Kotlin.toBoxedChar;
+  var emptyList = Kotlin.kotlin.collections.emptyList_287e2$;
   var contentEquals = Kotlin.arrayEquals;
   var contentHashCode = Kotlin.arrayHashCode;
   var ReferenceArraySerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.ReferenceArraySerializer;
+  var ArrayListSerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.ArrayListSerializer;
+  var LinkedHashMapSerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.LinkedHashMapSerializer;
+  var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_mqih57$;
   var defineInlineFunction = Kotlin.defineInlineFunction;
-  var wrapFunction = Kotlin.wrapFunction;
   var split = Kotlin.kotlin.text.split_o64adg$;
   var JSON_0 = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.json.JSON;
   ControlledGame.prototype = Object.create(Game.prototype);
@@ -75,7 +82,37 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   MoveResult$Error$CannotPush.prototype.constructor = MoveResult$Error$CannotPush;
   MoveResult$Error$RepeatedMove.prototype = Object.create(MoveResult$Error.prototype);
   MoveResult$Error$RepeatedMove.prototype.constructor = MoveResult$Error$RepeatedMove;
+  MoveResult$Error$CannotMoveOfBoard.prototype = Object.create(MoveResult$Error.prototype);
+  MoveResult$Error$CannotMoveOfBoard.prototype.constructor = MoveResult$Error$CannotMoveOfBoard;
+  function MoveToState(move, state) {
+    this.move = move;
+    this.state = state;
+  }
+  MoveToState.$metadata$ = {kind: Kind_CLASS, simpleName: 'MoveToState', interfaces: []};
+  MoveToState.prototype.component1 = function () {
+    return this.move;
+  };
+  MoveToState.prototype.component2 = function () {
+    return this.state;
+  };
+  MoveToState.prototype.copy_ax3wba$ = function (move, state) {
+    return new MoveToState(move === void 0 ? this.move : move, state === void 0 ? this.state : state);
+  };
+  MoveToState.prototype.toString = function () {
+    return 'MoveToState(move=' + Kotlin.toString(this.move) + (', state=' + Kotlin.toString(this.state)) + ')';
+  };
+  MoveToState.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.move) | 0;
+    result = result * 31 + Kotlin.hashCode(this.state) | 0;
+    return result;
+  };
+  MoveToState.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.move, other.move) && Kotlin.equals(this.state, other.state)))));
+  };
   function bestMove($receiver, player, state) {
+    var tmp$;
+    var tmp$_0;
     var $receiver_0 = findAllMoves(state);
     var maxBy$result;
     maxBy$break: do {
@@ -85,10 +122,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
         break maxBy$break;
       }
       var maxElem = iterator.next();
-      var maxValue = $receiver(player, maxElem.third);
+      var maxValue = $receiver(player, maxElem.state);
       while (iterator.hasNext()) {
         var e = iterator.next();
-        var v = $receiver(player, e.third);
+        var v = $receiver(player, e.state);
         if (Kotlin.compareTo(maxValue, v) < 0) {
           maxElem = e;
           maxValue = v;
@@ -97,22 +134,25 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       maxBy$result = maxElem;
     }
      while (false);
-    return ensureNotNull(maxBy$result);
-  }
-  var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
-  var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
-  function debugBestMove($receiver, player, state) {
-    var $receiver_0 = findAllMoves(state);
-    var destination = ArrayList_init(collectionSizeOrDefault($receiver_0, 10));
-    var tmp$;
-    tmp$ = $receiver_0.iterator();
-    while (tmp$.hasNext()) {
-      var item = tmp$.next();
-      destination.add_11rb$(to($receiver(player, item.third), item));
+    if ((tmp$ = maxBy$result) != null)
+      tmp$_0 = tmp$;
+    else {
+      throw IllegalStateException_init(('No valid moves for player ' + player + ' with state=' + debugString(state)).toString());
     }
+    return tmp$_0;
+  }
+  function debugBestMove$lambda(this$debugBestMove, closure$player) {
+    return function (it) {
+      return to(this$debugBestMove(closure$player, it.state), it);
+    };
+  }
+  function debugBestMove($receiver, player, state) {
+    var tmp$;
+    var tmp$_0;
+    var $receiver_0 = map(findAllMoves(state), debugBestMove$lambda($receiver, player));
     var maxBy$result;
     maxBy$break: do {
-      var iterator = destination.iterator();
+      var iterator = $receiver_0.iterator();
       if (!iterator.hasNext()) {
         maxBy$result = null;
         break maxBy$break;
@@ -130,40 +170,46 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       maxBy$result = maxElem;
     }
      while (false);
-    var best = ensureNotNull(maxBy$result);
-    println('Player ' + player + ' thinks the move is worth: ' + best.first + ' points');
+    if ((tmp$ = maxBy$result) != null)
+      tmp$_0 = tmp$;
+    else {
+      throw IllegalStateException_init(('No valid moves for player ' + player + ' with state=' + debugString(state)).toString());
+    }
+    var best = tmp$_0;
+    println('Player ' + player + ' thinks the move is worth: ' + best.first + ' points. (easy: ' + easy(player, best.second.state) + ', easyNL: ' + easyNL(player, best.second.state) + ')');
     return best.second;
   }
-  function AI(strat) {
+  function AI(strat, debug) {
+    if (debug === void 0)
+      debug = true;
     this.strat_0 = strat;
+    this.debug_0 = debug;
     this.name_p9lk9c$_0 = 'AI';
   }
   Object.defineProperty(AI.prototype, 'name', {get: function () {
     return this.name_p9lk9c$_0;
   }});
   AI.prototype.getMove_jr41iw$ = function (lastMove, state, fromSelectCallback, continuation) {
-    var f = debugBestMove(this.strat_0, state.playersTurn, state);
-    var from = f.component1(), to = f.component2();
-    return new Move(from, to);
+    var move = (this.debug_0 ? debugBestMove(this.strat_0, state.playersTurn, state) : bestMove(this.strat_0, state.playersTurn, state)).component1();
+    return move;
   };
   AI.$metadata$ = {kind: Kind_CLASS, simpleName: 'AI', interfaces: [PlayerController]};
-  var until = Kotlin.kotlin.ranges.until_dqglrj$;
+  function findAllMoves$lambda$tryMove(this$findAllMoves) {
+    return function (from, to) {
+      var next = this$findAllMoves.move_56t7qy$(from, to);
+      return Kotlin.isType(next, MoveResult$Success) ? new MoveToState(new Move(from, to), next.state) : null;
+    };
+  }
+  var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_287e2$;
   function Coroutine$findAllMoves$lambda(this$findAllMoves_0, $receiver_0, controller, continuation_0) {
     CoroutineImpl.call(this, continuation_0);
     this.$controller = controller;
     this.exceptionState_0 = 1;
     this.local$this$findAllMoves = this$findAllMoves_0;
-    this.local$$receiver = void 0;
+    this.local$tryMove = void 0;
     this.local$tmp$ = void 0;
     this.local$element = void 0;
-    this.local$tmp$_0 = void 0;
-    this.local$this$findAllMoves_0 = void 0;
-    this.local$from = void 0;
-    this.local$$receiver_0 = void 0;
-    this.local$tmp$_1 = void 0;
-    this.local$element_0 = void 0;
-    this.local$tmp$_2 = void 0;
-    this.local$$receiver_1 = $receiver_0;
+    this.local$$receiver = $receiver_0;
   }
   Coroutine$findAllMoves$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
   Coroutine$findAllMoves$lambda.prototype = Object.create(CoroutineImpl.prototype);
@@ -173,36 +219,83 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       try {
         switch (this.state_0) {
           case 0:
-            this.local$$receiver = this.local$this$findAllMoves.grid;
-            this.local$tmp$ = until(0, this.local$$receiver.height).iterator();
+            this.local$tryMove = findAllMoves$lambda$tryMove(this.local$this$findAllMoves);
+            var $receiver = this.local$this$findAllMoves.grid.getAllFor_11rb$(this.local$this$findAllMoves.playersTurn);
+            var destination = ArrayList_init_0();
+            var tmp$;
+            tmp$ = $receiver.iterator();
+            while (tmp$.hasNext()) {
+              var element = tmp$.next();
+              if (this.local$this$findAllMoves.isEligibleToMove_bk5ui5$(element))
+                destination.add_11rb$(element);
+            }
+
+            this.local$tmp$ = destination.iterator();
             this.state_0 = 2;
             continue;
           case 1:
             throw this.exception_0;
           case 2:
             if (!this.local$tmp$.hasNext()) {
-              this.state_0 = 12;
-              continue;
-            }
-
-            this.local$element = this.local$tmp$.next();
-            this.local$tmp$_0 = until(0, this.local$$receiver.width).iterator();
-            this.state_0 = 3;
-            continue;
-          case 3:
-            if (!this.local$tmp$_0.hasNext()) {
               this.state_0 = 11;
               continue;
             }
 
-            var element = this.local$tmp$_0.next();
-            this.local$this$findAllMoves_0 = this.local$this$findAllMoves;
-            this.local$$receiver.get_vux9f0$(element, this.local$element);
-            this.local$from = new Point(element, this.local$element);
-            if (this.local$this$findAllMoves_0.isEligibleToMove_bk5ui5$(this.local$from)) {
-              this.local$$receiver_0 = this.local$this$findAllMoves_0.grid;
-              this.local$tmp$_1 = until(0, this.local$$receiver_0.height).iterator();
+            this.local$element = this.local$tmp$.next();
+            var tmp$_0, tmp$_1, tmp$_2, tmp$_3;
+            if ((tmp$_0 = this.local$tryMove(this.local$element, new Point(this.local$element.x - 1 | 0, this.local$element.y))) != null) {
+              this.state_0 = 3;
+              this.result_0 = this.local$$receiver.yield_11rb$(tmp$_0, this);
+              if (this.result_0 === COROUTINE_SUSPENDED)
+                return COROUTINE_SUSPENDED;
+              continue;
+            }
+             else {
               this.state_0 = 4;
+              continue;
+            }
+
+          case 3:
+            this.state_0 = 4;
+            continue;
+          case 4:
+            if ((tmp$_1 = this.local$tryMove(this.local$element, new Point(this.local$element.x + 1 | 0, this.local$element.y))) != null) {
+              this.state_0 = 5;
+              this.result_0 = this.local$$receiver.yield_11rb$(tmp$_1, this);
+              if (this.result_0 === COROUTINE_SUSPENDED)
+                return COROUTINE_SUSPENDED;
+              continue;
+            }
+             else {
+              this.state_0 = 6;
+              continue;
+            }
+
+          case 5:
+            this.state_0 = 6;
+            continue;
+          case 6:
+            if ((tmp$_2 = this.local$tryMove(this.local$element, new Point(this.local$element.x, this.local$element.y - 1 | 0))) != null) {
+              this.state_0 = 7;
+              this.result_0 = this.local$$receiver.yield_11rb$(tmp$_2, this);
+              if (this.result_0 === COROUTINE_SUSPENDED)
+                return COROUTINE_SUSPENDED;
+              continue;
+            }
+             else {
+              this.state_0 = 8;
+              continue;
+            }
+
+          case 7:
+            this.state_0 = 8;
+            continue;
+          case 8:
+            if ((tmp$_3 = this.local$tryMove(this.local$element, new Point(this.local$element.x, this.local$element.y + 1 | 0))) != null) {
+              this.state_0 = 9;
+              this.result_0 = this.local$$receiver.yield_11rb$(tmp$_3, this);
+              if (this.result_0 === COROUTINE_SUSPENDED)
+                return COROUTINE_SUSPENDED;
               continue;
             }
              else {
@@ -210,57 +303,13 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
               continue;
             }
 
-          case 4:
-            if (!this.local$tmp$_1.hasNext()) {
-              this.state_0 = 9;
-              continue;
-            }
-
-            this.local$element_0 = this.local$tmp$_1.next();
-            this.local$tmp$_2 = until(0, this.local$$receiver_0.width).iterator();
-            this.state_0 = 5;
-            continue;
-          case 5:
-            if (!this.local$tmp$_2.hasNext()) {
-              this.state_0 = 8;
-              continue;
-            }
-
-            var element_0 = this.local$tmp$_2.next();
-            this.local$$receiver_0.get_vux9f0$(element_0, this.local$element_0);
-            var to = new Point(element_0, this.local$element_0);
-            var next = this.local$this$findAllMoves_0.move_56t7qy$(this.local$from, to);
-            if (Kotlin.isType(next, MoveResult$Success)) {
-              this.state_0 = 6;
-              this.result_0 = this.local$$receiver_1.yield_11rb$(new Triple(this.local$from, to, next.state), this);
-              if (this.result_0 === COROUTINE_SUSPENDED)
-                return COROUTINE_SUSPENDED;
-              continue;
-            }
-             else {
-              this.state_0 = 7;
-              continue;
-            }
-
-          case 6:
-            this.state_0 = 7;
-            continue;
-          case 7:
-            this.state_0 = 5;
-            continue;
-          case 8:
-            this.state_0 = 4;
-            continue;
           case 9:
             this.state_0 = 10;
             continue;
           case 10:
-            this.state_0 = 3;
-            continue;
-          case 11:
             this.state_0 = 2;
             continue;
-          case 12:
+          case 11:
             return Unit;
           default:this.state_0 = 1;
             throw new Error('State Machine Unreachable execution');
@@ -288,115 +337,213 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     };
   }
   function findAllMoves($receiver) {
-    return toList(sequence(findAllMoves$lambda($receiver)));
+    return sequence(findAllMoves$lambda($receiver));
   }
   var progressMult;
   var pushedPenalty;
   var tokenBonus;
-  function easy$lambda$lambda(closure$state, closure$ownPlayer) {
-    return function (x, y, player) {
-      var tmp$;
-      if (equals(player, Player$Red_getInstance()))
-        tmp$ = closure$state.grid.width - x - 1 | 0;
-      else if (equals(player, Player$Blue_getInstance()))
-        tmp$ = x;
-      else
-        tmp$ = 0;
-      var progress = 10 * tmp$ | 0;
-      var victoryBonus = progress === (closure$state.grid.width - 1 | 0) ? 1000 : 0;
-      var pushed = equals(closure$state.lastPushed, new Point(x, y)) ? 6 : 0;
-      var total = progress + victoryBonus + 10 - pushed | 0;
-      if (equals(player, closure$ownPlayer))
-        return +total;
-      else if (player != null)
-        return -total | 0;
-      else
-        return 0;
+  function easy$lambda$pointForPosition(closure$state) {
+    return function (p, player) {
+      var progress_0 = 1 * progress(p, closure$state.grid.width, player) | 0;
+      var pushed = equals(closure$state.lastPushed, p) ? 1 : 0;
+      return progress_0 + 2 - pushed | 0;
     };
   }
   function easy$lambda(ownPlayer, state) {
-    return equals(state.victor, ownPlayer) ? kotlin_js_internal_FloatCompanionObject.MAX_VALUE : Random.Default.nextFloat() + sumBy(state.grid, easy$lambda$lambda(state, ownPlayer));
+    var pointForPosition = easy$lambda$pointForPosition(state);
+    var positionalPointSystem$result;
+    if (equals(state.victor, ownPlayer)) {
+      positionalPointSystem$result = 2147483647;
+    }
+     else {
+      var opponent = next(ownPlayer);
+      var tmp$;
+      var sum = 0;
+      tmp$ = state.grid.getAllFor_11rb$(ownPlayer).iterator();
+      while (tmp$.hasNext()) {
+        var element = tmp$.next();
+        sum = sum + pointForPosition(element, ownPlayer) | 0;
+      }
+      var ownPoints = sum;
+      var tmp$_0;
+      var sum_0 = 0;
+      tmp$_0 = state.grid.getAllFor_11rb$(opponent).iterator();
+      while (tmp$_0.hasNext()) {
+        var element_0 = tmp$_0.next();
+        sum_0 = sum_0 + pointForPosition(element_0, ownPlayer) | 0;
+      }
+      var opponentPoint = sum_0;
+      positionalPointSystem$result = ownPoints - opponentPoint | 0;
+    }
+    return positionalPointSystem$result;
   }
   var easy;
+  function easyNL$lambda(ownPlayer, state) {
+    var positionalPointSystem$result;
+    if (equals(state.victor, ownPlayer)) {
+      positionalPointSystem$result = 2147483647;
+    }
+     else {
+      var opponent = next(ownPlayer);
+      var tmp$;
+      var sum = 0;
+      tmp$ = state.grid.getAllFor_11rb$(ownPlayer).iterator();
+      while (tmp$.hasNext()) {
+        var element = tmp$.next();
+        var tmp$_0 = sum;
+        var it = progress(element, state.grid.width, ownPlayer);
+        sum = tmp$_0 + Kotlin.imul(it, it) | 0;
+      }
+      var ownPoints = sum;
+      var tmp$_1;
+      var sum_0 = 0;
+      tmp$_1 = state.grid.getAllFor_11rb$(opponent).iterator();
+      while (tmp$_1.hasNext()) {
+        var element_0 = tmp$_1.next();
+        var tmp$_2 = sum_0;
+        var it_0 = progress(element_0, state.grid.width, ownPlayer);
+        sum_0 = tmp$_2 + Kotlin.imul(it_0, it_0) | 0;
+      }
+      var opponentPoint = sum_0;
+      positionalPointSystem$result = ownPoints - opponentPoint | 0;
+    }
+    return positionalPointSystem$result;
+  }
+  var easyNL;
+  function mostForward$lambda(player, state) {
+    var positionalPointSystem$result;
+    if (equals(state.victor, player)) {
+      positionalPointSystem$result = 2147483647;
+    }
+     else {
+      var opponent = next(player);
+      var tmp$;
+      var max = -2147483648;
+      tmp$ = state.grid.getAllFor_11rb$(player).iterator();
+      while (tmp$.hasNext()) {
+        var elem = tmp$.next();
+        var value = progress(elem, state.grid.width, player);
+        if (value > max)
+          max = value;
+      }
+      var ownPoints = max;
+      var tmp$_0;
+      var max_0 = -2147483648;
+      tmp$_0 = state.grid.getAllFor_11rb$(opponent).iterator();
+      while (tmp$_0.hasNext()) {
+        var elem_0 = tmp$_0.next();
+        var value_0 = progress(elem_0, state.grid.width, player);
+        if (value_0 > max_0)
+          max_0 = value_0;
+      }
+      var opponentPoint = max_0;
+      positionalPointSystem$result = ownPoints - opponentPoint | 0;
+    }
+    return positionalPointSystem$result;
+  }
+  var mostForward;
+  function progress(p, width, player) {
+    switch (player.name) {
+      case 'Red':
+        return width - p.x - 1 | 0;
+      case 'Blue':
+        return p.x;
+      default:return Kotlin.noWhenBranchMatched();
+    }
+  }
   function hard$lambda(player, state) {
-    return recMed(player, state, 2);
+    return treeSearch(player, state, 2, false, 0, 0);
   }
   var hard;
-  function recMed(player, state, level) {
-    var tmp$;
+  function hardPruneLevel$lambda(closure$level, closure$pruneLevel) {
+    return function (player, state) {
+      return treeSearch(player, state, closure$level, true, -closure$pruneLevel | 0, closure$pruneLevel);
+    };
+  }
+  function hardPruneLevel(level, pruneLevel) {
+    return hardPruneLevel$lambda(level, pruneLevel);
+  }
+  var evaluationSum;
+  var evaluationCount;
+  function treeStrat$lambda(closure$level, closure$pruning, closure$pruneLevel, closure$baseStrat) {
+    return function (player, state) {
+      return treeSearch(player, state, closure$level, closure$pruning, -closure$pruneLevel | 0, closure$pruneLevel, closure$baseStrat);
+    };
+  }
+  function treeStrat(level, pruning, pruneLevel, baseStrat) {
+    return treeStrat$lambda(level, pruning, pruneLevel, baseStrat);
+  }
+  function treeSearch$lambda(closure$player, closure$level, closure$pruning, closure$pruneLevelMin, closure$pruneLevelMax) {
+    return function (it) {
+      return treeSearch(next(closure$player), it.state, closure$level - 1 | 0, closure$pruning, closure$pruneLevelMin, closure$pruneLevelMax);
+    };
+  }
+  function treeSearch(player, state, level, pruning, pruneLevelMin, pruneLevelMax, baseStrat) {
+    if (baseStrat === void 0)
+      baseStrat = medium;
+    var tmp$, tmp$_0, tmp$_1;
+    var currentPositionEvaluation = baseStrat(player, state);
     if (level === 0)
-      return medium(player, state);
+      return currentPositionEvaluation;
     if (state.victor != null)
       return equals(player, state.victor) ? kotlin_js_internal_FloatCompanionObject.POSITIVE_INFINITY : kotlin_js_internal_FloatCompanionObject.NEGATIVE_INFINITY;
-    var $receiver = findAllMoves(state);
-    var destination = ArrayList_init(collectionSizeOrDefault($receiver, 10));
-    var tmp$_0;
-    tmp$_0 = $receiver.iterator();
-    while (tmp$_0.hasNext()) {
-      var item = tmp$_0.next();
-      destination.add_11rb$(recMed(next(player), item.third, level - 1 | 0));
+    if (pruning) {
+      if (currentPositionEvaluation < pruneLevelMin)
+        return currentPositionEvaluation;
+      if (currentPositionEvaluation > pruneLevelMax)
+        return currentPositionEvaluation;
     }
-    var bestOpponentMove = (tmp$ = max(destination)) != null ? tmp$ : 0.0;
-    return -bestOpponentMove;
+    var opponentMoveScores = map(findAllMoves(state), treeSearch$lambda(player, level, pruning, pruneLevelMin, pruneLevelMax));
+    if (pruning) {
+      tmp$_1 = (tmp$ = maxWithPruning(opponentMoveScores, pruneLevelMax)) != null ? tmp$ : 0.0;
+    }
+     else {
+      tmp$_1 = (tmp$_0 = max(opponentMoveScores)) != null ? tmp$_0 : 0.0;
+    }
+    return -tmp$_1;
+  }
+  function maxWithPruning($receiver, pruneLevel) {
+    var iterator = $receiver.iterator();
+    if (!iterator.hasNext())
+      return null;
+    var max = iterator.next();
+    if (isNaN_0(max))
+      return max;
+    while (iterator.hasNext()) {
+      var e = iterator.next();
+      if (isNaN_0(e))
+        return e;
+      if (e > pruneLevel)
+        return e;
+      if (max < e)
+        max = e;
+    }
+    return max;
   }
   function medium$lambda(ownPlayer, state) {
     if (equals(state.victor, ownPlayer))
       return kotlin_js_internal_FloatCompanionObject.MAX_VALUE;
     else {
-      var opponentMove = bestMove(easy, next(ownPlayer), state).third;
-      return easy(ownPlayer, opponentMove);
+      var opponentMove = bestMove(easy, next(ownPlayer), state);
+      return easy(ownPlayer, opponentMove.state);
     }
   }
   var medium;
-  function MemState(player, state) {
-    this.player = player;
-    this.state = state;
-  }
-  MemState.$metadata$ = {kind: Kind_CLASS, simpleName: 'MemState', interfaces: []};
-  MemState.prototype.component1 = function () {
-    return this.player;
-  };
-  MemState.prototype.component2 = function () {
-    return this.state;
-  };
-  MemState.prototype.copy_2n9wpm$ = function (player, state) {
-    return new MemState(player === void 0 ? this.player : player, state === void 0 ? this.state : state);
-  };
-  MemState.prototype.toString = function () {
-    return 'MemState(player=' + Kotlin.toString(this.player) + (', state=' + Kotlin.toString(this.state)) + ')';
-  };
-  MemState.prototype.hashCode = function () {
-    var result = 0;
-    result = result * 31 + Kotlin.hashCode(this.player) | 0;
-    result = result * 31 + Kotlin.hashCode(this.state) | 0;
-    return result;
-  };
-  MemState.prototype.equals = function (other) {
-    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.player, other.player) && Kotlin.equals(this.state, other.state)))));
-  };
-  function memoize$lambda(closure$mem, closure$strat) {
-    return function (player, state) {
-      var memState = new MemState(player, state);
-      var $receiver = closure$mem;
-      var tmp$;
-      var value = $receiver.get_11rb$(memState);
-      if (value == null) {
-        var answer = closure$strat(player, state);
-        $receiver.put_xwzc9p$(memState, answer);
-        tmp$ = answer;
+  function mediumOf$lambda(closure$baseStrat) {
+    return function (ownPlayer, state) {
+      if (equals(state.victor, ownPlayer))
+        return kotlin_js_internal_FloatCompanionObject.MAX_VALUE;
+      else {
+        var opponentMove = bestMove(closure$baseStrat, next(ownPlayer), state);
+        return closure$baseStrat(ownPlayer, opponentMove.state);
       }
-       else {
-        tmp$ = value;
-      }
-      return tmp$;
     };
   }
-  function memoize(strat) {
-    var mem = HashMap_init();
-    return memoize$lambda(mem, strat);
+  function mediumOf(baseStrat) {
+    return mediumOf$lambda(baseStrat);
   }
-  var pruneDiff;
-  var Math_0 = Math;
+  var mediumNL;
+  var mediumMF;
   function ControlledGame(redController, blueController, uiHook) {
     Game.call(this);
     this.redController_0 = redController;
@@ -901,6 +1048,13 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     return true;
   };
   Game.$metadata$ = {kind: Kind_CLASS, simpleName: 'Game', interfaces: []};
+  function standardStartGrid$lambda($receiver) {
+    for (var y = 0; y < 5; y++) {
+      $receiver.set_vq7693$(0, y, Player$Blue_getInstance());
+      $receiver.set_vq7693$(5, y, Player$Red_getInstance());
+    }
+    return Unit;
+  }
   var standardStartGrid;
   function Player(name, ordinal) {
     Enum.call(this);
@@ -1145,6 +1299,18 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
     return MoveResult$Error$RepeatedMove_instance;
   }
+  function MoveResult$Error$CannotMoveOfBoard() {
+    MoveResult$Error$CannotMoveOfBoard_instance = this;
+    MoveResult$Error.call(this, 'You cannot repeat a move made four moves ago');
+  }
+  MoveResult$Error$CannotMoveOfBoard.$metadata$ = {kind: Kind_OBJECT, simpleName: 'CannotMoveOfBoard', interfaces: [MoveResult$Error]};
+  var MoveResult$Error$CannotMoveOfBoard_instance = null;
+  function MoveResult$Error$CannotMoveOfBoard_getInstance() {
+    if (MoveResult$Error$CannotMoveOfBoard_instance === null) {
+      new MoveResult$Error$CannotMoveOfBoard();
+    }
+    return MoveResult$Error$CannotMoveOfBoard_instance;
+  }
   MoveResult$Error.$metadata$ = {kind: Kind_CLASS, simpleName: 'Error', interfaces: [MoveResult]};
   MoveResult.$metadata$ = {kind: Kind_CLASS, simpleName: 'MoveResult', interfaces: []};
   function State(playersTurn, lastPushed, grid, prev, lastMove) {
@@ -1171,52 +1337,29 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
     return State$Companion_instance;
   }
-  var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_287e2$;
-  var addAll = Kotlin.kotlin.collections.addAll_ipc267$;
-  var copyToArray = Kotlin.kotlin.collections.copyToArray;
   State.prototype.move_56t7qy$ = function (from, to) {
-    var tmp$;
+    var tmp$, tmp$_0;
     if ((tmp$ = this.findMoveError_0(from, to)) != null) {
       return tmp$;
     }
     var next_0 = nextOver(from, to);
     var pushing = get_0(this.grid, to) != null;
     var pushed = pushing ? next_0 : null;
-    var $receiver = this.grid;
-    var $receiver_0 = new Alterations();
+    var $receiver = new Alterations(this.grid.toMutableGrid());
     if (pushing)
-      $receiver_0.replace_jprfea$(next_0, get_0(this.grid, to));
-    $receiver_0.replace_jprfea$(to, get_0(this.grid, from));
-    $receiver_0.replace_jprfea$(from, null);
-    var width = $receiver.width;
-    var height = $receiver.height;
-    var $receiver_1 = until(0, height);
-    var destination = ArrayList_init_0();
-    var tmp$_0;
-    tmp$_0 = $receiver_1.iterator();
-    while (tmp$_0.hasNext()) {
-      var element = tmp$_0.next();
-      var $receiver_2 = until(0, width);
-      var destination_0 = ArrayList_init(collectionSizeOrDefault($receiver_2, 10));
-      var tmp$_1;
-      tmp$_1 = $receiver_2.iterator();
-      while (tmp$_1.hasNext()) {
-        var item = tmp$_1.next();
-        var tmp$_2 = destination_0.add_11rb$;
-        var p = new Point(item, element);
-        tmp$_2.call(destination_0, $receiver_0.ops.containsKey_11rb$(p) ? $receiver_0.ops.get_11rb$(p) : $receiver.get_vux9f0$(item, element));
-      }
-      var list = destination_0;
-      addAll(destination, list);
-    }
-    var newGrid = new GenericGrid(width, height, copyToArray(destination));
-    return new MoveResult$Success(new State(next(this.playersTurn), pushed, toGameGrid(newGrid), this, new Move(from, to)));
+      $receiver.set_jprfea$(next_0, get_0(this.grid, to));
+    $receiver.set_jprfea$(to, get_0(this.grid, from));
+    $receiver.set_jprfea$(from, null);
+    var newGrid = Kotlin.isType(tmp$_0 = $receiver.create(), GameGrid) ? tmp$_0 : throwCCE();
+    return new MoveResult$Success(new State(next(this.playersTurn), pushed, newGrid, this, new Move(from, to)));
   };
   State.prototype.findMoveError_0 = function (from, to) {
     if (!equals(this.playersTurn, get_0(this.grid, from)))
       return MoveResult$Error$NotPlayersPiece_getInstance();
     else if (equals(this.lastPushed, from))
       return MoveResult$Error$WasPushed_getInstance();
+    else if (!this.grid.validPosition_vux9f0$(to.x, to.y))
+      return MoveResult$Error$CannotMoveOfBoard_getInstance();
     else if (!isAdjacent(from, to))
       return MoveResult$Error$NotAdjacent_getInstance();
     else if (!this.canPush_0(from, to))
@@ -1257,46 +1400,38 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     return true;
   };
   State.prototype.isVictory_0 = function () {
-    var $receiver = this.grid;
-    var tmp$;
-    tmp$ = until(0, $receiver.height).iterator();
-    while (tmp$.hasNext()) {
-      var element = tmp$.next();
-      var tmp$_0;
-      tmp$_0 = until(0, $receiver.width).iterator();
-      while (tmp$_0.hasNext()) {
-        var element_0 = tmp$_0.next();
-        var player = $receiver.get_vux9f0$(element_0, element);
-        var tmp$_1;
-        if (player != null) {
-          switch (player.name) {
-            case 'Blue':
-              tmp$_1 = element_0 === 5;
-              break;
-            case 'Red':
-              tmp$_1 = element_0 === 0;
-              break;
-            default:tmp$_1 = Kotlin.noWhenBranchMatched();
-              break;
-          }
-          var reachedEnd = tmp$_1;
-          if (reachedEnd)
-            return player;
-        }
-      }
+    if (this.lastMove == null)
+      return null;
+    var lastPlayer = next(this.playersTurn);
+    if (lastPlayer === Player$Red_getInstance() && this.lastMove.to.x === 0)
+      return Player$Red_getInstance();
+    if (lastPlayer === Player$Blue_getInstance() && this.lastMove.to.x === 5)
+      return Player$Blue_getInstance();
+    if (this.lastPushed != null) {
+      if (this.lastPushed.x === 0 && equals(get_0(this.grid, this.lastPushed), Player$Red_getInstance()))
+        return Player$Red_getInstance();
+      if (this.lastPushed.x === 5 && equals(get_0(this.grid, this.lastPushed), Player$Blue_getInstance()))
+        return Player$Blue_getInstance();
     }
     if (this.countActiveTokens_0() <= 0) {
-      return next(this.playersTurn);
+      return lastPlayer;
     }
     return null;
   };
-  function State$countActiveTokens$lambda(this$State) {
-    return function (x, y, f) {
-      return this$State.isEligibleToMove_bk5ui5$(new Point(x, y)) ? 1 : 0;
-    };
-  }
   State.prototype.countActiveTokens_0 = function () {
-    return sumBy(this.grid, State$countActiveTokens$lambda(this));
+    var $receiver = this.grid.getAllFor_11rb$(this.playersTurn);
+    var predicate = getCallableRef('isEligibleToMove', function ($receiver, p) {
+      return $receiver.isEligibleToMove_bk5ui5$(p);
+    }.bind(null, this));
+    var destination = ArrayList_init_0();
+    var tmp$;
+    tmp$ = $receiver.iterator();
+    while (tmp$.hasNext()) {
+      var element = tmp$.next();
+      if (predicate(element))
+        destination.add_11rb$(element);
+    }
+    return destination.size;
   };
   function State$$serializer() {
     this.descriptor_fsmc49$_0 = new SerialClassDescImpl('de.earley.gogogo.game.State', this);
@@ -1457,11 +1592,32 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     else
       return (tmp$ = next($receiver)) != null ? applyN(tmp$, n - 1 | 0, next) : null;
   }
-  function GameGrid(width, height, elems) {
+  function debugString($receiver) {
+    var tmp$, tmp$_0, tmp$_1;
+    var sb = StringBuilder_init();
+    appendln(sb);
+    appendln(sb, 'Player: ' + $receiver.playersTurn);
+    appendln(sb, 'LastPushed: ' + toString($receiver.lastPushed));
+    appendln(sb, 'Victor: ' + toString($receiver.victor));
+    for (var y = 0; y < 5; y++) {
+      for (var x = 0; x < 6; x++) {
+        sb.append_s8jyv4$((tmp$_1 = toBoxedChar((tmp$_0 = (tmp$ = $receiver.grid.get_vux9f0$(x, y)) != null ? tmp$.name : null) != null ? tmp$_0.charCodeAt(0) : null)) != null ? tmp$_1 : ' ');
+      }
+      appendln(sb);
+    }
+    return sb.toString();
+  }
+  function appendln($receiver, s) {
+    if (s === void 0)
+      s = '';
+    $receiver.append_gw00v9$(s).append_gw00v9$('\n');
+  }
+  function GameGrid(width, height, elems, tokenIndexes) {
     GameGrid$Companion_getInstance();
     this.width_8z46m7$_0 = width;
     this.height_es4e7s$_0 = height;
     this.elems_hyvcx$_0 = elems;
+    this.tokenIndexes_0 = tokenIndexes;
   }
   Object.defineProperty(GameGrid.prototype, 'width', {get: function () {
     return this.width_8z46m7$_0;
@@ -1472,7 +1628,60 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Object.defineProperty(GameGrid.prototype, 'elems', {get: function () {
     return this.elems_hyvcx$_0;
   }});
+  function GameGrid$Companion() {
+    GameGrid$Companion_instance = this;
+  }
+  GameGrid$Companion.prototype.create_fzygrl$ = function (width, height, init) {
+    var grid = new GameGrid(width, height, Kotlin.newArray(Kotlin.imul(width, height), null), LinkedHashMap_init());
+    var $receiver = new Alterations(grid);
+    init($receiver);
+    return $receiver.create();
+  };
+  GameGrid$Companion.prototype.serializer = function () {
+    return GameGrid$$serializer_getInstance();
+  };
+  GameGrid$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
+  var GameGrid$Companion_instance = null;
+  function GameGrid$Companion_getInstance() {
+    if (GameGrid$Companion_instance === null) {
+      new GameGrid$Companion();
+    }
+    return GameGrid$Companion_instance;
+  }
   GameGrid.prototype.get_vux9f0$ = function (x, y) {
+    return this.validPosition_vux9f0$(x, y) ? this.elems[Kotlin.imul(y, this.width) + x | 0] : null;
+  };
+  GameGrid.prototype.getAllFor_11rb$ = function (t) {
+    var tmp$;
+    return (tmp$ = this.tokenIndexes_0.get_11rb$(t)) != null ? tmp$ : emptyList();
+  };
+  GameGrid.prototype.set_vq7693$ = function (x, y, t) {
+    var tmp$;
+    if (this.validPosition_vux9f0$(x, y)) {
+      var i = Kotlin.imul(y, this.width) + x | 0;
+      var prev = this.elems[i];
+      if (equals(prev, t))
+        return;
+      if (prev != null)
+        (tmp$ = this.tokenIndexes_0.get_11rb$(prev)) != null ? tmp$.remove_11rb$(new Point(x, y)) : null;
+      if (t != null) {
+        var $receiver = this.tokenIndexes_0;
+        var tmp$_0;
+        var value = $receiver.get_11rb$(t);
+        if (value == null) {
+          var answer = ArrayList_init_0();
+          $receiver.put_xwzc9p$(t, answer);
+          tmp$_0 = answer;
+        }
+         else {
+          tmp$_0 = value;
+        }
+        tmp$_0.add_11rb$(new Point(x, y));
+      }
+      this.elems[i] = t;
+    }
+  };
+  GameGrid.prototype.validPosition_vux9f0$ = function (x, y) {
     var tmp$, tmp$_0, tmp$_1;
     tmp$ = this.width - 1 | 0;
     if (0 <= x && x <= tmp$) {
@@ -1481,7 +1690,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
      else
       tmp$_1 = false;
-    return tmp$_1 ? this.elems[Kotlin.imul(y, this.width) + x | 0] : null;
+    return tmp$_1;
+  };
+  GameGrid.prototype.toMutableGrid = function () {
+    return new GameGrid(this.width, this.height, this.elems.slice(), deepClone(this.tokenIndexes_0));
   };
   GameGrid.prototype.equals = function (other) {
     var tmp$, tmp$_0;
@@ -1504,25 +1716,12 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     result = (31 * result | 0) + contentHashCode(this.elems) | 0;
     return result;
   };
-  function GameGrid$Companion() {
-    GameGrid$Companion_instance = this;
-  }
-  GameGrid$Companion.prototype.serializer = function () {
-    return GameGrid$$serializer_getInstance();
-  };
-  GameGrid$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
-  var GameGrid$Companion_instance = null;
-  function GameGrid$Companion_getInstance() {
-    if (GameGrid$Companion_instance === null) {
-      new GameGrid$Companion();
-    }
-    return GameGrid$Companion_instance;
-  }
   function GameGrid$$serializer() {
     this.descriptor_s2imx4$_0 = new SerialClassDescImpl('de.earley.gogogo.game.grid.GameGrid', this);
     this.descriptor.addElement_ivxn3r$('width', false);
     this.descriptor.addElement_ivxn3r$('height', false);
     this.descriptor.addElement_ivxn3r$('elems', false);
+    this.descriptor.addElement_ivxn3r$('tokenIndexes', false);
     GameGrid$$serializer_instance = this;
   }
   Object.defineProperty(GameGrid$$serializer.prototype, 'descriptor', {get: function () {
@@ -1533,12 +1732,13 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     output.encodeIntElement_4wpqag$(this.descriptor, 0, obj.width);
     output.encodeIntElement_4wpqag$(this.descriptor, 1, obj.height);
     output.encodeSerializableElement_blecud$(this.descriptor, 2, new ReferenceArraySerializer(getKClass(Player), new NullableSerializer(new EnumSerializer(getKClass(Player)))), obj.elems);
+    output.encodeSerializableElement_blecud$(this.descriptor, 3, new LinkedHashMapSerializer(new EnumSerializer(getKClass(Player)), new ArrayListSerializer(Point$$serializer_getInstance())), obj.tokenIndexes_0);
     output.endStructure_qatsm0$(this.descriptor);
   };
   GameGrid$$serializer.prototype.deserialize_nts5qn$ = function (input_0) {
     var index, readAll = false;
     var bitMask0 = 0;
-    var local0, local1, local2;
+    var local0, local1, local2, local3;
     var input = input_0.beginStructure_r0sa6z$(this.descriptor, []);
     loopLabel: while (true) {
       index = input.decodeElementIndex_qatsm0$(this.descriptor);
@@ -1560,16 +1760,21 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
           bitMask0 |= 4;
           if (!readAll)
             break;
+        case 3:
+          local3 = (bitMask0 & 8) === 0 ? input.decodeSerializableElement_s44l7r$(this.descriptor, 3, new LinkedHashMapSerializer(new EnumSerializer(getKClass(Player)), new ArrayListSerializer(Point$$serializer_getInstance()))) : input.updateSerializableElement_ehubvl$(this.descriptor, 3, new LinkedHashMapSerializer(new EnumSerializer(getKClass(Player)), new ArrayListSerializer(Point$$serializer_getInstance())), local3);
+          bitMask0 |= 8;
+          if (!readAll)
+            break;
         case -1:
           break loopLabel;
         default:throw new UnknownFieldException(index);
       }
     }
     input.endStructure_qatsm0$(this.descriptor);
-    return GameGrid_init(bitMask0, local0, local1, local2, null);
+    return GameGrid_init(bitMask0, local0, local1, local2, local3, null);
   };
   GameGrid$$serializer.prototype.childSerializers = function () {
-    return [internal.IntSerializer, internal.IntSerializer, new ReferenceArraySerializer(getKClass(Player), new NullableSerializer(new EnumSerializer(getKClass(Player))))];
+    return [internal.IntSerializer, internal.IntSerializer, new ReferenceArraySerializer(getKClass(Player), new NullableSerializer(new EnumSerializer(getKClass(Player)))), new LinkedHashMapSerializer(new EnumSerializer(getKClass(Player)), new ArrayListSerializer(Point$$serializer_getInstance()))];
   };
   GameGrid$$serializer.$metadata$ = {kind: Kind_OBJECT, simpleName: '$serializer', interfaces: [GeneratedSerializer]};
   var GameGrid$$serializer_instance = null;
@@ -1579,7 +1784,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
     return GameGrid$$serializer_instance;
   }
-  function GameGrid_init(seen, width, height, elems, serializationConstructorMarker) {
+  function GameGrid_init(seen, width, height, elems, tokenIndexes, serializationConstructorMarker) {
     var $this = Object.create(GameGrid.prototype);
     if ((seen & 1) === 0)
       throw new MissingFieldException('width');
@@ -1593,11 +1798,24 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       throw new MissingFieldException('elems');
     else
       $this.elems_hyvcx$_0 = elems;
+    if ((seen & 8) === 0)
+      throw new MissingFieldException('tokenIndexes');
+    else
+      $this.tokenIndexes_0 = tokenIndexes;
     return $this;
   }
-  GameGrid.$metadata$ = {kind: Kind_CLASS, simpleName: 'GameGrid', interfaces: [Grid]};
-  function toGameGrid($receiver) {
-    return new GameGrid($receiver.width, $receiver.height, $receiver.elems);
+  GameGrid.$metadata$ = {kind: Kind_CLASS, simpleName: 'GameGrid', interfaces: [IndexableGrid, MutableGrid, Grid]};
+  function deepClone($receiver) {
+    var clone = LinkedHashMap_init();
+    var tmp$;
+    tmp$ = $receiver.entries.iterator();
+    while (tmp$.hasNext()) {
+      var element = tmp$.next();
+      var key = element.key;
+      var value = ArrayList_init(element.value);
+      clone.put_xwzc9p$(key, value);
+    }
+    return clone;
   }
   function GenericGrid(width, height, elems) {
     this.width_p6147k$_0 = width;
@@ -1624,6 +1842,12 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       tmp$_1 = false;
     return tmp$_1 ? this.elems[Kotlin.imul(y, this.width) + x | 0] : null;
   };
+  GenericGrid.prototype.set_vq7693$ = function (x, y, t) {
+    this.elems[Kotlin.imul(y, this.width) + x | 0] = t;
+  };
+  GenericGrid.prototype.toMutableGrid = function () {
+    return new GenericGrid(this.width, this.height, this.elems.slice());
+  };
   GenericGrid.prototype.equals = function (other) {
     var tmp$, tmp$_0;
     if (this === other)
@@ -1645,7 +1869,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     result = (31 * result | 0) + contentHashCode(this.elems) | 0;
     return result;
   };
-  GenericGrid.$metadata$ = {kind: Kind_CLASS, simpleName: 'GenericGrid', interfaces: [Grid]};
+  GenericGrid.$metadata$ = {kind: Kind_CLASS, simpleName: 'GenericGrid', interfaces: [MutableGrid, Grid]};
   GenericGrid.prototype.component1 = function () {
     return this.width;
   };
@@ -1723,31 +1947,28 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     return Grid$Companion_instance;
   }
   Grid.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'Grid', interfaces: []};
+  function MutableGrid() {
+  }
+  MutableGrid.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'MutableGrid', interfaces: [Grid]};
+  function IndexableGrid() {
+  }
+  IndexableGrid.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'IndexableGrid', interfaces: []};
   function get_0($receiver, p) {
     return $receiver.get_vux9f0$(p.x, p.y);
   }
-  function Alterations() {
-    this.ops = HashMap_init();
+  function Alterations(workingGrid) {
+    this.workingGrid_0 = workingGrid;
   }
-  Alterations.prototype.replace_jprfea$ = function (p, value) {
-    this.ops.put_xwzc9p$(p, value);
+  Alterations.prototype.set_jprfea$ = function (p, value) {
+    this.workingGrid_0.set_vq7693$(p.x, p.y, value);
+  };
+  Alterations.prototype.set_vq7693$ = function (x, y, value) {
+    this.workingGrid_0.set_vq7693$(x, y, value);
+  };
+  Alterations.prototype.create = function () {
+    return this.workingGrid_0;
   };
   Alterations.$metadata$ = {kind: Kind_CLASS, simpleName: 'Alterations', interfaces: []};
-  function sumBy($receiver, value) {
-    var sum = {v: 0};
-    var tmp$;
-    tmp$ = until(0, $receiver.height).iterator();
-    while (tmp$.hasNext()) {
-      var element = tmp$.next();
-      var tmp$_0;
-      tmp$_0 = until(0, $receiver.width).iterator();
-      while (tmp$_0.hasNext()) {
-        var element_0 = tmp$_0.next();
-        sum.v = sum.v + value(element_0, element, $receiver.get_vux9f0$(element_0, element)) | 0;
-      }
-    }
-    return sum.v;
-  }
   function PlayerInfo(name) {
     this.name = name;
   }
@@ -1844,6 +2065,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   var package$earley = package$de.earley || (package$de.earley = {});
   var package$gogogo = package$earley.gogogo || (package$earley.gogogo = {});
   var package$ai = package$gogogo.ai || (package$gogogo.ai = {});
+  package$ai.MoveToState = MoveToState;
   package$ai.bestMove_rxsk4c$ = bestMove;
   package$ai.debugBestMove_rxsk4c$ = debugBestMove;
   package$ai.AI = AI;
@@ -1854,12 +2076,20 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Object.defineProperty(package$ai, 'hard', {get: function () {
     return hard;
   }});
-  package$ai.recMed_a25z8o$ = recMed;
+  package$ai.hardPruneLevel_vux9f0$ = hardPruneLevel;
+  package$ai.treeStrat_dv5kkc$ = treeStrat;
+  package$ai.treeSearch_f0cu6e$ = treeSearch;
+  package$ai.maxWithPruning_gj5u05$ = maxWithPruning;
   Object.defineProperty(package$ai, 'medium', {get: function () {
     return medium;
   }});
-  package$ai.MemState = MemState;
-  package$ai.memoize_x6rkih$ = memoize;
+  package$ai.mediumOf_x6rkih$ = mediumOf;
+  Object.defineProperty(package$ai, 'mediumNL', {get: function () {
+    return mediumNL;
+  }});
+  Object.defineProperty(package$ai, 'mediumMF', {get: function () {
+    return mediumMF;
+  }});
   var package$game = package$gogogo.game || (package$gogogo.game = {});
   package$game.ControlledGame = ControlledGame;
   package$game.UIHook = UIHook;
@@ -1881,6 +2111,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Object.defineProperty(MoveResult$Error, 'NotAdjacent', {get: MoveResult$Error$NotAdjacent_getInstance});
   Object.defineProperty(MoveResult$Error, 'CannotPush', {get: MoveResult$Error$CannotPush_getInstance});
   Object.defineProperty(MoveResult$Error, 'RepeatedMove', {get: MoveResult$Error$RepeatedMove_getInstance});
+  Object.defineProperty(MoveResult$Error, 'CannotMoveOfBoard', {get: MoveResult$Error$CannotMoveOfBoard_getInstance});
   MoveResult.Error = MoveResult$Error;
   package$game.MoveResult = MoveResult;
   Object.defineProperty(State, 'Companion', {get: State$Companion_getInstance});
@@ -1888,17 +2119,18 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   package$game.State = State;
   package$game.nextOver_56t7qy$ = nextOver;
   package$game.isAdjacent_56t7qy$ = isAdjacent;
+  package$game.debugString_1pq5d1$ = debugString;
   Object.defineProperty(GameGrid, 'Companion', {get: GameGrid$Companion_getInstance});
   Object.defineProperty(GameGrid, '$serializer', {get: GameGrid$$serializer_getInstance});
   var package$grid = package$game.grid || (package$game.grid = {});
   package$grid.GameGrid = GameGrid;
-  package$grid.toGameGrid_s2f0pm$ = toGameGrid;
   package$grid.GenericGrid = GenericGrid;
   Object.defineProperty(Grid, 'Companion', {get: Grid$Companion_getInstance});
   package$grid.Grid = Grid;
+  package$grid.MutableGrid = MutableGrid;
+  package$grid.IndexableGrid = IndexableGrid;
   package$grid.get_qg01xr$ = get_0;
   package$grid.Alterations = Alterations;
-  package$grid.sumBy_1luysu$ = sumBy;
   var package$net = package$gogogo.net || (package$gogogo.net = {});
   package$net.PlayerInfo = PlayerInfo;
   package$net.MatchInfo = MatchInfo;
@@ -1909,48 +2141,21 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Move$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
   State$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
   GameGrid$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
-  progressMult = 10;
-  pushedPenalty = 6;
-  tokenBonus = 10;
-  easy = memoize(easy$lambda);
+  progressMult = 1;
+  pushedPenalty = 1;
+  tokenBonus = 2;
+  easy = easy$lambda;
+  easyNL = easyNL$lambda;
+  mostForward = mostForward$lambda;
   hard = hard$lambda;
+  evaluationSum = 0.0;
+  evaluationCount = 0;
   medium = medium$lambda;
-  pruneDiff = 100;
+  mediumNL = mediumOf(easyNL);
+  mediumMF = mediumOf(mostForward);
   GAME_WIDTH = 6;
   GAME_HEIGHT = 5;
-  var $receiver = until(0, 5);
-  var destination = ArrayList_init_0();
-  var tmp$;
-  tmp$ = $receiver.iterator();
-  while (tmp$.hasNext()) {
-    var element = tmp$.next();
-    var $receiver_0 = until(0, 6);
-    var destination_0 = ArrayList_init(collectionSizeOrDefault($receiver_0, 10));
-    var tmp$_0;
-    tmp$_0 = $receiver_0.iterator();
-    loop_label: while (tmp$_0.hasNext()) {
-      var item = tmp$_0.next();
-      var tmp$_1 = destination_0.add_11rb$;
-      var init$result;
-      init$break: do {
-        switch (item) {
-          case 0:
-            init$result = Player$Blue_getInstance();
-            break init$break;
-          case 5:
-            init$result = Player$Red_getInstance();
-            break init$break;
-          default:init$result = null;
-            break init$break;
-        }
-      }
-       while (false);
-      tmp$_1.call(destination_0, init$result);
-    }
-    var list = destination_0;
-    addAll(destination, list);
-  }
-  standardStartGrid = toGameGrid(new GenericGrid(6, 5, copyToArray(destination)));
+  standardStartGrid = GameGrid$Companion_getInstance().create_fzygrl$(6, 5, standardStartGrid$lambda);
   return _;
 }(typeof this['gogogo-common'] === 'undefined' ? {} : this['gogogo-common'], kotlin, this['kotlinx-coroutines-core'], this['kotlinx-serialization-runtime-js']);
 

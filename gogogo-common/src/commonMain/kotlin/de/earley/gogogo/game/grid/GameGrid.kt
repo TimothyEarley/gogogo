@@ -1,21 +1,58 @@
 package de.earley.gogogo.game.grid
 
 import de.earley.gogogo.game.Player
+import de.earley.gogogo.game.Point
 import kotlinx.serialization.Serializable
 
 // non generic for JS serialisation
 
 @Serializable
-class GameGrid(
+class GameGrid private constructor(
 	override val width: Int,
 	override  val height: Int,
-	override val elems: Array<Player?>
-) : Grid<Player> {
+	override val elems: Array<Player?>,
+	private val tokenIndexes: MutableMap<Player, MutableList<Point>>
+) : Grid<Player>, MutableGrid<Player>, IndexableGrid<Player> {
 
 
-	//TODO code duplication
+	companion object {
+		fun create(width: Int, height: Int, init: Alterations<Player, GameGrid>.() -> Unit): GameGrid {
+			val grid = GameGrid(width, height, arrayOfNulls(width * height), mutableMapOf())
+			return Alterations(grid).also(init).create()
+		}
+	}
+
+	//TODO code duplication with GenericGrid
 	override operator fun get(x: Int, y: Int): Player? =
-		if (x in 0..(width - 1) && y in 0..(height-1)) elems[y * width + x] else null
+		if (validPosition(x, y)) elems[y * width + x] else null
+
+	override fun getAllFor(t: Player): List<Point> {
+		return tokenIndexes[t] ?: emptyList()
+	}
+
+	// to be used only when creating
+	//TODO this is a hot method -> optimize
+	override fun set(x: Int, y: Int, t: Player?) {
+		if (validPosition(x, y)) {
+			val i = y * width + x
+
+			val prev = elems[i]
+			if (prev == t) return
+
+			// update the token index
+			if (prev != null) tokenIndexes[prev]?.remove(Point(x, y))
+			if (t != null) tokenIndexes.getOrPut(t, ::mutableListOf).add(Point(x, y))
+
+			elems[i] = t
+		}
+	}
+
+	fun validPosition(x: Int, y: Int): Boolean =
+		x in 0..(width - 1) && y in 0..(height-1)
+
+	override fun toMutableGrid(): MutableGrid<Player> {
+		return GameGrid(width, height, elems.copyOf(), tokenIndexes.deepClone())
+	}
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
@@ -39,5 +76,13 @@ class GameGrid(
 
 }
 
-fun Grid<Player>.toGameGrid(): GameGrid =
-		GameGrid(width, height, elems)
+//fun Grid<Player>.toGameGrid(): GameGrid =
+//		GameGrid(width, height, elems)
+
+private fun <K, V> Map<K, List<V>>.deepClone(): MutableMap<K, MutableList<V>> {
+	val clone = mutableMapOf<K, MutableList<V>>()
+	this.forEach {
+		clone[it.key] = ArrayList(it.value)
+	}
+	return clone
+}

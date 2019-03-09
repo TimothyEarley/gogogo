@@ -1,48 +1,63 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package de.earley.gogogo.ai
 
 import de.earley.gogogo.game.*
-import de.earley.gogogo.game.grid.forEach
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 typealias Strat = (Player, State) -> Float
 
-fun Strat.bestMove(player: Player, state: State): Triple<Point, Point, State> =
-	state.findAllMoves().maxBy { this(player, it.third) }!!
+data class MoveToState(val move: Move, val state: State)
 
-fun Strat.debugBestMove(player: Player, state: State): Triple<Point, Point, State> {
+fun Strat.bestMove(player: Player, state: State): MoveToState =
+	state.findAllMoves().maxBy {
+		this(player, it.state)
+	} ?: error("No valid moves for player $player with state=${state.debugString()}")
+
+fun Strat.debugBestMove(player: Player, state: State): MoveToState {
 	val best = state.findAllMoves().map {
-		this(player, it.third) to it
-	}.maxBy { it.first }!!
-	println("Player $player thinks the move is worth: ${best.first} points")
+		this(player, it.state) to it
+	}.maxBy { it.first } ?: error("No valid moves for player $player with state=${state.debugString()}")
+
+	println("Player $player thinks the move is worth: ${best.first} points. (easy: ${easy(player, best.second.state)}, easyNL: ${easyNL(player, best.second.state)})")
+
 	return best.second
 }
 
 
-class AI(private val strat: Strat) : PlayerController {
+class AI(private val strat: Strat, private val debug: Boolean = true) : PlayerController {
 	override val name: String = "AI"
 
 	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Move {
 
-		return strat.debugBestMove(state.playersTurn, state).let { (from, to, _) ->
-			Move(from, to)
-		}
+		val (move, _)  =
+			if (debug) strat.debugBestMove(state.playersTurn, state)
+			else strat.bestMove(state.playersTurn, state)
+
+		return move
 	}
 
 }
 
-fun State.findAllMoves(): List<Triple<Point, Point, State>> = sequence {
-	grid.forEach { fx, fy, _ ->
-		val from = Point(fx, fy)
-		if (isEligibleToMove(from)) {
-			grid.forEach { tx, ty, _ ->
-				val to = Point(tx, ty)
-				val next = move(from, to)
-				if (next is MoveResult.Success) {
-					yield(Triple(from, to, next.state))
-				}
-			}
-		}
+fun State.findAllMoves(): Sequence<MoveToState> = sequence {
+	fun tryMove(from: Point, to: Point): MoveToState? {
+		val next = move(from, to)
+		return if (next is MoveResult.Success)
+			MoveToState(Move(from, to), next.state)
+		else
+			null
 	}
-}.toList()
+
+	grid.getAllFor(playersTurn)
+		.filter { isEligibleToMove(it) }
+		.forEach { from ->
+			tryMove(from, from.left())?.let { yield(it) }
+			tryMove(from, from.right())?.let { yield(it) }
+			tryMove(from, from.up())?.let { yield(it) }
+			tryMove(from, from.down())?.let { yield(it) }
+		}
+}
+
+private inline fun Point.left(): Point = Point(x - 1, y)
+private inline fun Point.right(): Point = Point(x + 1, y)
+private inline fun Point.up(): Point = Point(x, y - 1)
+private inline fun Point.down(): Point = Point(x, y + 1)

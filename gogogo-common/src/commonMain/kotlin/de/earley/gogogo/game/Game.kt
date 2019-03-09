@@ -2,7 +2,6 @@ package de.earley.gogogo.game
 
 import de.earley.gogogo.game.grid.GameGrid
 import de.earley.gogogo.game.grid.Grid
-import de.earley.gogogo.game.grid.toGameGrid
 import kotlinx.serialization.Serializable
 
 const val GAME_WIDTH = 6
@@ -37,10 +36,9 @@ open class Game {
 
 }
 
-val standardStartGrid: GameGrid = Grid.create(GAME_WIDTH, GAME_HEIGHT) { x, _ ->
-	when (x) {
-		0 -> Player.Blue
-		GAME_WIDTH-1 -> Player.Red
-		else -> null
+val standardStartGrid: GameGrid = GameGrid.create(GAME_WIDTH, GAME_HEIGHT) {
+	for (y in 0 until GAME_HEIGHT) {
+		set(0, y, Player.Blue)
+		set(GAME_WIDTH-1, y, Player.Red)
 	}
-}.toGameGrid()
+}

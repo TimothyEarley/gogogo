@@ -13,6 +13,7 @@ sealed class MoveResult {
 		object NotAdjacent : Error("You can only move to an adjacent square")
 		object CannotPush : Error("You cannot push more than one piece")
 		object RepeatedMove : Error("You cannot repeat a move made four moves ago")
+		object CannotMoveOfBoard : Error("You cannot repeat a move made four moves ago")
 	}
 }
 
@@ -50,17 +51,17 @@ data class State(
 		val pushed = if (pushing) next else null
 
 		val newGrid = grid.copy {
-			if (pushing) replace(next, grid[to])
-			replace(to, grid[from])
-			replace(from, null)
-		}
+			if (pushing) set(next, grid[to])
+			set(to, grid[from])
+			set(from, null)
+		} as GameGrid
 
 
 		// create next state
 		return MoveResult.Success(State(
 			playersTurn = playersTurn.next(),
 			lastPushed = pushed,
-			grid = newGrid.toGameGrid(),
+			grid = newGrid,
 			prev = this,
 			lastMove = Move(from, to)
 		))
@@ -70,13 +71,13 @@ data class State(
 	private fun findMoveError(from: Point, to: Point): MoveResult.Error? = when {
 		playersTurn != grid[from] -> MoveResult.Error.NotPlayersPiece
 		lastPushed == from -> MoveResult.Error.WasPushed
+		! grid.validPosition(to.x, to.y) -> MoveResult.Error.CannotMoveOfBoard
 		! isAdjacent(from, to) -> MoveResult.Error.NotAdjacent
 		! canPush(from, to) -> MoveResult.Error.CannotPush
 		isRepeatedMove(from, to) -> MoveResult.Error.RepeatedMove
 		else -> null
 	}
 
-	//TODO rework function
 	fun isEligibleToMove(p: Point): Boolean {
 		return playersTurn == grid[p] && lastPushed != p
 	}
@@ -106,27 +107,36 @@ data class State(
 	}
 
 	private fun isVictory(): Player? {
-		grid.forEach { x, _, player ->
-			if (player != null) {
-				val reachedEnd = when (player) {
-					Player.Blue -> x == GAME_WIDTH-1
-					Player.Red -> x == 0
-				}
-				if (reachedEnd) return player
-			}
+
+		// if no move are present, then no victory is possible
+		if (lastMove == null) return null
+
+		val lastPlayer = playersTurn.next()
+
+		// red simple move to end zone
+		if (lastPlayer == Player.Red && lastMove.to.x == 0) return Player.Red
+
+		// blue simple move to end zone
+		if (lastPlayer == Player.Blue && lastMove.to.x == GAME_WIDTH-1) return Player.Blue
+
+		if (lastPushed != null) {
+			// push piece to end zone
+			if (lastPushed.x == 0 && grid[lastPushed] == Player.Red) return Player.Red
+			if (lastPushed.x == GAME_WIDTH - 1 && grid[lastPushed] == Player.Blue) return Player.Blue
 		}
 
+		//pushed or moved last piece off board
 		if (countActiveTokens() <= 0) {
-			// cannot move, lose
-			return playersTurn.next()
+			// we cannot move, and so lose
+			return lastPlayer
 		}
 
 		return null
 	}
 
-	private fun countActiveTokens(): Int = grid.sumBy { x, y, _->
-		if (isEligibleToMove(Point(x, y))) 1 else 0
-	}
+	private fun countActiveTokens(): Int = grid
+		.getAllFor(playersTurn)
+		.filter(this@State::isEligibleToMove).size
 
 }
 
@@ -145,4 +155,24 @@ fun isAdjacent(from: Point, to: Point): Boolean {
 private tailrec fun <T> T.applyN(n: Int, next: (T) -> T?): T? = when(n) {
 	0 -> this
 	else -> next(this)?.applyN(n - 1, next)
+}
+
+
+fun State.debugString(): String {
+	val sb = StringBuilder()
+	sb.appendln()
+	sb.appendln("Player: $playersTurn")
+	sb.appendln("LastPushed: $lastPushed")
+	sb.appendln("Victor: $victor")
+	for (y in 0 until GAME_HEIGHT) {
+		for (x in 0 until GAME_WIDTH) {
+			sb.append(grid[x, y]?.name?.get(0) ?: " ")
+		}
+		sb.appendln()
+	}
+	return sb.toString()
+}
+
+private fun StringBuilder.appendln(s: String = "") {
+	append(s).append("\n")
 }
