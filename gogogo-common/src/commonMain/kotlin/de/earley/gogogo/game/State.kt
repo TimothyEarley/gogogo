@@ -138,15 +138,18 @@ data class State(
 		.getAllFor(playersTurn)
 		.filter(this@State::isEligibleToMove).size
 
+	fun isSimilar(other: State): Boolean =
+		playersTurn == other.playersTurn &&  lastPushed == other.lastPushed && grid == other.grid
+
 }
 
-fun nextOver(from: Point, to: Point) = Point(
+private fun nextOver(from: Point, to: Point) = Point(
 	x = from.x + 2 * (to.x - from.x), // works, but only because dx==1, dy==1
 	y = from.y + 2 * (to.y - from.y)
 )
 
 
-fun isAdjacent(from: Point, to: Point): Boolean {
+private fun isAdjacent(from: Point, to: Point): Boolean {
 	val dx = abs(from.x - to.x)
 	val dy = abs(from.y - to.y)
 	return (dx == 1 && dy == 0) || (dx == 0 && dy == 1)
@@ -160,18 +163,35 @@ private tailrec fun <T> T.applyN(n: Int, next: (T) -> T?): T? = when(n) {
 
 fun State.debugString(): String {
 	val sb = StringBuilder()
+
+	fun line() {
+		sb.append("  |")
+		for (i in 0 until GAME_WIDTH * 2 - 1) {
+			if (i % 2 == 0) sb.append(i/2) else sb.append("-")
+		}
+		sb.appendln("|")
+	}
+
 	sb.appendln()
 	sb.appendln("Player: $playersTurn")
 	sb.appendln("LastPushed: $lastPushed")
 	sb.appendln("Victor: $victor")
+	line()
 	for (y in 0 until GAME_HEIGHT) {
+		sb.append("$y |")
 		for (x in 0 until GAME_WIDTH) {
 			sb.append(grid[x, y]?.name?.get(0) ?: " ")
+			sb.append("|")
 		}
-		sb.appendln()
+		sb.appendln(" $y")
 	}
+	line()
 	return sb.toString()
 }
+
+fun State.move(move: Move) = move(move.from, move.to)
+fun State.canMove(move: Move) = move(move) is MoveResult.Success
+
 
 private fun StringBuilder.appendln(s: String = "") {
 	append(s).append("\n")

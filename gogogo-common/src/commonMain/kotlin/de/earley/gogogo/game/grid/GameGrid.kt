@@ -20,7 +20,20 @@ class GameGrid private constructor(
 			val grid = GameGrid(width, height, arrayOfNulls(width * height), mutableMapOf())
 			return Alterations(grid).also(init).create()
 		}
-	}
+
+		fun create(width: Int, height: Int, elems: Array<Player?>): GameGrid =
+			GameGrid(width, height, elems, mutableMapOf()).also {
+				// add all existing tokens to the index
+				for (x in 0 until width) {
+					for (y in 0 until height) {
+						val p = it[x, y]
+						if (p != null) {
+							it.tokenIndexes.getOrPut(p) { mutableListOf() }.add(Point(x, y))
+						}
+					}
+				}
+			}
+		}
 
 	//TODO code duplication with GenericGrid
 	override operator fun get(x: Int, y: Int): Player? =

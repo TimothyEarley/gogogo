@@ -2,54 +2,60 @@ package de.earley.gogogo.benchmark
 
 import de.earley.gogogo.ai.*
 import de.earley.gogogo.game.*
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
+import java.io.File
+import kotlin.concurrent.thread
+
+val evaluations = mapOf(
+	"mostForward" to Evaluations.mostForward,
+	"sumPosition" to Evaluations.sumPosition,
+	"sumSquarePosition" to Evaluations.sumSquarePosition
+)
+
+fun setOfStrategies(name: String, baseStrategy: Strategy): Map<String, Strategy> = mapOf(
+	"hard ($name)" to treeSearchStrategy(2, baseStrategy, false),
+	"superStrategy ($name)" to treeSearchStrategy(3, baseStrategy, false),
+	"prunedSuper ($name)" to treeSearchStrategy(3, baseStrategy, true, 10),
+	"extreme ($name)" to treeSearchStrategy(4, baseStrategy, false)
+)
+
+val allOpponents = evaluations
+	.map { (name, eval) -> setOfStrategies(name, eval) }
+	.fold(emptyMap<String, Strategy>()) { acc, t -> acc + t }
+	.map { (name, strategy) -> BenchmarkStrategy(name, strategy) }
 
 fun main() {
+	val file = File("player.save")
+	if (file.exists()) RecordedPlayer.load(file)
 
-	fun namedPruned(level: Int, prune: Int) =
-		NamedBenchmarkStrat("p($level/$prune)", hardPruneLevel(level, prune))
-
-	val best = NamedBenchmarkStrat("SUPER") { player, state ->
-		treeSearch(player, state, 3, false, 0, 0)
-	}
+	Runtime.getRuntime().addShutdownHook(thread(false) {
+		RecordedPlayer.save(file)
+	})
 
 	val opponents = listOf(
-//		NamedBenchmarkStrat("easy", easy),
-//		NamedBenchmarkStrat("medium", easy),
-		NamedBenchmarkStrat("hard", hard),
-		namedPruned(3, 4),
-//		namedPruned(4, 4),
-		NamedBenchmarkStrat("SUPER") { player, state ->
-			treeSearch(player, state, 3, false, 0, 0)
-		},
-		namedPruned(4, 10)
-//		NamedBenchmarkStrat("EXTREME") { player, state ->
-//			treeSearch(player, state, 4, false, 0, 0)
-//		}
+		RecordedPlayer.mockBenchmarked("player"),
+		RecordedPlayer.mockBenchmarked("player"),
+//		BenchmarkStrategy("randomBase", randomBase)
+		BenchmarkStrategy("easy", easy),
+		BenchmarkStrategy("medium", medium),
+		BenchmarkStrategy("hard", hard),
+		BenchmarkStrategy("superStrategy", superStrategy),
+		BenchmarkStrategy("extreme", extreme),
+		BenchmarkStrategy("base", base)
+//		BenchmarkStrategy("random", random)
 	)
 
 	league(opponents)
-
 }
 
-fun againstBase(base: NamedBenchmarkStrat, opponents: List<NamedBenchmarkStrat>) {
-	opponents.forEach {
-		benchmark(base, it, 2)
-	}
-
-	(opponents + base).sortedBy { it.avg() }.forEach {
-		println(it.stats())
-	}
-}
-
-fun league(strats: List<NamedBenchmarkStrat>) {
-	val score: MutableMap<NamedBenchmarkStrat, Int> = mutableMapOf()
+fun league(strats: List<Benchmarked>) {
+	val score: MutableMap<Benchmarked, Int> = mutableMapOf()
 	for (first in 0 until strats.size) {
 		for (second in first + 1 until strats.size) {
 			val a = strats[first]
 			val b = strats[second]
-			val (aScore, bScore) = benchmark(a, b, 10)
+			val (aScore, bScore) = benchmark(a, b, 2)
 			score.merge(a, aScore, Int::plus)
 			score.merge(b, bScore, Int::plus)
 		}
@@ -64,15 +70,15 @@ fun league(strats: List<NamedBenchmarkStrat>) {
 	}
 }
 
-fun benchmark(a: NamedBenchmarkStrat, b: NamedBenchmarkStrat, n: Int): Pair<Int, Int> {
+fun benchmark(a: Benchmarked, b: Benchmarked, n: Int): Pair<Int, Int> {
 
 	return runBlocking {
 
 		print("${a.name} vs ${b.name}: ")
 
 		val result = runBothSidesRepeated(
-			a.name, AI(a, false),
-			b.name, AI(b, false),
+			a.name, a.ai,
+			b.name, b.ai,
 			n)
 
 		println(result)
@@ -82,12 +88,13 @@ fun benchmark(a: NamedBenchmarkStrat, b: NamedBenchmarkStrat, n: Int): Pair<Int,
 
 }
 
-suspend fun runBothSidesRepeated(nameA: String, a: AI, nameB: String, b: AI, n: Int): Map<String, Int> {
+suspend fun runBothSidesRepeated(nameA: String, a: PlayerController, nameB: String, b: PlayerController, n: Int): Map<String, Int> {
 
-	fun Map<Player, Int>.mapKeysTo(red: String, blue: String): Map<String, Int> =
+	fun Map<Player?, Int>.mapKeysTo(red: String, blue: String): Map<String, Int> =
 			mapKeys { when (it.key) {
 				Player.Red -> red
 				Player.Blue -> blue
+				else -> "Draw"
 			}}
 
 	val wins = runSameSideRepeated(a, b, n/2)
@@ -102,10 +109,10 @@ suspend fun runBothSidesRepeated(nameA: String, a: AI, nameB: String, b: AI, n: 
 }
 
 
-suspend fun runSameSideRepeated(red: AI, blue: AI, n: Int): Map<Player, Int> {
+suspend fun runSameSideRepeated(red: PlayerController, blue: PlayerController, n: Int): Map<Player?, Int> {
 	return (1..n).map {
 		runGame(red, blue).also {
-			print(it.name[0])
+			print(it?.name?.get(0) ?: "D")
 		}
 	}.groupingBy { it }.eachCount().also {
 		print(", ")
@@ -118,12 +125,11 @@ object NoOpUiHook : UIHook {
 	override suspend fun onMove(move: Move) {}
 }
 
-suspend fun runGame(red: AI, blue: AI): Player {
-	val game = ControlledGame(red, blue, NoOpUiHook)
-	coroutineScope {
+suspend fun runGame(red: PlayerController, blue: PlayerController, timeout: Long = Long.MAX_VALUE): Player? =
+	withTimeoutOrNull(timeout) {
+		val game = ControlledGame(red, blue, NoOpUiHook)
 		with(game) {
-			start()
+			start().join()
 		}
+		game.victor
 	}
-	return game.victor!!
-}

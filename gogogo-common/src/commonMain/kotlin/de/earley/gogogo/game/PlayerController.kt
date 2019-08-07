@@ -3,7 +3,9 @@ package de.earley.gogogo.game
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Move(val from: Point, val to: Point)
+data class Move(val from: Point, val to: Point) {
+	override fun toString() = "($from -> $to)"
+}
 
 interface PlayerController {
 	val name: String // for debug

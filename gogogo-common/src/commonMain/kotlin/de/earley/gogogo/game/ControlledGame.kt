@@ -1,6 +1,7 @@
 package de.earley.gogogo.game
 
 import kotlinx.coroutines.*
+import kotlin.coroutines.coroutineContext
 
 class ControlledGame(
 	private var redController: PlayerController,
@@ -50,15 +51,11 @@ class ControlledGame(
 		return !isOver()
 	}
 
-	private suspend fun gameLoop() {
-		while (doMove()) {}
-		uiHook.onGameEnd()
-	}
-
-	fun CoroutineScope.start() {
+	fun CoroutineScope.start(): Job {
 		scope = this
-		launch {
-			gameLoop()
+		return launch {
+			while (isActive && doMove()) {}
+			uiHook.onGameEnd()
 		}
 	}
 

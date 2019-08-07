@@ -15,26 +15,23 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   var println = Kotlin.kotlin.io.println_s8jyv4$;
   var COROUTINE_SUSPENDED = Kotlin.kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED;
   var CoroutineImpl = Kotlin.kotlin.coroutines.CoroutineImpl;
-  var Unit = Kotlin.kotlin.Unit;
-  var sequence = Kotlin.kotlin.sequences.sequence_o0x0bg$;
+  var Random = Kotlin.kotlin.random.Random;
   var wrapFunction = Kotlin.wrapFunction;
   var equals = Kotlin.equals;
   var getCallableRef = Kotlin.getCallableRef;
-  var kotlin_js_internal_FloatCompanionObject = Kotlin.kotlin.js.internal.FloatCompanionObject;
-  var max = Kotlin.kotlin.sequences.max_8rwv2f$;
-  var isNaN_0 = Kotlin.kotlin.isNaN_81szk$;
-  var LinkedHashMap_init = Kotlin.kotlin.collections.LinkedHashMap_init_q3lmfv$;
-  var L0 = Kotlin.Long.ZERO;
-  var MutableMap = Kotlin.kotlin.collections.MutableMap;
+  var Kind_OBJECT = Kotlin.Kind.OBJECT;
+  var Unit = Kotlin.kotlin.Unit;
+  var sequence = Kotlin.kotlin.sequences.sequence_o0x0bg$;
+  var max = Kotlin.kotlin.sequences.max_gtzq52$;
   var throwUPAE = Kotlin.throwUPAE;
   var Job = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job_5dx9e$;
   var withContext = $module$kotlinx_coroutines_core.kotlinx.coroutines.withContext_i5cbzn$;
   var CancellationException = $module$kotlinx_coroutines_core.kotlinx.coroutines.CancellationException;
   var IllegalStateException_init = Kotlin.kotlin.IllegalStateException_init_pdl1vj$;
+  var get_isActive = $module$kotlinx_coroutines_core.kotlinx.coroutines.get_isActive_e9pf1l$;
   var launch = $module$kotlinx_coroutines_core.kotlinx.coroutines.launch_s496o7$;
   var cancelAndJoin = $module$kotlinx_coroutines_core.kotlinx.coroutines.cancelAndJoin_5dx9u$;
   var Kind_INTERFACE = Kotlin.Kind.INTERFACE;
-  var Kind_OBJECT = Kotlin.Kind.OBJECT;
   var SerialClassDescImpl = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.SerialClassDescImpl;
   var NullableSerializer = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.internal.NullableSerializer;
   var UnknownFieldException = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.UnknownFieldException;
@@ -64,6 +61,8 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   var defineInlineFunction = Kotlin.defineInlineFunction;
   var split = Kotlin.kotlin.text.split_o64adg$;
   var JSON_0 = $module$kotlinx_serialization_runtime_js.kotlinx.serialization.json.JSON;
+  var toInt = Kotlin.kotlin.text.toInt_pdl1vz$;
+  var unboxChar = Kotlin.unboxChar;
   ControlledGame.prototype = Object.create(Game.prototype);
   ControlledGame.prototype.constructor = ControlledGame;
   Player.prototype = Object.create(Enum.prototype);
@@ -84,6 +83,14 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   MoveResult$Error$RepeatedMove.prototype.constructor = MoveResult$Error$RepeatedMove;
   MoveResult$Error$CannotMoveOfBoard.prototype = Object.create(MoveResult$Error.prototype);
   MoveResult$Error$CannotMoveOfBoard.prototype.constructor = MoveResult$Error$CannotMoveOfBoard;
+  function map$lambda(closure$f, this$map) {
+    return function (player, state) {
+      return closure$f(player, state, this$map(player, state));
+    };
+  }
+  function map_0($receiver, f) {
+    return map$lambda(f, $receiver);
+  }
   function MoveToState(move, state) {
     this.move = move;
     this.state = state;
@@ -176,24 +183,250 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
       throw IllegalStateException_init(('No valid moves for player ' + player + ' with state=' + debugString(state)).toString());
     }
     var best = tmp$_0;
-    println('Player ' + player + ' thinks the move is worth: ' + best.first + ' points. (easy: ' + easy(player, best.second.state) + ', easyNL: ' + easyNL(player, best.second.state) + ')');
+    println('Player ' + player + ' thinks the move is worth: ' + best.first + ' points. (easy: ' + easy(player, best.second.state) + ')');
     return best.second;
   }
-  function AI(strat, debug) {
+  function AI(strategy, debug, strategyName) {
     if (debug === void 0)
       debug = true;
-    this.strat_0 = strat;
+    if (strategyName === void 0)
+      strategyName = '';
+    this.strategy_0 = strategy;
     this.debug_0 = debug;
-    this.name_p9lk9c$_0 = 'AI';
+    this.name_p9lk9c$_0 = 'AI - ' + strategyName;
   }
   Object.defineProperty(AI.prototype, 'name', {get: function () {
     return this.name_p9lk9c$_0;
   }});
   AI.prototype.getMove_jr41iw$ = function (lastMove, state, fromSelectCallback, continuation) {
-    var move = (this.debug_0 ? debugBestMove(this.strat_0, state.playersTurn, state) : bestMove(this.strat_0, state.playersTurn, state)).component1();
+    var move = (this.debug_0 ? debugBestMove(this.strategy_0, state.playersTurn, state) : bestMove(this.strategy_0, state.playersTurn, state)).component1();
     return move;
   };
   AI.$metadata$ = {kind: Kind_CLASS, simpleName: 'AI', interfaces: [PlayerController]};
+  var easy;
+  var medium;
+  var base;
+  function randomBase$lambda(f, f_0, i) {
+    return i + Random.Default.nextInt_vux9f0$(-2, 2) | 0;
+  }
+  var randomBase;
+  var hard;
+  var superStrategy;
+  var extreme;
+  var random;
+  function Evaluations() {
+    Evaluations_instance = this;
+    this.progressMult_0 = 1;
+    this.pushedPenalty_0 = 1;
+    this.tokenBonus_0 = 2;
+    this.sumPosition = Evaluations$sumPosition$lambda(this);
+    this.sumSquarePosition = Evaluations$sumSquarePosition$lambda(this);
+    this.mostForward = Evaluations$mostForward$lambda(this);
+  }
+  Evaluations.prototype.progress_0 = function (p, width, player) {
+    switch (player.name) {
+      case 'Red':
+        return width - p.x - 1 | 0;
+      case 'Blue':
+        return p.x;
+      default:return Kotlin.noWhenBranchMatched();
+    }
+  };
+  Evaluations.prototype.positionalMax_0 = wrapFunction(function () {
+    return function (ownPlayer, state, pointsForPosition) {
+      var positionalPointSystem_0$result;
+      if (equals(state.victor, ownPlayer)) {
+        positionalPointSystem_0$result = 2147483647;
+      }
+       else {
+        var opponent = next(ownPlayer);
+        var tmp$;
+        var max = -2147483648;
+        tmp$ = state.grid.getAllFor_11rb$(ownPlayer).iterator();
+        while (tmp$.hasNext()) {
+          var elem = tmp$.next();
+          var value = pointsForPosition(elem, ownPlayer);
+          if (value > max)
+            max = value;
+        }
+        var ownPoints = max;
+        var tmp$_0;
+        var max_0 = -2147483648;
+        tmp$_0 = state.grid.getAllFor_11rb$(opponent).iterator();
+        while (tmp$_0.hasNext()) {
+          var elem_0 = tmp$_0.next();
+          var value_0 = pointsForPosition(elem_0, ownPlayer);
+          if (value_0 > max_0)
+            max_0 = value_0;
+        }
+        var opponentPoint = max_0;
+        positionalPointSystem_0$result = ownPoints - opponentPoint | 0;
+      }
+      return positionalPointSystem_0$result;
+    };
+  });
+  Evaluations.prototype.positionalSum_0 = wrapFunction(function () {
+    return function (ownPlayer, state, pointsForPosition) {
+      var positionalPointSystem_0$result;
+      if (equals(state.victor, ownPlayer)) {
+        positionalPointSystem_0$result = 2147483647;
+      }
+       else {
+        var opponent = next(ownPlayer);
+        var tmp$;
+        var sum = 0;
+        tmp$ = state.grid.getAllFor_11rb$(ownPlayer).iterator();
+        while (tmp$.hasNext()) {
+          var element = tmp$.next();
+          sum = sum + pointsForPosition(element, ownPlayer) | 0;
+        }
+        var ownPoints = sum;
+        var tmp$_0;
+        var sum_0 = 0;
+        tmp$_0 = state.grid.getAllFor_11rb$(opponent).iterator();
+        while (tmp$_0.hasNext()) {
+          var element_0 = tmp$_0.next();
+          sum_0 = sum_0 + pointsForPosition(element_0, ownPlayer) | 0;
+        }
+        var opponentPoint = sum_0;
+        positionalPointSystem_0$result = ownPoints - opponentPoint | 0;
+      }
+      return positionalPointSystem_0$result;
+    };
+  });
+  Evaluations.prototype.positionalPointSystem_0 = function (ownPlayer, state, positionalPoints) {
+    if (equals(state.victor, ownPlayer))
+      return 2147483647;
+    else {
+      var opponent = next(ownPlayer);
+      var ownPoints = positionalPoints(state.grid.getAllFor_11rb$(ownPlayer), ownPlayer);
+      var opponentPoint = positionalPoints(state.grid.getAllFor_11rb$(opponent), opponent);
+      return ownPoints - opponentPoint | 0;
+    }
+  };
+  Evaluations.prototype.mapMax_0 = function ($receiver, f) {
+    var tmp$;
+    var max = -2147483648;
+    tmp$ = $receiver.iterator();
+    while (tmp$.hasNext()) {
+      var elem = tmp$.next();
+      var value = f(elem);
+      if (value > max)
+        max = value;
+    }
+    return max;
+  };
+  function Evaluations$sumPosition$lambda$pointForPosition(closure$state, this$Evaluations) {
+    return function (p, player) {
+      var progress = 1 * this$Evaluations.progress_0(p, closure$state.grid.width, player) | 0;
+      var pushed = equals(closure$state.lastPushed, p) ? 1 : 0;
+      return progress + 2 - pushed | 0;
+    };
+  }
+  function Evaluations$sumPosition$lambda(this$Evaluations) {
+    return function (ownPlayer, state) {
+      var pointForPosition = Evaluations$sumPosition$lambda$pointForPosition(state, this$Evaluations);
+      var positionalPointSystem_0$result;
+      if (equals(state.victor, ownPlayer)) {
+        positionalPointSystem_0$result = 2147483647;
+      }
+       else {
+        var opponent = next(ownPlayer);
+        var tmp$;
+        var sum = 0;
+        tmp$ = state.grid.getAllFor_11rb$(ownPlayer).iterator();
+        while (tmp$.hasNext()) {
+          var element = tmp$.next();
+          sum = sum + pointForPosition(element, ownPlayer) | 0;
+        }
+        var ownPoints = sum;
+        var tmp$_0;
+        var sum_0 = 0;
+        tmp$_0 = state.grid.getAllFor_11rb$(opponent).iterator();
+        while (tmp$_0.hasNext()) {
+          var element_0 = tmp$_0.next();
+          sum_0 = sum_0 + pointForPosition(element_0, ownPlayer) | 0;
+        }
+        var opponentPoint = sum_0;
+        positionalPointSystem_0$result = ownPoints - opponentPoint | 0;
+      }
+      return positionalPointSystem_0$result;
+    };
+  }
+  function Evaluations$sumSquarePosition$lambda(this$Evaluations) {
+    return function (ownPlayer, state) {
+      var positionalPointSystem_0$result;
+      if (equals(state.victor, ownPlayer)) {
+        positionalPointSystem_0$result = 2147483647;
+      }
+       else {
+        var opponent = next(ownPlayer);
+        var tmp$;
+        var sum = 0;
+        tmp$ = state.grid.getAllFor_11rb$(ownPlayer).iterator();
+        while (tmp$.hasNext()) {
+          var element = tmp$.next();
+          var tmp$_0 = sum;
+          var it = this$Evaluations.progress_0(element, state.grid.width, ownPlayer);
+          sum = tmp$_0 + Kotlin.imul(it, it) | 0;
+        }
+        var ownPoints = sum;
+        var tmp$_1;
+        var sum_0 = 0;
+        tmp$_1 = state.grid.getAllFor_11rb$(opponent).iterator();
+        while (tmp$_1.hasNext()) {
+          var element_0 = tmp$_1.next();
+          var tmp$_2 = sum_0;
+          var it_0 = this$Evaluations.progress_0(element_0, state.grid.width, ownPlayer);
+          sum_0 = tmp$_2 + Kotlin.imul(it_0, it_0) | 0;
+        }
+        var opponentPoint = sum_0;
+        positionalPointSystem_0$result = ownPoints - opponentPoint | 0;
+      }
+      return positionalPointSystem_0$result;
+    };
+  }
+  function Evaluations$mostForward$lambda(this$Evaluations) {
+    return function (ownPlayer, state) {
+      var positionalPointSystem_0$result;
+      if (equals(state.victor, ownPlayer)) {
+        positionalPointSystem_0$result = 2147483647;
+      }
+       else {
+        var opponent = next(ownPlayer);
+        var tmp$;
+        var max = -2147483648;
+        tmp$ = state.grid.getAllFor_11rb$(ownPlayer).iterator();
+        while (tmp$.hasNext()) {
+          var elem = tmp$.next();
+          var value = this$Evaluations.progress_0(elem, state.grid.width, ownPlayer);
+          if (value > max)
+            max = value;
+        }
+        var ownPoints = max;
+        var tmp$_0;
+        var max_0 = -2147483648;
+        tmp$_0 = state.grid.getAllFor_11rb$(opponent).iterator();
+        while (tmp$_0.hasNext()) {
+          var elem_0 = tmp$_0.next();
+          var value_0 = this$Evaluations.progress_0(elem_0, state.grid.width, ownPlayer);
+          if (value_0 > max_0)
+            max_0 = value_0;
+        }
+        var opponentPoint = max_0;
+        positionalPointSystem_0$result = ownPoints - opponentPoint | 0;
+      }
+      return positionalPointSystem_0$result;
+    };
+  }
+  Evaluations.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Evaluations', interfaces: []};
+  var Evaluations_instance = null;
+  function Evaluations_getInstance() {
+    if (Evaluations_instance === null) {
+      new Evaluations();
+    }
+    return Evaluations_instance;
+  }
   function findAllMoves$lambda$tryMove(this$findAllMoves) {
     return function (from, to) {
       var next = this$findAllMoves.move_56t7qy$(from, to);
@@ -243,7 +476,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
 
             this.local$element = this.local$tmp$.next();
             var tmp$_0, tmp$_1, tmp$_2, tmp$_3;
-            if ((tmp$_0 = this.local$tryMove(this.local$element, new Point(this.local$element.x - 1 | 0, this.local$element.y))) != null) {
+            if ((tmp$_0 = this.local$tryMove(this.local$element, this.local$element.left())) != null) {
               this.state_0 = 3;
               this.result_0 = this.local$$receiver.yield_11rb$(tmp$_0, this);
               if (this.result_0 === COROUTINE_SUSPENDED)
@@ -259,7 +492,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
             this.state_0 = 4;
             continue;
           case 4:
-            if ((tmp$_1 = this.local$tryMove(this.local$element, new Point(this.local$element.x + 1 | 0, this.local$element.y))) != null) {
+            if ((tmp$_1 = this.local$tryMove(this.local$element, this.local$element.right())) != null) {
               this.state_0 = 5;
               this.result_0 = this.local$$receiver.yield_11rb$(tmp$_1, this);
               if (this.result_0 === COROUTINE_SUSPENDED)
@@ -275,7 +508,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
             this.state_0 = 6;
             continue;
           case 6:
-            if ((tmp$_2 = this.local$tryMove(this.local$element, new Point(this.local$element.x, this.local$element.y - 1 | 0))) != null) {
+            if ((tmp$_2 = this.local$tryMove(this.local$element, this.local$element.up())) != null) {
               this.state_0 = 7;
               this.result_0 = this.local$$receiver.yield_11rb$(tmp$_2, this);
               if (this.result_0 === COROUTINE_SUSPENDED)
@@ -291,7 +524,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
             this.state_0 = 8;
             continue;
           case 8:
-            if ((tmp$_3 = this.local$tryMove(this.local$element, new Point(this.local$element.x, this.local$element.y + 1 | 0))) != null) {
+            if ((tmp$_3 = this.local$tryMove(this.local$element, this.local$element.down())) != null) {
               this.state_0 = 9;
               this.result_0 = this.local$$receiver.yield_11rb$(tmp$_3, this);
               if (this.result_0 === COROUTINE_SUSPENDED)
@@ -339,180 +572,65 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   function findAllMoves($receiver) {
     return sequence(findAllMoves$lambda($receiver));
   }
-  var progressMult;
-  var pushedPenalty;
-  var tokenBonus;
-  function easy$lambda$pointForPosition(closure$state) {
-    return function (p, player) {
-      var progress_0 = 1 * progress(p, closure$state.grid.width, player) | 0;
-      var pushed = equals(closure$state.lastPushed, p) ? 1 : 0;
-      return progress_0 + 2 - pushed | 0;
+  function recurseOnce$lambda(closure$baseStrategy) {
+    return function (ownPlayer, state) {
+      if (equals(state.victor, ownPlayer))
+        return 2147483647;
+      else {
+        var opponentMove = bestMove(closure$baseStrategy, next(ownPlayer), state);
+        return closure$baseStrategy(ownPlayer, opponentMove.state);
+      }
     };
   }
-  function easy$lambda(ownPlayer, state) {
-    var pointForPosition = easy$lambda$pointForPosition(state);
-    var positionalPointSystem$result;
-    if (equals(state.victor, ownPlayer)) {
-      positionalPointSystem$result = 2147483647;
-    }
-     else {
-      var opponent = next(ownPlayer);
-      var tmp$;
-      var sum = 0;
-      tmp$ = state.grid.getAllFor_11rb$(ownPlayer).iterator();
-      while (tmp$.hasNext()) {
-        var element = tmp$.next();
-        sum = sum + pointForPosition(element, ownPlayer) | 0;
-      }
-      var ownPoints = sum;
-      var tmp$_0;
-      var sum_0 = 0;
-      tmp$_0 = state.grid.getAllFor_11rb$(opponent).iterator();
-      while (tmp$_0.hasNext()) {
-        var element_0 = tmp$_0.next();
-        sum_0 = sum_0 + pointForPosition(element_0, ownPlayer) | 0;
-      }
-      var opponentPoint = sum_0;
-      positionalPointSystem$result = ownPoints - opponentPoint | 0;
-    }
-    return positionalPointSystem$result;
+  function recurseOnce(baseStrategy) {
+    return recurseOnce$lambda(baseStrategy);
   }
-  var easy;
-  function easyNL$lambda(ownPlayer, state) {
-    var positionalPointSystem$result;
-    if (equals(state.victor, ownPlayer)) {
-      positionalPointSystem$result = 2147483647;
-    }
-     else {
-      var opponent = next(ownPlayer);
-      var tmp$;
-      var sum = 0;
-      tmp$ = state.grid.getAllFor_11rb$(ownPlayer).iterator();
-      while (tmp$.hasNext()) {
-        var element = tmp$.next();
-        var tmp$_0 = sum;
-        var it = progress(element, state.grid.width, ownPlayer);
-        sum = tmp$_0 + Kotlin.imul(it, it) | 0;
-      }
-      var ownPoints = sum;
-      var tmp$_1;
-      var sum_0 = 0;
-      tmp$_1 = state.grid.getAllFor_11rb$(opponent).iterator();
-      while (tmp$_1.hasNext()) {
-        var element_0 = tmp$_1.next();
-        var tmp$_2 = sum_0;
-        var it_0 = progress(element_0, state.grid.width, ownPlayer);
-        sum_0 = tmp$_2 + Kotlin.imul(it_0, it_0) | 0;
-      }
-      var opponentPoint = sum_0;
-      positionalPointSystem$result = ownPoints - opponentPoint | 0;
-    }
-    return positionalPointSystem$result;
-  }
-  var easyNL;
-  function mostForward$lambda(player, state) {
-    var positionalPointSystem$result;
-    if (equals(state.victor, player)) {
-      positionalPointSystem$result = 2147483647;
-    }
-     else {
-      var opponent = next(player);
-      var tmp$;
-      var max = -2147483648;
-      tmp$ = state.grid.getAllFor_11rb$(player).iterator();
-      while (tmp$.hasNext()) {
-        var elem = tmp$.next();
-        var value = progress(elem, state.grid.width, player);
-        if (value > max)
-          max = value;
-      }
-      var ownPoints = max;
-      var tmp$_0;
-      var max_0 = -2147483648;
-      tmp$_0 = state.grid.getAllFor_11rb$(opponent).iterator();
-      while (tmp$_0.hasNext()) {
-        var elem_0 = tmp$_0.next();
-        var value_0 = progress(elem_0, state.grid.width, player);
-        if (value_0 > max_0)
-          max_0 = value_0;
-      }
-      var opponentPoint = max_0;
-      positionalPointSystem$result = ownPoints - opponentPoint | 0;
-    }
-    return positionalPointSystem$result;
-  }
-  var mostForward;
-  function progress(p, width, player) {
-    switch (player.name) {
-      case 'Red':
-        return width - p.x - 1 | 0;
-      case 'Blue':
-        return p.x;
-      default:return Kotlin.noWhenBranchMatched();
-    }
-  }
-  function hard$lambda(player, state) {
-    return treeSearch(player, state, 2, false, 0, 0);
-  }
-  var hard;
-  function hardPruneLevel$lambda(closure$level, closure$pruneLevel) {
+  function treeSearchStrategy$lambda(closure$level, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin) {
     return function (player, state) {
-      return treeSearch(player, state, closure$level, true, -closure$pruneLevel | 0, closure$pruneLevel);
+      return treeSearch(player, state, closure$level, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin);
     };
   }
-  function hardPruneLevel(level, pruneLevel) {
-    return hardPruneLevel$lambda(level, pruneLevel);
+  function treeSearchStrategy(level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin) {
+    if (pruneLevelMax === void 0)
+      pruneLevelMax = 0;
+    if (pruneLevelMin === void 0)
+      pruneLevelMin = -pruneLevelMax | 0;
+    return treeSearchStrategy$lambda(level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin);
   }
-  var evaluationSum;
-  var evaluationCount;
-  function treeStrat$lambda(closure$level, closure$pruning, closure$pruneLevel, closure$baseStrat) {
-    return function (player, state) {
-      return treeSearch(player, state, closure$level, closure$pruning, -closure$pruneLevel | 0, closure$pruneLevel, closure$baseStrat);
-    };
-  }
-  function treeStrat(level, pruning, pruneLevel, baseStrat) {
-    return treeStrat$lambda(level, pruning, pruneLevel, baseStrat);
-  }
-  function treeSearch$lambda(closure$player, closure$level, closure$pruning, closure$pruneLevelMin, closure$pruneLevelMax) {
+  function treeSearch$lambda(closure$player, closure$level, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin) {
     return function (it) {
-      return treeSearch(next(closure$player), it.state, closure$level - 1 | 0, closure$pruning, closure$pruneLevelMin, closure$pruneLevelMax);
+      return treeSearch(next(closure$player), it.state, closure$level - 1 | 0, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin);
     };
   }
-  function treeSearch(player, state, level, pruning, pruneLevelMin, pruneLevelMax, baseStrat) {
-    if (baseStrat === void 0)
-      baseStrat = medium;
+  function treeSearch(player, state, level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin) {
     var tmp$, tmp$_0, tmp$_1;
-    var currentPositionEvaluation = baseStrat(player, state);
     if (level === 0)
-      return currentPositionEvaluation;
+      return baseStrategy(player, state);
     if (state.victor != null)
-      return equals(player, state.victor) ? kotlin_js_internal_FloatCompanionObject.POSITIVE_INFINITY : kotlin_js_internal_FloatCompanionObject.NEGATIVE_INFINITY;
+      return equals(player, state.victor) ? 2147483647 : -2147483648;
     if (pruning) {
+      var currentPositionEvaluation = baseStrategy(player, state);
       if (currentPositionEvaluation < pruneLevelMin)
         return currentPositionEvaluation;
       if (currentPositionEvaluation > pruneLevelMax)
         return currentPositionEvaluation;
     }
-    var opponentMoveScores = map(findAllMoves(state), treeSearch$lambda(player, level, pruning, pruneLevelMin, pruneLevelMax));
+    var opponentMoveScores = map(findAllMoves(state), treeSearch$lambda(player, level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin));
     if (pruning) {
-      tmp$_1 = (tmp$ = maxWithPruning(opponentMoveScores, pruneLevelMax)) != null ? tmp$ : 0.0;
+      tmp$_1 = (tmp$ = maxWithPruning(opponentMoveScores, pruneLevelMax)) != null ? tmp$ : 0;
     }
      else {
-      tmp$_1 = (tmp$_0 = max(opponentMoveScores)) != null ? tmp$_0 : 0.0;
+      tmp$_1 = (tmp$_0 = max(opponentMoveScores)) != null ? tmp$_0 : 0;
     }
-    return -tmp$_1;
+    return -tmp$_1 | 0;
   }
   function maxWithPruning($receiver, pruneLevel) {
     var iterator = $receiver.iterator();
     if (!iterator.hasNext())
       return null;
     var max = iterator.next();
-    if (isNaN_0(max))
-      return max;
     while (iterator.hasNext()) {
       var e = iterator.next();
-      if (isNaN_0(e))
-        return e;
       if (e > pruneLevel)
         return e;
       if (max < e)
@@ -520,30 +638,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
     return max;
   }
-  function medium$lambda(ownPlayer, state) {
-    if (equals(state.victor, ownPlayer))
-      return kotlin_js_internal_FloatCompanionObject.MAX_VALUE;
-    else {
-      var opponentMove = bestMove(easy, next(ownPlayer), state);
-      return easy(ownPlayer, opponentMove.state);
-    }
-  }
-  var medium;
-  function mediumOf$lambda(closure$baseStrat) {
-    return function (ownPlayer, state) {
-      if (equals(state.victor, ownPlayer))
-        return kotlin_js_internal_FloatCompanionObject.MAX_VALUE;
-      else {
-        var opponentMove = bestMove(closure$baseStrat, next(ownPlayer), state);
-        return closure$baseStrat(ownPlayer, opponentMove.state);
-      }
-    };
-  }
-  function mediumOf(baseStrat) {
-    return mediumOf$lambda(baseStrat);
-  }
-  var mediumNL;
-  var mediumMF;
   function ControlledGame(redController, blueController, uiHook) {
     Game.call(this);
     this.redController_0 = redController;
@@ -703,73 +797,12 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     else
       return instance.doResume(null);
   };
-  function Coroutine$gameLoop_0($this, continuation_0) {
-    CoroutineImpl.call(this, continuation_0);
-    this.exceptionState_0 = 1;
-    this.$this = $this;
-  }
-  Coroutine$gameLoop_0.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
-  Coroutine$gameLoop_0.prototype = Object.create(CoroutineImpl.prototype);
-  Coroutine$gameLoop_0.prototype.constructor = Coroutine$gameLoop_0;
-  Coroutine$gameLoop_0.prototype.doResume = function () {
-    do
-      try {
-        switch (this.state_0) {
-          case 0:
-            this.state_0 = 2;
-            continue;
-          case 1:
-            throw this.exception_0;
-          case 2:
-            this.state_0 = 3;
-            this.result_0 = this.$this.doMove_0(this);
-            if (this.result_0 === COROUTINE_SUSPENDED)
-              return COROUTINE_SUSPENDED;
-            continue;
-          case 3:
-            if (!this.result_0) {
-              this.state_0 = 5;
-              continue;
-            }
-             else {
-              this.state_0 = 4;
-              continue;
-            }
-
-          case 4:
-            this.state_0 = 2;
-            continue;
-          case 5:
-            this.$this.uiHook_0.onGameEnd();
-            return;
-          default:this.state_0 = 1;
-            throw new Error('State Machine Unreachable execution');
-        }
-      }
-       catch (e) {
-        if (this.state_0 === 1) {
-          this.exceptionState_0 = this.state_0;
-          throw e;
-        }
-         else {
-          this.state_0 = this.exceptionState_0;
-          this.exception_0 = e;
-        }
-      }
-     while (true);
-  };
-  ControlledGame.prototype.gameLoop_0 = function (continuation_0, suspended) {
-    var instance = new Coroutine$gameLoop_0(this, continuation_0);
-    if (suspended)
-      return instance;
-    else
-      return instance.doResume(null);
-  };
   function Coroutine$ControlledGame$start$lambda(this$ControlledGame_0, $receiver_0, controller, continuation_0) {
     CoroutineImpl.call(this, continuation_0);
     this.$controller = controller;
     this.exceptionState_0 = 1;
     this.local$this$ControlledGame = this$ControlledGame_0;
+    this.local$$receiver = $receiver_0;
   }
   Coroutine$ControlledGame$start$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
   Coroutine$ControlledGame$start$lambda.prototype = Object.create(CoroutineImpl.prototype);
@@ -780,14 +813,41 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
         switch (this.state_0) {
           case 0:
             this.state_0 = 2;
-            this.result_0 = this.local$this$ControlledGame.gameLoop_0(this);
-            if (this.result_0 === COROUTINE_SUSPENDED)
-              return COROUTINE_SUSPENDED;
             continue;
           case 1:
             throw this.exception_0;
           case 2:
-            return this.result_0;
+            if (get_isActive(this.local$$receiver)) {
+              this.state_0 = 3;
+              this.result_0 = this.local$this$ControlledGame.doMove_0(this);
+              if (this.result_0 === COROUTINE_SUSPENDED)
+                return COROUTINE_SUSPENDED;
+              continue;
+            }
+             else {
+              this.result_0 = false;
+              this.state_0 = 4;
+              continue;
+            }
+
+          case 3:
+            this.state_0 = 4;
+            continue;
+          case 4:
+            if (!this.result_0) {
+              this.state_0 = 6;
+              continue;
+            }
+             else {
+              this.state_0 = 5;
+              continue;
+            }
+
+          case 5:
+            this.state_0 = 2;
+            continue;
+          case 6:
+            return this.local$this$ControlledGame.uiHook_0.onGameEnd(), Unit;
           default:this.state_0 = 1;
             throw new Error('State Machine Unreachable execution');
         }
@@ -815,7 +875,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   }
   ControlledGame.prototype.start_e9pf1l$ = function ($receiver) {
     this.scope_0 = $receiver;
-    launch($receiver, void 0, void 0, ControlledGame$start$lambda(this));
+    return launch($receiver, void 0, void 0, ControlledGame$start$lambda(this));
   };
   ControlledGame.prototype.switchRed_wszlfq$ = function (controller) {
     println('Switching red to ' + controller.name);
@@ -906,6 +966,21 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.x = x;
     this.y = y;
   }
+  Point.prototype.toString = function () {
+    return '(' + this.x + '/' + this.y + ')';
+  };
+  Point.prototype.left = function () {
+    return new Point(this.x - 1 | 0, this.y);
+  };
+  Point.prototype.right = function () {
+    return new Point(this.x + 1 | 0, this.y);
+  };
+  Point.prototype.up = function () {
+    return new Point(this.x, this.y - 1 | 0);
+  };
+  Point.prototype.down = function () {
+    return new Point(this.x, this.y + 1 | 0);
+  };
   function Point$Companion() {
     Point$Companion_instance = this;
   }
@@ -996,9 +1071,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Point.prototype.copy_vux9f0$ = function (x, y) {
     return new Point(x === void 0 ? this.x : x, y === void 0 ? this.y : y);
   };
-  Point.prototype.toString = function () {
-    return 'Point(x=' + Kotlin.toString(this.x) + (', y=' + Kotlin.toString(this.y)) + ')';
-  };
   Point.prototype.hashCode = function () {
     var result = 0;
     result = result * 31 + Kotlin.hashCode(this.x) | 0;
@@ -1022,6 +1094,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   }});
   Object.defineProperty(Game.prototype, 'grid', {get: function () {
     return this.state.grid;
+  }});
+  Object.defineProperty(Game.prototype, 'turns', {get: function () {
+    return this.states_r7t5l$_0.size - 1 | 0;
   }});
   Game.prototype.canUndo = function () {
     return this.states_r7t5l$_0.size > 1;
@@ -1106,6 +1181,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     this.from = from;
     this.to = to;
   }
+  Move.prototype.toString = function () {
+    return '(' + this.from + ' -> ' + this.to + ')';
+  };
   function Move$Companion() {
     Move$Companion_instance = this;
   }
@@ -1195,9 +1273,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   };
   Move.prototype.copy_56t7qy$ = function (from, to) {
     return new Move(from === void 0 ? this.from : from, to === void 0 ? this.to : to);
-  };
-  Move.prototype.toString = function () {
-    return 'Move(from=' + Kotlin.toString(this.from) + (', to=' + Kotlin.toString(this.to)) + ')';
   };
   Move.prototype.hashCode = function () {
     var result = 0;
@@ -1433,6 +1508,10 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
     return destination.size;
   };
+  State.prototype.isSimilar_biffl8$ = function (other) {
+    var tmp$;
+    return this.playersTurn === other.playersTurn && equals(this.lastPushed, other.lastPushed) && ((tmp$ = this.grid) != null ? tmp$.equals(other.grid) : null);
+  };
   function State$$serializer() {
     this.descriptor_fsmc49$_0 = new SerialClassDescImpl('de.earley.gogogo.game.State', this);
     this.descriptor.addElement_ivxn3r$('playersTurn', false);
@@ -1592,19 +1671,36 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     else
       return (tmp$ = next($receiver)) != null ? applyN(tmp$, n - 1 | 0, next) : null;
   }
+  function debugString$line(closure$sb) {
+    return function () {
+      closure$sb.append_gw00v9$('  |');
+      for (var i = 0; i < 11; i++) {
+        if (i % 2 === 0)
+          closure$sb.append_s8jyv4$(i / 2 | 0);
+        else
+          closure$sb.append_gw00v9$('-');
+      }
+      appendln(closure$sb, '|');
+    };
+  }
   function debugString($receiver) {
     var tmp$, tmp$_0, tmp$_1;
     var sb = StringBuilder_init();
+    var line = debugString$line(sb);
     appendln(sb);
     appendln(sb, 'Player: ' + $receiver.playersTurn);
     appendln(sb, 'LastPushed: ' + toString($receiver.lastPushed));
     appendln(sb, 'Victor: ' + toString($receiver.victor));
+    line();
     for (var y = 0; y < 5; y++) {
+      sb.append_gw00v9$(y.toString() + ' |');
       for (var x = 0; x < 6; x++) {
         sb.append_s8jyv4$((tmp$_1 = toBoxedChar((tmp$_0 = (tmp$ = $receiver.grid.get_vux9f0$(x, y)) != null ? tmp$.name : null) != null ? tmp$_0.charCodeAt(0) : null)) != null ? tmp$_1 : ' ');
+        sb.append_gw00v9$('|');
       }
-      appendln(sb);
+      appendln(sb, ' ' + y);
     }
+    line();
     return sb.toString();
   }
   function appendln($receiver, s) {
@@ -1631,11 +1727,35 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   function GameGrid$Companion() {
     GameGrid$Companion_instance = this;
   }
+  var LinkedHashMap_init = Kotlin.kotlin.collections.LinkedHashMap_init_q3lmfv$;
   GameGrid$Companion.prototype.create_fzygrl$ = function (width, height, init) {
     var grid = new GameGrid(width, height, Kotlin.newArray(Kotlin.imul(width, height), null), LinkedHashMap_init());
     var $receiver = new Alterations(grid);
     init($receiver);
     return $receiver.create();
+  };
+  GameGrid$Companion.prototype.create_vnf2z1$ = function (width, height, elems) {
+    var $receiver = new GameGrid(width, height, elems, LinkedHashMap_init());
+    for (var x = 0; x < width; x++) {
+      for (var y = 0; y < height; y++) {
+        var p = $receiver.get_vux9f0$(x, y);
+        if (p != null) {
+          var $receiver_0 = $receiver.tokenIndexes_0;
+          var tmp$;
+          var value = $receiver_0.get_11rb$(p);
+          if (value == null) {
+            var answer = ArrayList_init_0();
+            $receiver_0.put_xwzc9p$(p, answer);
+            tmp$ = answer;
+          }
+           else {
+            tmp$ = value;
+          }
+          tmp$.add_11rb$(new Point(x, y));
+        }
+      }
+    }
+    return $receiver;
   };
   GameGrid$Companion.prototype.serializer = function () {
     return GameGrid$$serializer_getInstance();
@@ -2055,41 +2175,43 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
     }
     return Messages_instance;
   }
-  function toNetFormat($receiver) {
+  function toNetFormat_0($receiver) {
     return JSON_0.Companion.stringify_tf03ej$(Move$Companion_getInstance().serializer(), $receiver);
   }
   function moveFromNetFormat($receiver) {
     return JSON_0.Companion.parse_awif5v$(Move$Companion_getInstance().serializer(), $receiver);
   }
+  var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
+  var ArrayList_init_1 = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
+  var copyToArray = Kotlin.kotlin.collections.copyToArray;
   var package$de = _.de || (_.de = {});
   var package$earley = package$de.earley || (package$de.earley = {});
   var package$gogogo = package$earley.gogogo || (package$earley.gogogo = {});
   var package$ai = package$gogogo.ai || (package$gogogo.ai = {});
+  package$ai.map_xpuobx$ = map_0;
   package$ai.MoveToState = MoveToState;
-  package$ai.bestMove_rxsk4c$ = bestMove;
-  package$ai.debugBestMove_rxsk4c$ = debugBestMove;
+  package$ai.bestMove_7dht$ = bestMove;
+  package$ai.debugBestMove_7dht$ = debugBestMove;
   package$ai.AI = AI;
-  package$ai.findAllMoves_1pq5d1$ = findAllMoves;
   Object.defineProperty(package$ai, 'easy', {get: function () {
     return easy;
+  }});
+  Object.defineProperty(package$ai, 'medium', {get: function () {
+    return medium;
   }});
   Object.defineProperty(package$ai, 'hard', {get: function () {
     return hard;
   }});
-  package$ai.hardPruneLevel_vux9f0$ = hardPruneLevel;
-  package$ai.treeStrat_dv5kkc$ = treeStrat;
-  package$ai.treeSearch_f0cu6e$ = treeSearch;
-  package$ai.maxWithPruning_gj5u05$ = maxWithPruning;
-  Object.defineProperty(package$ai, 'medium', {get: function () {
-    return medium;
+  Object.defineProperty(package$ai, 'superStrategy', {get: function () {
+    return superStrategy;
   }});
-  package$ai.mediumOf_x6rkih$ = mediumOf;
-  Object.defineProperty(package$ai, 'mediumNL', {get: function () {
-    return mediumNL;
+  Object.defineProperty(package$ai, 'extreme', {get: function () {
+    return extreme;
   }});
-  Object.defineProperty(package$ai, 'mediumMF', {get: function () {
-    return mediumMF;
-  }});
+  Object.defineProperty(package$ai, 'Evaluations', {get: Evaluations_getInstance});
+  package$ai.findAllMoves_1pq5d1$ = findAllMoves;
+  package$ai.recurseOnce_xtbmsm$ = recurseOnce;
+  package$ai.treeSearchStrategy_r1a1ux$ = treeSearchStrategy;
   var package$game = package$gogogo.game || (package$gogogo.game = {});
   package$game.ControlledGame = ControlledGame;
   package$game.UIHook = UIHook;
@@ -2117,8 +2239,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   Object.defineProperty(State, 'Companion', {get: State$Companion_getInstance});
   Object.defineProperty(State, '$serializer', {get: State$$serializer_getInstance});
   package$game.State = State;
-  package$game.nextOver_56t7qy$ = nextOver;
-  package$game.isAdjacent_56t7qy$ = isAdjacent;
   package$game.debugString_1pq5d1$ = debugString;
   Object.defineProperty(GameGrid, 'Companion', {get: GameGrid$Companion_getInstance});
   Object.defineProperty(GameGrid, '$serializer', {get: GameGrid$$serializer_getInstance});
@@ -2135,24 +2255,19 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core, $m
   package$net.PlayerInfo = PlayerInfo;
   package$net.MatchInfo = MatchInfo;
   Object.defineProperty(package$net, 'Messages', {get: Messages_getInstance});
-  package$game.toNetFormat_blsywv$ = toNetFormat;
+  package$game.toNetFormat_blsywv$ = toNetFormat_0;
   package$game.moveFromNetFormat_pdl1vz$ = moveFromNetFormat;
   Point$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
   Move$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
   State$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
   GameGrid$$serializer.prototype.patch_mynpiu$ = GeneratedSerializer.prototype.patch_mynpiu$;
-  progressMult = 1;
-  pushedPenalty = 1;
-  tokenBonus = 2;
-  easy = easy$lambda;
-  easyNL = easyNL$lambda;
-  mostForward = mostForward$lambda;
-  hard = hard$lambda;
-  evaluationSum = 0.0;
-  evaluationCount = 0;
-  medium = medium$lambda;
-  mediumNL = mediumOf(easyNL);
-  mediumMF = mediumOf(mostForward);
+  easy = Evaluations_getInstance().sumPosition;
+  medium = recurseOnce(easy);
+  base = treeSearchStrategy(2, medium, false);
+  randomBase = map_0(treeSearchStrategy(2, medium, false), randomBase$lambda);
+  hard = treeSearchStrategy(2, Evaluations_getInstance().sumPosition, false);
+  superStrategy = treeSearchStrategy(3, Evaluations_getInstance().sumSquarePosition, true, 10);
+  extreme = treeSearchStrategy(4, Evaluations_getInstance().sumSquarePosition, false);
   GAME_WIDTH = 6;
   GAME_HEIGHT = 5;
   standardStartGrid = GameGrid$Companion_getInstance().create_fzygrl$(6, 5, standardStartGrid$lambda);

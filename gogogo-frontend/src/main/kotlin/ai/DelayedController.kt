@@ -7,7 +7,7 @@ import de.earley.gogogo.game.State
 import kotlinx.coroutines.delay
 
 // add a delay before the selection
-class DelayedController(private val pc: PlayerController) : PlayerController {
+private class DelayedController(private val pc: PlayerController) : PlayerController {
 	override val name: String = "UI AI"
 
 	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Move {
@@ -17,10 +17,9 @@ class DelayedController(private val pc: PlayerController) : PlayerController {
 		return move
 	}
 
-
 }
 
-
-fun PlayerController.withUIAwareness(): PlayerController {
-	return DelayedController(this)
+fun PlayerController.withUIAwareness(): PlayerController = when (this) {
+	is DelayedController -> this
+	else -> DelayedController(this)
 }

@@ -1088,6 +1088,10 @@
   function CoroutineScope() {
   }
   CoroutineScope.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'CoroutineScope', interfaces: []};
+  function get_isActive($receiver) {
+    var tmp$, tmp$_0;
+    return (tmp$_0 = (tmp$ = $receiver.coroutineContext.get_j3r2sn$(Job$Key_getInstance())) != null ? tmp$.isActive : null) != null ? tmp$_0 : true;
+  }
   function GlobalScope() {
     GlobalScope_instance = this;
   }
@@ -8510,6 +8514,7 @@
   package$coroutines.CoroutineExceptionHandler = CoroutineExceptionHandler_0;
   Object.defineProperty(CoroutineExceptionHandler_0, 'Key', {get: CoroutineExceptionHandler$Key_getInstance});
   package$coroutines.CoroutineScope = CoroutineScope;
+  package$coroutines.get_isActive_e9pf1l$ = get_isActive;
   Object.defineProperty(package$coroutines, 'GlobalScope', {get: GlobalScope_getInstance});
   package$coroutines.Job = Job;
   Object.defineProperty(CoroutineStart, 'DEFAULT', {get: CoroutineStart$DEFAULT_getInstance});

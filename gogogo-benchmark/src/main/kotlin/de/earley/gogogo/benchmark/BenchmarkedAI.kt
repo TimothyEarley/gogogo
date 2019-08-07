@@ -1,20 +1,37 @@
 package de.earley.gogogo.benchmark
 
-import de.earley.gogogo.ai.Strat
-import de.earley.gogogo.game.Player
-import de.earley.gogogo.game.State
+import de.earley.gogogo.ai.AI
+import de.earley.gogogo.ai.Strategy
+import de.earley.gogogo.game.*
 import kotlin.system.measureTimeMillis
 
-class NamedBenchmarkStrat(val name: String, private val strat: Strat): Strat {
+//TODO rewrite benchmark to be on PlayerController level
+interface Benchmarked {
+	val name: String
+	val ai: PlayerController
+	fun avg(): Double
+	fun stats(): String
+}
+
+fun PlayerController.mockBenchmarked(name: String) = object : Benchmarked {
+	override val name: String = name
+	override val ai: PlayerController = this@mockBenchmarked
+	override fun avg(): Double = 0.0
+	override fun stats(): String = "MOCKED"
+}
+
+class BenchmarkStrategy(override val name: String, private val strategy: Strategy): Strategy, Benchmarked {
 
 	private var totalTime: Long = 0
 	private var invokeCount: Int = 0
 	private var max: Long = 0
 
-	override fun invoke(player: Player, state: State): Float {
-		var value: Float? = null
+	override val ai: PlayerController = AI(this, false)
+
+	override fun invoke(player: Player, state: State): Int {
+		var value: Int? = null
 		val time = measureTimeMillis {
-			value = strat(player, state)
+			value = strategy(player, state)
 		}
 		if (time > max) max = time
 		totalTime += time
@@ -22,8 +39,8 @@ class NamedBenchmarkStrat(val name: String, private val strat: Strat): Strat {
 		return value!!
 	}
 
-	fun avg() = totalTime / invokeCount.toDouble()
-	fun stats(): String = "[$name]: \tavg: ${avg().format(2)}ms, \tmax: ${max}ms, \tCount: $invokeCount"
+	override fun avg() = totalTime / invokeCount.toDouble()
+	override fun stats(): String = "[$name]: \tavg: ${avg().format(2)}ms, \tmax: ${max}ms, \tCount: $invokeCount"
 
 }
 

@@ -8,7 +8,14 @@ const val GAME_WIDTH = 6
 const val GAME_HEIGHT = 5
 
 @Serializable
-data class Point(val x: Int, val y: Int)
+data class Point(val x: Int, val y: Int) {
+	override fun toString(): String = "($x/$y)"
+
+	fun left(): Point = Point(x - 1, y)
+	fun right(): Point = Point(x + 1, y)
+	fun up(): Point = Point(x, y - 1)
+	fun down(): Point = Point(x, y + 1)
+}
 
 open class Game {
 
@@ -17,6 +24,7 @@ open class Game {
 	val player: Player get() = state.playersTurn
 	val victor: Player? get() = state.victor
 	val grid: Grid<Player> get() = state.grid
+	val turns: Int get() = states.size - 1
 
 	fun canUndo(): Boolean = states.size > 1
 

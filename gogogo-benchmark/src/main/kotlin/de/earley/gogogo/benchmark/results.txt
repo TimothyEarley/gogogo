@@ -1,0 +1,94 @@
+hard (mostForward) vs superStrategy (mostForward): R, B, {hard (mostForward)=2}
+hard (mostForward) vs prunedSuper (mostForward): R, B, {hard (mostForward)=2}
+hard (mostForward) vs extreme (mostForward): B, R, {extreme (mostForward)=2}
+hard (mostForward) vs hard (sumPosition): R, B, {hard (mostForward)=2}
+hard (mostForward) vs superStrategy (sumPosition): R, B, {hard (mostForward)=2}
+hard (mostForward) vs prunedSuper (sumPosition): R, B, {hard (mostForward)=2}
+hard (mostForward) vs extreme (sumPosition): B, R, {extreme (sumPosition)=2}
+hard (mostForward) vs hard (sumSquarePosition): B, B, {hard (sumSquarePosition)=1, hard (mostForward)=1}
+hard (mostForward) vs superStrategy (sumSquarePosition): R, D, {hard (mostForward)=1, Draw=1}
+hard (mostForward) vs prunedSuper (sumSquarePosition): R, B, {hard (mostForward)=2}
+hard (mostForward) vs extreme (sumSquarePosition): B, R, {extreme (sumSquarePosition)=2}
+superStrategy (mostForward) vs prunedSuper (mostForward): R, R, {superStrategy (mostForward)=1, prunedSuper (mostForward)=1}
+superStrategy (mostForward) vs extreme (mostForward): R, R, {superStrategy (mostForward)=1, extreme (mostForward)=1}
+superStrategy (mostForward) vs hard (sumPosition): R, R, {superStrategy (mostForward)=1, hard (sumPosition)=1}
+superStrategy (mostForward) vs superStrategy (sumPosition): R, D, {superStrategy (mostForward)=1, Draw=1}
+superStrategy (mostForward) vs prunedSuper (sumPosition): R, B, {superStrategy (mostForward)=2}
+superStrategy (mostForward) vs extreme (sumPosition): B, R, {extreme (sumPosition)=2}
+superStrategy (mostForward) vs hard (sumSquarePosition): R, R, {superStrategy (mostForward)=1, hard (sumSquarePosition)=1}
+superStrategy (mostForward) vs superStrategy (sumSquarePosition): R, D, {superStrategy (mostForward)=1, Draw=1}
+superStrategy (mostForward) vs prunedSuper (sumSquarePosition): R, B, {superStrategy (mostForward)=2}
+superStrategy (mostForward) vs extreme (sumSquarePosition): B, R, {extreme (sumSquarePosition)=2}
+prunedSuper (mostForward) vs extreme (mostForward): R, R, {prunedSuper (mostForward)=1, extreme (mostForward)=1}
+prunedSuper (mostForward) vs hard (sumPosition): R, R, {prunedSuper (mostForward)=1, hard (sumPosition)=1}
+prunedSuper (mostForward) vs superStrategy (sumPosition): R, D, {prunedSuper (mostForward)=1, Draw=1}
+prunedSuper (mostForward) vs prunedSuper (sumPosition): R, B, {prunedSuper (mostForward)=2}
+prunedSuper (mostForward) vs extreme (sumPosition): B, R, {extreme (sumPosition)=2}
+prunedSuper (mostForward) vs hard (sumSquarePosition): R, R, {prunedSuper (mostForward)=1, hard (sumSquarePosition)=1}
+prunedSuper (mostForward) vs superStrategy (sumSquarePosition): R, D, {prunedSuper (mostForward)=1, Draw=1}
+prunedSuper (mostForward) vs prunedSuper (sumSquarePosition): R, B, {prunedSuper (mostForward)=2}
+prunedSuper (mostForward) vs extreme (sumSquarePosition): B, R, {extreme (sumSquarePosition)=2}
+extreme (mostForward) vs hard (sumPosition): R, R, {extreme (mostForward)=1, hard (sumPosition)=1}
+extreme (mostForward) vs superStrategy (sumPosition): R, B, {extreme (mostForward)=2}
+extreme (mostForward) vs prunedSuper (sumPosition): R, B, {extreme (mostForward)=2}
+extreme (mostForward) vs extreme (sumPosition): B, R, {extreme (sumPosition)=2}
+extreme (mostForward) vs hard (sumSquarePosition): R, R, {extreme (mostForward)=1, hard (sumSquarePosition)=1}
+extreme (mostForward) vs superStrategy (sumSquarePosition): R, B, {extreme (mostForward)=2}
+extreme (mostForward) vs prunedSuper (sumSquarePosition): B, R, {prunedSuper (sumSquarePosition)=2}
+extreme (mostForward) vs extreme (sumSquarePosition): B, R, {extreme (sumSquarePosition)=2}
+hard (sumPosition) vs superStrategy (sumPosition): R, B, {hard (sumPosition)=2}
+hard (sumPosition) vs prunedSuper (sumPosition): R, R, {hard (sumPosition)=1, prunedSuper (sumPosition)=1}
+hard (sumPosition) vs extreme (sumPosition): B, B, {extreme (sumPosition)=1, hard (sumPosition)=1}
+hard (sumPosition) vs hard (sumSquarePosition): B, R, {hard (sumSquarePosition)=2}
+hard (sumPosition) vs superStrategy (sumSquarePosition): R, B, {hard (sumPosition)=2}
+hard (sumPosition) vs prunedSuper (sumSquarePosition): B, R, {prunedSuper (sumSquarePosition)=2}
+hard (sumPosition) vs extreme (sumSquarePosition): B, R, {extreme (sumSquarePosition)=2}
+superStrategy (sumPosition) vs prunedSuper (sumPosition): B, R, {prunedSuper (sumPosition)=2}
+superStrategy (sumPosition) vs extreme (sumPosition): B, R, {extreme (sumPosition)=2}
+superStrategy (sumPosition) vs hard (sumSquarePosition): B, R, {hard (sumSquarePosition)=2}
+superStrategy (sumPosition) vs superStrategy (sumSquarePosition): D, D, {Draw=2}
+superStrategy (sumPosition) vs prunedSuper (sumSquarePosition): B, R, {prunedSuper (sumSquarePosition)=2}
+superStrategy (sumPosition) vs extreme (sumSquarePosition): B, R, {extreme (sumSquarePosition)=2}
+prunedSuper (sumPosition) vs extreme (sumPosition): B, R, {extreme (sumPosition)=2}
+prunedSuper (sumPosition) vs hard (sumSquarePosition): B, B, {hard (sumSquarePosition)=1, prunedSuper (sumPosition)=1}
+prunedSuper (sumPosition) vs superStrategy (sumSquarePosition): R, B, {prunedSuper (sumPosition)=2}
+prunedSuper (sumPosition) vs prunedSuper (sumSquarePosition): B, R, {prunedSuper (sumSquarePosition)=2}
+prunedSuper (sumPosition) vs extreme (sumSquarePosition): B, R, {extreme (sumSquarePosition)=2}
+extreme (sumPosition) vs hard (sumSquarePosition): B, B, {hard (sumSquarePosition)=1, extreme (sumPosition)=1}
+extreme (sumPosition) vs superStrategy (sumSquarePosition): R, B, {extreme (sumPosition)=2}
+extreme (sumPosition) vs prunedSuper (sumSquarePosition): R, B, {extreme (sumPosition)=2}
+extreme (sumPosition) vs extreme (sumSquarePosition): B, B, {extreme (sumSquarePosition)=1, extreme (sumPosition)=1}
+hard (sumSquarePosition) vs superStrategy (sumSquarePosition): R, B, {hard (sumSquarePosition)=2}
+hard (sumSquarePosition) vs prunedSuper (sumSquarePosition): B, R, {prunedSuper (sumSquarePosition)=2}
+hard (sumSquarePosition) vs extreme (sumSquarePosition): B, R, {extreme (sumSquarePosition)=2}
+superStrategy (sumSquarePosition) vs prunedSuper (sumSquarePosition): B, R, {prunedSuper (sumSquarePosition)=2}
+superStrategy (sumSquarePosition) vs extreme (sumSquarePosition): B, R, {extreme (sumSquarePosition)=2}
+prunedSuper (sumSquarePosition) vs extreme (sumSquarePosition): B, R, {extreme (sumSquarePosition)=2}
+
+games per: 11 * 2
+
+superStrategy (sumPosition): 0
+superStrategy (sumSquarePosition): 0
+prunedSuper (sumPosition): 6
+hard (sumPosition): 9
+superStrategy (mostForward): 10
+prunedSuper (mostForward): 10
+extreme (mostForward): 12
+hard (sumSquarePosition): 12
+prunedSuper (sumSquarePosition): 12
+hard (mostForward): 14
+extreme (sumPosition): 19
+extreme (sumSquarePosition): 21
+
+[prunedSuper (sumSquarePosition)]: 	avg: 0.00ms, 	max: 0ms, 	Count: 2754
+[hard (mostForward)]: 				avg: 0.08ms, 	max: 8ms, 	Count: 60644
+[hard (sumSquarePosition)]: 		avg: 0.09ms, 	max: 1ms, 	Count: 3178
+[hard (sumPosition)]: 				avg: 0.09ms, 	max: 2ms, 	Count: 4475
+[prunedSuper (sumPosition)]: 		avg: 0.10ms, 	max: 3ms, 	Count: 5921
+[superStrategy (sumPosition)]: 		avg: 0.12ms, 	max: 16ms, 	Count: 1141554
+[prunedSuper (mostForward)]: 		avg: 0.35ms, 	max: 13ms, 	Count: 171001
+[superStrategy (mostForward)]: 		avg: 0.35ms, 	max: 24ms, 	Count: 171981
+[superStrategy (sumSquarePosition)]:avg: 0.59ms, 	max: 22ms, 	Count: 309866
+[extreme (sumSquarePosition)]: 		avg: 16.08ms, 	max: 39ms, 	Count: 2891
+[extreme (mostForward)]: 			avg: 16.99ms, 	max: 46ms, 	Count: 6263
+[extreme (sumPosition)]: 			avg: 19.25ms, 	max: 48ms, 	Count: 5083
