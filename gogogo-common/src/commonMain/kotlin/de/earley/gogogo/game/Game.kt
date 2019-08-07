@@ -15,9 +15,11 @@ data class Point(val x: Int, val y: Int) {
 	fun down(): Point = Point(x, y + 1)
 }
 
-open class Game {
+open class Game(
+	initialState: State = State.inital
+) {
 
-	private val states: MutableList<State> = mutableListOf(State.inital)
+	private val states: MutableList<State> = mutableListOf(initialState)
 	val state: State get() = states.last()
 	val player: Player get() = state.playersTurn
 	val victor: Player? get() = state.victor

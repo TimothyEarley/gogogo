@@ -1,16 +1,16 @@
-package de.earley.gogogo.ui
+package controller
 
 import de.earley.gogogo.Log
-import de.earley.gogogo.ai.AI
 import de.earley.gogogo.ai.withUIAwareness
 import de.earley.gogogo.game.*
 import de.earley.gogogo.net.MatchInfo
 import de.earley.gogogo.net.Matchmaking
-import de.earley.gogogo.net.NetworkController
 import de.earley.gogogo.net.PlayerInfo
-import kotlinx.coroutines.*
-import org.w3c.dom.HTMLTableCellElement
-import kotlin.coroutines.CoroutineContext
+import de.earley.gogogo.ui.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.w3c.dom.HTMLElement
 import kotlin.dom.removeClass
 
 class GamePresenter(
@@ -29,22 +29,6 @@ class GamePresenter(
 		restart()
 	}
 
-	fun setClasses(element: HTMLTableCellElement, x: Int, y: Int) = with(element) {
-		removeClass("token-blue", "token-red", "clickable", "can-move", "selected")
-		game.grid[x, y]?.let { token ->
-			classList.add("token-${token.asClass()}", "clickable")
-		}
-
-		if (!game.isOver() && game.isEligibleToMove(Point(x, y))) {
-			classList.add("can-move")
-		}
-
-		if (selected != null && x == selected?.x && y == selected?.y) {
-			classList.add("selected")
-		}
-
-	}
-
 	fun turnText(): String = if (game.isOver()) {
 		"${game.victor} has won!"
 	} else {
@@ -53,7 +37,7 @@ class GamePresenter(
 
 	suspend fun restart() {
 		game = createGame()
-		gameUI.updateUI()
+		gameUI.updateUI(game, selected)
 	}
 
 	fun handleClick(x: Int, y: Int) {
@@ -70,7 +54,7 @@ class GamePresenter(
 			unselect()
 		} else {
 			selected = point
-			gameUI.cells[point.x, point.y]!!.classList.add("game-cell-selected")
+			gameUI.uiGrid[point]!!.classList.add("game-cell-selected")
 		}
 	}
 
@@ -85,7 +69,7 @@ class GamePresenter(
 
 	override suspend fun onMove(move: Move) {
 		unselect()
-		gameUI.updateUI()
+		gameUI.updateUI(game, selected)
 		// for some reason the UI is not properly updated unless we allow some yield tile
 		delay(100)
 	}
@@ -128,7 +112,7 @@ class GamePresenter(
 
 	private fun unselect() {
 		selected?.let { sel ->
-			gameUI.cells[sel.x, sel.y]!!.classList.remove("game-cell-selected")
+			gameUI.uiGrid[sel]!!.classList.remove("game-cell-selected")
 		}
 		selected = null
 	}
@@ -137,7 +121,7 @@ class GamePresenter(
 		require(mode == GameMode.Local) { "Only allowed in local play!" }
 		game.undo()
 		unselect()
-		gameUI.updateUI()
+		gameUI.updateUI(game, selected)
 	}
 
 	//TODO multiplayer

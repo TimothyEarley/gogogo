@@ -2,10 +2,7 @@ package de.earley.gogogo.ui
 
 import kotlinx.html.dom.create
 import kotlinx.html.js.option
-import org.w3c.dom.Document
-import org.w3c.dom.Element
-import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLSelectElement
+import org.w3c.dom.*
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
 import kotlin.browser.document
@@ -39,4 +36,22 @@ fun HTMLElement.hide() {
 
 fun HTMLElement.unhide() {
 	classList.remove("hidden")
+}
+
+class EventListenerCollection {
+	private val listeners: MutableList<Pair<HTMLElement, (Event) -> Unit>> = ArrayList()
+
+	operator fun plusAssign(listener: Pair<HTMLElement, (Event) -> Unit>) {
+		listeners += listener
+	}
+
+	/**
+	 * unregister listeners
+	 */
+	fun close() {
+		listeners.forEach { (elem, action) ->
+			elem.removeOnClick(action)
+		}
+		listeners.clear()
+	}
 }

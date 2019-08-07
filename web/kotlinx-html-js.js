@@ -98,14 +98,22 @@
   TextAreaWrap.prototype.constructor = TextAreaWrap;
   ThScope.prototype = Object.create(Enum.prototype);
   ThScope.prototype.constructor = ThScope;
+  LI.prototype = Object.create(HTMLTag.prototype);
+  LI.prototype.constructor = LI;
+  OL.prototype = Object.create(HTMLTag.prototype);
+  OL.prototype.constructor = OL;
   OPTION.prototype = Object.create(HTMLTag.prototype);
   OPTION.prototype.constructor = OPTION;
+  SPAN.prototype = Object.create(HTMLTag.prototype);
+  SPAN.prototype.constructor = SPAN;
   TABLE.prototype = Object.create(HTMLTag.prototype);
   TABLE.prototype.constructor = TABLE;
   TD.prototype = Object.create(HTMLTag.prototype);
   TD.prototype.constructor = TD;
   TR.prototype = Object.create(HTMLTag.prototype);
   TR.prototype.constructor = TR;
+  UL.prototype = Object.create(HTMLTag.prototype);
+  UL.prototype.constructor = UL;
   function JSDOMBuilder(document) {
     this.document = document;
     this.path_0 = ArrayList_init();
@@ -217,6 +225,16 @@
   JSDOMBuilder.$metadata$ = {kind: Kind_CLASS, simpleName: 'JSDOMBuilder', interfaces: [TagConsumer]};
   function get_create($receiver) {
     return new JSDOMBuilder($receiver);
+  }
+  function ol$lambda($receiver) {
+    return Unit;
+  }
+  function ol($receiver, classes, block) {
+    if (classes === void 0)
+      classes = null;
+    if (block === void 0)
+      block = ol$lambda;
+    return visitAndFinalize(new OL(attributesMapOf_0('class', classes), $receiver), $receiver, block);
   }
   function option$lambda(closure$content) {
     return function ($receiver) {
@@ -679,6 +697,16 @@
   var attributeRunAtEnumRunAtValues;
   var attributeTextAreaWrapEnumTextAreaWrapValues;
   var attributeThScopeEnumThScopeValues;
+  function ul$lambda_0($receiver) {
+    return Unit;
+  }
+  function ul_0($receiver, classes, block) {
+    if (classes === void 0)
+      classes = null;
+    if (block === void 0)
+      block = ul$lambda_0;
+    return visitAndFinalize(new UL(attributesMapOf_0('class', classes), $receiver), $receiver, block);
+  }
   var Entities$nbsp_instance;
   var Entities$lt_instance;
   var Entities$gt_instance;
@@ -1821,6 +1849,7 @@
   }
   function HtmlBlockInlineTag() {
   }
+  HtmlBlockInlineTag.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'HtmlBlockInlineTag', interfaces: [HtmlInlineTag, HtmlBlockTag, FlowPhrasingContent, CommonAttributeGroupFacade]};
   function CommonAttributeGroupFacadeFlowPhrasingSectioningContent() {
   }
   function CommonAttributeGroupFacadeFlowSectioningContent() {
@@ -1831,6 +1860,7 @@
   }
   function FlowPhrasingContent() {
   }
+  FlowPhrasingContent.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'FlowPhrasingContent', interfaces: [PhrasingContent, FlowContent]};
   function HtmlBlockTag() {
   }
   HtmlBlockTag.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'HtmlBlockTag', interfaces: [FlowContent, CommonAttributeGroupFacade]};
@@ -1838,6 +1868,7 @@
   }
   function HtmlInlineTag() {
   }
+  HtmlInlineTag.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'HtmlInlineTag', interfaces: [PhrasingContent, CommonAttributeGroupFacade]};
   function FlowContent() {
   }
   FlowContent.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'FlowContent', interfaces: [SectioningOrFlowContent, FlowOrPhrasingContent, FlowOrInteractiveContent, FlowOrInteractiveOrPhrasingContent, FlowOrMetaDataContent, FlowOrPhrasingOrMetaDataContent, FlowOrHeadingContent, Tag]};
@@ -1849,7 +1880,18 @@
   }
   function PhrasingContent() {
   }
+  PhrasingContent.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'PhrasingContent', interfaces: [FlowOrPhrasingContent, FlowOrPhrasingOrMetaDataContent, FlowOrInteractiveOrPhrasingContent, Tag]};
   function SectioningContent() {
+  }
+  function ul$lambda_1($receiver) {
+    return Unit;
+  }
+  function ul_1($receiver, classes, block) {
+    if (classes === void 0)
+      classes = null;
+    if (block === void 0)
+      block = ul$lambda_1;
+    visit(new UL(attributesMapOf_0('class', classes), $receiver.consumer), block);
   }
   function FlowOrHeadingContent() {
   }
@@ -1872,6 +1914,57 @@
   function FlowOrInteractiveOrPhrasingContent() {
   }
   FlowOrInteractiveOrPhrasingContent.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'FlowOrInteractiveOrPhrasingContent', interfaces: [Tag]};
+  function span$lambda_1($receiver) {
+    return Unit;
+  }
+  function span_1($receiver, classes, block) {
+    if (classes === void 0)
+      classes = null;
+    if (block === void 0)
+      block = span$lambda_1;
+    visit(new SPAN(attributesMapOf_0('class', classes), $receiver.consumer), block);
+  }
+  function LI(initialAttributes, consumer) {
+    HTMLTag.call(this, 'li', consumer, initialAttributes, null, false, false);
+    this.consumer_gvd6sf$_0 = consumer;
+  }
+  Object.defineProperty(LI.prototype, 'consumer', {get: function () {
+    return this.consumer_gvd6sf$_0;
+  }});
+  Object.defineProperty(LI.prototype, 'value', {get: function () {
+    return attributeStringString.get_txhc1s$(this, 'value');
+  }, set: function (newValue) {
+    attributeStringString.set_fid0sb$(this, 'value', newValue);
+  }});
+  LI.$metadata$ = {kind: Kind_CLASS, simpleName: 'LI', interfaces: [HtmlBlockTag, HTMLTag]};
+  function OL(initialAttributes, consumer) {
+    HTMLTag.call(this, 'ol', consumer, initialAttributes, null, false, false);
+    this.consumer_55glq7$_0 = consumer;
+  }
+  Object.defineProperty(OL.prototype, 'consumer', {get: function () {
+    return this.consumer_55glq7$_0;
+  }});
+  Object.defineProperty(OL.prototype, 'start', {get: function () {
+    return attributeStringString.get_txhc1s$(this, 'start');
+  }, set: function (newValue) {
+    attributeStringString.set_fid0sb$(this, 'start', newValue);
+  }});
+  Object.defineProperty(OL.prototype, 'reversed', {get: function () {
+    return attributeBooleanTicker.get_txhc1s$(this, 'reversed');
+  }, set: function (newValue) {
+    attributeBooleanTicker.set_fid0sb$(this, 'reversed', newValue);
+  }});
+  OL.$metadata$ = {kind: Kind_CLASS, simpleName: 'OL', interfaces: [HtmlBlockTag, HTMLTag]};
+  function li$lambda_1($receiver) {
+    return Unit;
+  }
+  function li_1($receiver, classes, block) {
+    if (classes === void 0)
+      classes = null;
+    if (block === void 0)
+      block = li$lambda_1;
+    visit(new LI(attributesMapOf_0('class', classes), $receiver.consumer), block);
+  }
   function OPTION(initialAttributes, consumer) {
     HTMLTag.call(this, 'option', consumer, initialAttributes, null, true, false);
     this.consumer_lt7f6f$_0 = consumer;
@@ -1900,6 +1993,14 @@
     attributeStringString.set_fid0sb$(this, 'value', newValue);
   }});
   OPTION.$metadata$ = {kind: Kind_CLASS, simpleName: 'OPTION', interfaces: [CommonAttributeGroupFacade, HTMLTag]};
+  function SPAN(initialAttributes, consumer) {
+    HTMLTag.call(this, 'span', consumer, initialAttributes, null, true, false);
+    this.consumer_7vq504$_0 = consumer;
+  }
+  Object.defineProperty(SPAN.prototype, 'consumer', {get: function () {
+    return this.consumer_7vq504$_0;
+  }});
+  SPAN.$metadata$ = {kind: Kind_CLASS, simpleName: 'SPAN', interfaces: [HtmlBlockInlineTag, HTMLTag]};
   function TABLE(initialAttributes, consumer) {
     HTMLTag.call(this, 'table', consumer, initialAttributes, null, false, false);
     this.consumer_gxb6a0$_0 = consumer;
@@ -1964,6 +2065,24 @@
       block = td$lambda_1;
     visit(new TD(attributesMapOf_0('class', classes), $receiver.consumer), block);
   }
+  function UL(initialAttributes, consumer) {
+    HTMLTag.call(this, 'ul', consumer, initialAttributes, null, false, false);
+    this.consumer_hykqwp$_0 = consumer;
+  }
+  Object.defineProperty(UL.prototype, 'consumer', {get: function () {
+    return this.consumer_hykqwp$_0;
+  }});
+  UL.$metadata$ = {kind: Kind_CLASS, simpleName: 'UL', interfaces: [HtmlBlockTag, HTMLTag]};
+  function li$lambda_2($receiver) {
+    return Unit;
+  }
+  function li_2($receiver, classes, block) {
+    if (classes === void 0)
+      classes = null;
+    if (block === void 0)
+      block = li$lambda_2;
+    visit(new LI(attributesMapOf_0('class', classes), $receiver.consumer), block);
+  }
   function HTMLTag(tagName, consumer, initialAttributes, namespace, inlineTag, emptyTag) {
     if (namespace === void 0)
       namespace = null;
@@ -2018,13 +2137,13 @@
   var letterRangeLowerCase;
   var letterRangeUpperCase;
   var digitRange;
-  var iterator = Kotlin.kotlin.text.iterator_gw00vp$;
   var package$kotlinx = _.kotlinx || (_.kotlinx = {});
   var package$html = package$kotlinx.html || (package$kotlinx.html = {});
   var package$js = package$html.js || (package$html.js = {});
   var package$dom = package$html.dom || (package$html.dom = {});
   package$dom.JSDOMBuilder = JSDOMBuilder;
   package$dom.get_create_4wc2mh$ = get_create;
+  package$js.ol_qmgqht$ = ol;
   package$js.option_61vnh7$ = option;
   package$js.table_uk5qws$ = table;
   package$html.TagConsumer = TagConsumer;
@@ -2059,6 +2178,7 @@
   package$html.FormServerAttributeGroupFacade = FormServerAttributeGroupFacade;
   package$html.InputServerAttributeGroupFacade = InputServerAttributeGroupFacade;
   package$html.SelectServerAttributeGroupFacade = SelectServerAttributeGroupFacade;
+  package$html.ul_e6giw3$ = ul_0;
   Object.defineProperty(Dir, 'ltr', {get: Dir$ltr_getInstance});
   Object.defineProperty(Dir, 'rtl', {get: Dir$rtl_getInstance});
   package$html.Dir = Dir;
@@ -2169,6 +2289,7 @@
   package$html.MetaDataContent = MetaDataContent;
   package$html.PhrasingContent = PhrasingContent;
   package$html.SectioningContent = SectioningContent;
+  package$html.ul_pzlyaf$ = ul_1;
   package$html.FlowOrHeadingContent = FlowOrHeadingContent;
   package$html.FlowOrMetaDataContent = FlowOrMetaDataContent;
   package$html.FlowOrInteractiveContent = FlowOrInteractiveContent;
@@ -2176,12 +2297,19 @@
   package$html.FlowOrPhrasingOrMetaDataContent = FlowOrPhrasingOrMetaDataContent;
   package$html.SectioningOrFlowContent = SectioningOrFlowContent;
   package$html.FlowOrInteractiveOrPhrasingContent = FlowOrInteractiveOrPhrasingContent;
+  package$html.span_6djfml$ = span_1;
+  package$html.LI = LI;
+  package$html.OL = OL;
+  package$html.li_nemw19$ = li_1;
   package$html.OPTION = OPTION;
+  package$html.SPAN = SPAN;
   package$html.TABLE = TABLE;
   package$html.tr_7wec05$ = tr_1;
   package$html.TD = TD;
   package$html.TR = TR;
   package$html.td_vlzo05$ = td_1;
+  package$html.UL = UL;
+  package$html.li_yzv5uh$ = li_2;
   package$html.HTMLTag = HTMLTag;
   var package$stream = package$html.stream || (package$html.stream = {});
   package$stream.HTMLStreamBuilder = HTMLStreamBuilder;

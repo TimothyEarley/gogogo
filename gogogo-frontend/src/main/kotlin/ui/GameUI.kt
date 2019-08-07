@@ -1,12 +1,12 @@
 package de.earley.gogogo.ui
 
 
+import controller.GamePresenter
 import de.earley.gogogo.Log
-import de.earley.gogogo.game.GAME_HEIGHT
-import de.earley.gogogo.game.GAME_WIDTH
+import de.earley.gogogo.game.Game
 import de.earley.gogogo.game.Player
+import de.earley.gogogo.game.Point
 import de.earley.gogogo.game.grid.Grid
-import de.earley.gogogo.game.grid.forEach
 import kotlinx.coroutines.*
 import kotlinx.html.dom.create
 import kotlinx.html.id
@@ -14,7 +14,6 @@ import kotlinx.html.js.table
 import kotlinx.html.td
 import kotlinx.html.tr
 import org.w3c.dom.*
-import org.w3c.dom.events.Event
 import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.coroutines.CoroutineContext
@@ -57,32 +56,11 @@ class GameUI private constructor(
 	private val spinner = document.get<HTMLDivElement>("connect-spinner")
 
 
-	private val eventListeners: MutableList<Pair<HTMLElement, (Event) -> Unit>> = ArrayList()
+	private val eventListeners = EventListenerCollection()
 
 	private val presenter = GamePresenter(this, mode)
-	val cells: Grid<HTMLTableCellElement> = createCells(GAME_WIDTH, GAME_HEIGHT)
 
-
-	private fun createCells(width: Int, height: Int): Grid<HTMLTableCellElement> {
-		val ui = document.create.table {
-			id = "game-grid"
-			(0 until height).forEach { y ->
-				tr {
-					(0 until width).forEach { x ->
-						td("game-cell") {
-							id = "game-cell-$x-$y"
-						}
-					}
-				}
-			}
-		}
-
-		table.replaceWith(ui)
-
-		return Grid.create(width, height) { x, y ->
-			document.get<HTMLTableCellElement>("game-cell-$x-$y")
-		}
-	}
+	val uiGrid = UIGrid(table)
 
 	init {
 		launch {
@@ -91,7 +69,6 @@ class GameUI private constructor(
 			checkGameMode()
 			delay(10)
 			presenter.start()
-			updateUI()
 		}
 	}
 
@@ -106,10 +83,8 @@ class GameUI private constructor(
 		redController.selectedIndex = 3
 	}
 
-	fun updateUI() {
-		cells.forEach { x, y, element ->
-			presenter.setClasses(element!!, x, y)
-		}
+	fun updateUI(game: Game, selected: Point?) {
+		uiGrid.setClasses(game,selected)
 
 		turnIndicator.innerText = presenter.turnText()
 
@@ -132,14 +107,7 @@ class GameUI private constructor(
 	}
 
 	private fun registerEventListeners() {
-		cells.forEach { x, y, element ->
-			element?.let {
-				eventListeners += it.onClick {
-					Log.debug { "Clicked $x, $y" }
-					presenter.handleClick(x, y)
-				}
-			}
-		}
+		uiGrid.onClick(eventListeners, presenter::handleClick)
 
 		eventListeners += restart.onClick {
 			launch { presenter.restart() }
@@ -164,10 +132,7 @@ class GameUI private constructor(
 
 	private fun exitGame() {
 
-		// unregister listeners
-		eventListeners.forEach { (elem, action) ->
-			elem.removeOnClick(action)
-		}
+		eventListeners.close()
 
 		presenter.exitGame()
 
