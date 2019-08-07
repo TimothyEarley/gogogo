@@ -1688,18 +1688,14 @@
     function map_10($receiver, transform) {
       return new TransformingSequence($receiver, transform);
     }
-    function max_13($receiver) {
+    function max_14($receiver) {
       var iterator = $receiver.iterator();
       if (!iterator.hasNext())
         return null;
       var max = iterator.next();
-      if (isNaN_2(max))
-        return max;
       while (iterator.hasNext()) {
         var e = iterator.next();
-        if (isNaN_2(e))
-          return e;
-        if (max < e)
+        if (Kotlin.compareTo(max, e) < 0)
           max = e;
       }
       return max;
@@ -7643,7 +7639,7 @@
     package$sequences.Sequence = Sequence;
     package$sequences.take_wuwhe2$ = take_9;
     package$sequences.map_z5avom$ = map_10;
-    package$sequences.max_8rwv2f$ = max_13;
+    package$sequences.max_gtzq52$ = max_14;
     package$sequences.asIterable_veqyi0$ = asIterable_10;
     var package$text = package$kotlin.text || (package$kotlin.text = {});
     package$text.get_lastIndex_gw00vp$ = get_lastIndex_9;

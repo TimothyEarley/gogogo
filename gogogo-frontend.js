@@ -43,8 +43,6 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   var getCallableRef = Kotlin.getCallableRef;
   var ai = $module$gogogo_common.de.earley.gogogo.ai;
   var AI = $module$gogogo_common.de.earley.gogogo.ai.AI;
-  var hardPruneLevel = $module$gogogo_common.de.earley.gogogo.ai.hardPruneLevel_vux9f0$;
-  var treeStrat = $module$gogogo_common.de.earley.gogogo.ai.treeStrat_dv5kkc$;
   var removeClass = Kotlin.kotlin.dom.removeClass_hhb33f$;
   var Point = $module$gogogo_common.de.earley.gogogo.game.Point;
   var ensureNotNull = Kotlin.ensureNotNull;
@@ -642,31 +640,19 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     }));
     ControllerTypes$Easy_instance = new ControllerTypes('Easy', 1, getCallableRef('withUIAwareness', function ($receiver) {
       return withUIAwareness($receiver);
-    }.bind(null, new AI(ai.easy))));
+    }.bind(null, new AI(ai.easy, void 0, 'easy'))));
     ControllerTypes$Medium_instance = new ControllerTypes('Medium', 2, getCallableRef('withUIAwareness', function ($receiver) {
       return withUIAwareness($receiver);
-    }.bind(null, new AI(ai.medium))));
+    }.bind(null, new AI(ai.medium, void 0, 'medium'))));
     ControllerTypes$Hard_instance = new ControllerTypes('Hard', 3, getCallableRef('withUIAwareness', function ($receiver) {
       return withUIAwareness($receiver);
-    }.bind(null, new AI(ai.hard))));
-    ControllerTypes$Level1Prune4_instance = new ControllerTypes('Level1Prune4', 4, getCallableRef('withUIAwareness', function ($receiver) {
+    }.bind(null, new AI(ai.hard, void 0, 'hard'))));
+    ControllerTypes$Super_instance = new ControllerTypes('Super', 4, getCallableRef('withUIAwareness', function ($receiver) {
       return withUIAwareness($receiver);
-    }.bind(null, new AI(hardPruneLevel(1, 4)))));
-    ControllerTypes$Level2Prune4_instance = new ControllerTypes('Level2Prune4', 5, getCallableRef('withUIAwareness', function ($receiver) {
+    }.bind(null, new AI(ai.superStrategy, void 0, 'super'))));
+    ControllerTypes$Extreme_instance = new ControllerTypes('Extreme', 5, getCallableRef('withUIAwareness', function ($receiver) {
       return withUIAwareness($receiver);
-    }.bind(null, new AI(hardPruneLevel(2, 4)))));
-    ControllerTypes$Level3Prune4_instance = new ControllerTypes('Level3Prune4', 6, getCallableRef('withUIAwareness', function ($receiver) {
-      return withUIAwareness($receiver);
-    }.bind(null, new AI(hardPruneLevel(3, 4)))));
-    ControllerTypes$Level4Prune4_instance = new ControllerTypes('Level4Prune4', 7, getCallableRef('withUIAwareness', function ($receiver) {
-      return withUIAwareness($receiver);
-    }.bind(null, new AI(hardPruneLevel(4, 4)))));
-    ControllerTypes$HardNL_instance = new ControllerTypes('HardNL', 8, getCallableRef('withUIAwareness', function ($receiver) {
-      return withUIAwareness($receiver);
-    }.bind(null, new AI(treeStrat(2, false, 0, ai.mediumNL)))));
-    ControllerTypes$HardForward_instance = new ControllerTypes('HardForward', 9, getCallableRef('withUIAwareness', function ($receiver) {
-      return withUIAwareness($receiver);
-    }.bind(null, new AI(treeStrat(2, false, 0, ai.mediumMF)))));
+    }.bind(null, new AI(ai.extreme, void 0, 'extreme'))));
   }
   var ControllerTypes$Human_instance;
   function ControllerTypes$Human_getInstance() {
@@ -688,39 +674,19 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     ControllerTypes_initFields();
     return ControllerTypes$Hard_instance;
   }
-  var ControllerTypes$Level1Prune4_instance;
-  function ControllerTypes$Level1Prune4_getInstance() {
+  var ControllerTypes$Super_instance;
+  function ControllerTypes$Super_getInstance() {
     ControllerTypes_initFields();
-    return ControllerTypes$Level1Prune4_instance;
+    return ControllerTypes$Super_instance;
   }
-  var ControllerTypes$Level2Prune4_instance;
-  function ControllerTypes$Level2Prune4_getInstance() {
+  var ControllerTypes$Extreme_instance;
+  function ControllerTypes$Extreme_getInstance() {
     ControllerTypes_initFields();
-    return ControllerTypes$Level2Prune4_instance;
-  }
-  var ControllerTypes$Level3Prune4_instance;
-  function ControllerTypes$Level3Prune4_getInstance() {
-    ControllerTypes_initFields();
-    return ControllerTypes$Level3Prune4_instance;
-  }
-  var ControllerTypes$Level4Prune4_instance;
-  function ControllerTypes$Level4Prune4_getInstance() {
-    ControllerTypes_initFields();
-    return ControllerTypes$Level4Prune4_instance;
-  }
-  var ControllerTypes$HardNL_instance;
-  function ControllerTypes$HardNL_getInstance() {
-    ControllerTypes_initFields();
-    return ControllerTypes$HardNL_instance;
-  }
-  var ControllerTypes$HardForward_instance;
-  function ControllerTypes$HardForward_getInstance() {
-    ControllerTypes_initFields();
-    return ControllerTypes$HardForward_instance;
+    return ControllerTypes$Extreme_instance;
   }
   ControllerTypes.$metadata$ = {kind: Kind_CLASS, simpleName: 'ControllerTypes', interfaces: [Enum]};
   function ControllerTypes$values() {
-    return [ControllerTypes$Human_getInstance(), ControllerTypes$Easy_getInstance(), ControllerTypes$Medium_getInstance(), ControllerTypes$Hard_getInstance(), ControllerTypes$Level1Prune4_getInstance(), ControllerTypes$Level2Prune4_getInstance(), ControllerTypes$Level3Prune4_getInstance(), ControllerTypes$Level4Prune4_getInstance(), ControllerTypes$HardNL_getInstance(), ControllerTypes$HardForward_getInstance()];
+    return [ControllerTypes$Human_getInstance(), ControllerTypes$Easy_getInstance(), ControllerTypes$Medium_getInstance(), ControllerTypes$Hard_getInstance(), ControllerTypes$Super_getInstance(), ControllerTypes$Extreme_getInstance()];
   }
   ControllerTypes.values = ControllerTypes$values;
   function ControllerTypes$valueOf(name) {
@@ -733,18 +699,10 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
         return ControllerTypes$Medium_getInstance();
       case 'Hard':
         return ControllerTypes$Hard_getInstance();
-      case 'Level1Prune4':
-        return ControllerTypes$Level1Prune4_getInstance();
-      case 'Level2Prune4':
-        return ControllerTypes$Level2Prune4_getInstance();
-      case 'Level3Prune4':
-        return ControllerTypes$Level3Prune4_getInstance();
-      case 'Level4Prune4':
-        return ControllerTypes$Level4Prune4_getInstance();
-      case 'HardNL':
-        return ControllerTypes$HardNL_getInstance();
-      case 'HardForward':
-        return ControllerTypes$HardForward_getInstance();
+      case 'Super':
+        return ControllerTypes$Super_getInstance();
+      case 'Extreme':
+        return ControllerTypes$Extreme_getInstance();
       default:throwISE('No enum constant de.earley.gogogo.ui.ControllerTypes.' + name);
     }
   }
@@ -1064,7 +1022,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
       try {
         switch (this.state_0) {
           case 0:
-            return this.local$this$.start_e9pf1l$(this.local$$receiver), Unit;
+            return this.local$this$.start_e9pf1l$(this.local$$receiver);
           case 1:
             throw this.exception_0;
           default:this.state_0 = 1;
@@ -1770,12 +1728,8 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   Object.defineProperty(ControllerTypes, 'Easy', {get: ControllerTypes$Easy_getInstance});
   Object.defineProperty(ControllerTypes, 'Medium', {get: ControllerTypes$Medium_getInstance});
   Object.defineProperty(ControllerTypes, 'Hard', {get: ControllerTypes$Hard_getInstance});
-  Object.defineProperty(ControllerTypes, 'Level1Prune4', {get: ControllerTypes$Level1Prune4_getInstance});
-  Object.defineProperty(ControllerTypes, 'Level2Prune4', {get: ControllerTypes$Level2Prune4_getInstance});
-  Object.defineProperty(ControllerTypes, 'Level3Prune4', {get: ControllerTypes$Level3Prune4_getInstance});
-  Object.defineProperty(ControllerTypes, 'Level4Prune4', {get: ControllerTypes$Level4Prune4_getInstance});
-  Object.defineProperty(ControllerTypes, 'HardNL', {get: ControllerTypes$HardNL_getInstance});
-  Object.defineProperty(ControllerTypes, 'HardForward', {get: ControllerTypes$HardForward_getInstance});
+  Object.defineProperty(ControllerTypes, 'Super', {get: ControllerTypes$Super_getInstance});
+  Object.defineProperty(ControllerTypes, 'Extreme', {get: ControllerTypes$Extreme_getInstance});
   var package$ui = package$gogogo.ui || (package$gogogo.ui = {});
   package$ui.ControllerTypes = ControllerTypes;
   package$ui.controllerTypesAsString = controllerTypesAsString;
