@@ -1,8 +1,6 @@
 package de.earley.gogogo.net
 
 import de.earley.gogogo.game.Move
-import de.earley.gogogo.game.moveFromNetFormat
-import de.earley.gogogo.game.toNetFormat
 import org.w3c.dom.WebSocket
 
 class ClosedException : Exception()
@@ -12,14 +10,14 @@ class Connection(
 ) {
 
 	fun sendMove(move: Move) {
-		ws.send(move.toNetFormat())
+		ws.send(MoveNetFormat.encodeNullable(move))
 	}
 
 	suspend fun getMove(lastMove: Move?): Move {
 		if (lastMove != null) sendMove(lastMove)
 		val msg = ws.receive()
 		if (msg == "CLOSE") throw ClosedException()
-		else return msg.moveFromNetFormat()
+		else return MoveNetFormat.decode(msg)
 	}
 
 	suspend fun setupMatch(playerInfo: PlayerInfo): MatchInfo {

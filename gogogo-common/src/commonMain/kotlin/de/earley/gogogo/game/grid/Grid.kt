@@ -46,29 +46,5 @@ inline fun <T> Grid<T>.forEach(action: (Int, Int, T?) -> Unit) {
 	}
 }
 
-// all these reified things are because of multiplatform (idk)
-
-inline fun <reified T> Grid<T>.copy(alterations: Alterations<T, MutableGrid<T>>.() -> Unit) =
-	Alterations(this.toMutableGrid()).also(alterations).create()
-
-
-class Alterations<T, G : MutableGrid<T>>(
-	private val workingGrid: G
-) {
-
-	operator fun set(p: Point, value: T?) {
-		workingGrid[p.x, p.y] = value
-	}
-
-	operator fun set(x: Int, y: Int, value: T?) {
-		workingGrid[x, y] = value
-	}
-
-	fun create(): G = workingGrid
-}
-
-inline fun <T> Grid<T>.sumBy(value: (Int, Int, T?) -> Int): Int {
-	var sum = 0
-	this.forEach { x, y, t -> sum += value(x, y, t) }
-	return sum
-}
+fun <T> Grid<T>.isInGrid(x: Int, y: Int): Boolean =
+	x in 0 until width && y in 0 until height

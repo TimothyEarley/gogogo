@@ -1,6 +1,5 @@
 plugins {
 	kotlin("multiplatform") version "1.3.20"
-	id("kotlinx-serialization") version Versions.serialisationPlugin
 }
 
 kotlin {
@@ -13,7 +12,6 @@ kotlin {
 			dependencies {
 				implementation(Depends.Stdlib.common)
 				implementation(Depends.Coroutines.common)
-				implementation(Depends.Serialisation.common)
 			}
 		}
 
@@ -21,7 +19,6 @@ kotlin {
 			dependencies {
 				implementation(Depends.Stdlib.js)
 				implementation(Depends.Coroutines.js)
-				implementation(Depends.Serialisation.js)
 			}
 		}
 
@@ -29,7 +26,6 @@ kotlin {
 			dependencies {
 				implementation(Depends.Stdlib.jvm)
 				implementation(Depends.Coroutines.jvm)
-				implementation(Depends.Serialisation.jvm)
 			}
 		}
 	}

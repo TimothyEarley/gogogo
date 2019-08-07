@@ -1,5 +1,3 @@
-import org.apache.tools.ant.taskdefs.optional.depend.Depend
-import org.apache.tools.ant.types.optional.depend.DependScanner
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
 
 plugins {
@@ -16,8 +14,6 @@ dependencies {
     compile(Depends.Stdlib.js)
     compile(Depends.Coroutines.js)
     compile(Depends.JS.html)
-    // indirect dependency, but otherwise not picked up by dce
-    compile(Depends.Serialisation.js)
 }
 
 

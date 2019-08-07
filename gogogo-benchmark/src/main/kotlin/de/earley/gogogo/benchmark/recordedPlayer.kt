@@ -3,8 +3,9 @@ package de.earley.gogogo.benchmark
 import de.earley.gogogo.ai.bestMove
 import de.earley.gogogo.ai.extreme
 import de.earley.gogogo.game.*
+import de.earley.gogogo.net.MoveNetFormat
+import de.earley.gogogo.net.StateNetFormat
 import java.io.File
-import kotlin.streams.toList
 
 object RecordedPlayer : PlayerController {
 	override val name: String = "Recorded Player"
@@ -49,9 +50,9 @@ object RecordedPlayer : PlayerController {
 		file.createNewFile()
 		println("Saving to ${file.absolutePath}")
 		database.forEach { (state, move) ->
-			file.appendText(state.toReducedNetFormat())
+			file.appendText(StateNetFormat.encodeNullable(state))
 			file.appendText("\n")
-			file.appendText(move.toReducedNetFormat())
+			file.appendText(MoveNetFormat.encodeNullable(move))
 			file.appendText("\n")
 		}
 	}
@@ -60,7 +61,7 @@ object RecordedPlayer : PlayerController {
 		println("Loading from ${file.absolutePath}")
 		database.clear()
 		file.readLines().windowed(2, 2).forEach { (state, move) ->
-			database[state.stateFromReducedNetFormat()] = move.moveFromReducedNetFormat()
+			database[StateNetFormat.decode(state)] = MoveNetFormat.decode(move)
 		}
 	}
 }

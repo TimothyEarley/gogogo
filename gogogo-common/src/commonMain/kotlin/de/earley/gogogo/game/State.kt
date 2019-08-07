@@ -2,7 +2,6 @@ package de.earley.gogogo.game
 
 import de.earley.gogogo.game.grid.GameGrid
 import de.earley.gogogo.game.grid.*
-import kotlinx.serialization.Serializable
 import kotlin.math.abs
 
 sealed class MoveResult {
@@ -17,7 +16,6 @@ sealed class MoveResult {
 	}
 }
 
-@Serializable
 data class State(
 	val playersTurn: Player,
 	val lastPushed: Point?,
@@ -71,7 +69,7 @@ data class State(
 	private fun findMoveError(from: Point, to: Point): MoveResult.Error? = when {
 		playersTurn != grid[from] -> MoveResult.Error.NotPlayersPiece
 		lastPushed == from -> MoveResult.Error.WasPushed
-		! grid.validPosition(to.x, to.y) -> MoveResult.Error.CannotMoveOfBoard
+		! grid.isInGrid(to.x, to.y) -> MoveResult.Error.CannotMoveOfBoard
 		! isAdjacent(from, to) -> MoveResult.Error.NotAdjacent
 		! canPush(from, to) -> MoveResult.Error.CannotPush
 		isRepeatedMove(from, to) -> MoveResult.Error.RepeatedMove

@@ -2,11 +2,9 @@ package de.earley.gogogo.game.grid
 
 import de.earley.gogogo.game.Player
 import de.earley.gogogo.game.Point
-import kotlinx.serialization.Serializable
 
 // non generic for JS serialisation
 
-@Serializable
 class GameGrid private constructor(
 	override val width: Int,
 	override  val height: Int,
@@ -37,7 +35,7 @@ class GameGrid private constructor(
 
 	//TODO code duplication with GenericGrid
 	override operator fun get(x: Int, y: Int): Player? =
-		if (validPosition(x, y)) elems[y * width + x] else null
+		if (isInGrid(x, y)) elems[y * width + x] else null
 
 	override fun getAllFor(t: Player): List<Point> {
 		return tokenIndexes[t] ?: emptyList()
@@ -46,7 +44,7 @@ class GameGrid private constructor(
 	// to be used only when creating
 	//TODO this is a hot method -> optimize
 	override fun set(x: Int, y: Int, t: Player?) {
-		if (validPosition(x, y)) {
+		if (isInGrid(x, y)) {
 			val i = y * width + x
 
 			val prev = elems[i]
@@ -59,9 +57,6 @@ class GameGrid private constructor(
 			elems[i] = t
 		}
 	}
-
-	fun validPosition(x: Int, y: Int): Boolean =
-		x in 0..(width - 1) && y in 0..(height-1)
 
 	override fun toMutableGrid(): MutableGrid<Player> {
 		return GameGrid(width, height, elems.copyOf(), tokenIndexes.deepClone())

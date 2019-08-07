@@ -12,12 +12,6 @@ object Depends {
 		const val jvm = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
 	}
 
-	object Serialisation {
-		const val common = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${Versions.serialisationRuntime}"
-		const val js = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:${Versions.serialisationRuntime}"
-		const val jvm = "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.serialisationRuntime}"
-	}
-
 	object JS {
 		const val html = "org.jetbrains.kotlinx:kotlinx-html-js:${Versions.html}"
 	}

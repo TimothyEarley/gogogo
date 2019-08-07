@@ -1,75 +1,91 @@
-package de.earley.gogogo.game
+package de.earley.gogogo.net
 
+import de.earley.gogogo.game.Move
+import de.earley.gogogo.game.Player
+import de.earley.gogogo.game.Point
+import de.earley.gogogo.game.State
 import de.earley.gogogo.game.grid.GameGrid
-import kotlinx.serialization.json.JSON
 
+// wouldn't this be a nice type class?
 
-//fun State.toNetFormat(): String = JSON.stringify(State.serializer(), this)
-//fun String.stateFromNetFormat(): State = JSON.parse(State.serializer(), this)
+interface NetFormat<T> {
+	fun encode(t: T): String
+	fun encodeNullable(t: T?): String = when (t) {
+		null -> "null"
+		else -> encodeNullable(t)
+	}
+	fun decode(s: String): T
+	fun decodeNullable(s: String): T? = when (s) {
+		"null" -> null
+		else -> decode(s)
+	}
+}
 
-//TODO code net formats by hand (thus reduce size dramatically)
-
-fun State.toNetFormat(): String = JSON.stringify(State.serializer(), this)
-fun String.stateFromNetFormat(): State = JSON.parse(State.serializer(), this)
-
-fun Move.toNetFormat(): String = JSON.stringify(Move.serializer(), this)
-fun String.moveFromNetFormat(): Move = JSON.parse(Move.serializer(), this)
-
-fun GameGrid.toNetFormat(): String = JSON.stringify(GameGrid.serializer(), this)
-fun String.gameGridFromNetFormat(): GameGrid = JSON.parse(GameGrid.serializer(), this)
-
-
-
-fun Point.toReducedNetFormat(): String = "$x,$y"
-fun String.pointFromReducedNetFormat(): Point =
-	split(",", limit = 2)
+object PointNetFormat : NetFormat<Point> {
+	override fun encode(t: Point): String = "${t.x},${t.y}"
+	override fun decode(s: String): Point = s.split(",", limit = 2)
 		.let { (x, y) -> Point(x.toInt(), y.toInt()) }
+}
 
-fun Move.toReducedNetFormat(): String = "${from.toReducedNetFormat()} -> ${to.toReducedNetFormat()}"
-fun String.moveFromReducedNetFormat(): Move =
-	split(" -> ", limit = 2)
-		.map { it.pointFromReducedNetFormat() }
-		.let { (from, to) -> Move(from, to) }
-
-fun State.toReducedNetFormat(): String =
-	"$playersTurn;${grid.toReducedNetFormat()};${lastPushed?.toReducedNetFormat()};${lastMove?.toReducedNetFormat()};${prev?.toReducedNetFormat()}"
-
-fun String.stateFromReducedNetFormat(): State =
-	split(";", limit = 5).let { (playersTurn, grid, lastPushed, lastMove, prev) ->
-		State(
-			playersTurn = Player.valueOf(playersTurn),
-			grid = grid.gameGridFromReducedNetFormat(),
-			lastPushed = lastPushed.parseNull()?.pointFromReducedNetFormat(),
-			lastMove = lastMove.parseNull()?.moveFromReducedNetFormat(),
-			prev = prev.parseNull()?.stateFromReducedNetFormat()
-		)
+object MoveNetFormat : NetFormat<Move> {
+	override fun encode(t: Move): String = with(PointNetFormat) {
+		"${encode(t.from)} -> ${encode(t.to)}"
 	}
 
-
-fun GameGrid.toReducedNetFormat(): String =
-	"${this.width},${this.height},${this.elems.joinToString("", transform = Player?::toReducedNetFormat)}"
-
-fun String.gameGridFromReducedNetFormat(): GameGrid = split(",", limit = 3).let { (width, height, elems) ->
-	GameGrid.create(
-		width = width.toInt(),
-		height = height.toInt(),
-		elems = elems.toList()
-			.map(Char::toString)
-			.map(String::playerFromReducedNetFormat)
-			.toTypedArray()
-	)
+	override fun decode(s: String): Move = s.split(" -> ", limit = 2)
+		.map(PointNetFormat::decode)
+		.let { (from, to) -> Move(from, to) }
 }
 
-private fun Player?.toReducedNetFormat() = when(this) {
-	Player.Red -> "R"
-	Player.Blue -> "B"
-	null -> "_"
-}
-private fun String.playerFromReducedNetFormat(): Player? = when(this) {
-	"R" -> Player.Red
-	"B" -> Player.Blue
-	else -> null
+// multiple contexts when?
+object StateNetFormat : NetFormat<State> {
+	override fun encode(t: State): String = with(t) { with(PointNetFormat) { with(MoveNetFormat) { with(
+		GameGridNetFormat
+	) {
+		"$playersTurn;${encode(grid)};${encodeNullable(lastPushed)};${encodeNullable(lastMove)};${encodeNullable(prev)}"
+	} } } }
+
+	override fun decode(s: String): State =
+		s.split(";", limit = 5).let { (playersTurn, grid, lastPushed, lastMove, prev) ->
+			State(
+				playersTurn = Player.valueOf(playersTurn),
+				grid = GameGridNetFormat.decode(grid),
+				lastPushed = PointNetFormat.decodeNullable(lastPushed),
+				lastMove = MoveNetFormat.decodeNullable(lastMove),
+				prev = decodeNullable(prev)
+			)
+		}
 }
 
 
-private fun String.parseNull(): String? = if (this == "null") null else this
+object GameGridNetFormat : NetFormat<GameGrid> {
+	override fun encode(t: GameGrid): String =
+		"${t.width},${t.height},${t.elems.joinToString("", transform = PlayerNetFormat::encodeNullable)}"
+
+	override fun decode(s: String): GameGrid =
+		s.split(",", limit = 3).let { (width, height, elems) ->
+		GameGrid.create(
+			width = width.toInt(),
+			height = height.toInt(),
+			elems = elems.toList()
+				.map(Char::toString)
+				.map(PlayerNetFormat::decode)
+				.toTypedArray()
+		)
+	}
+}
+
+object PlayerNetFormat : NetFormat<Player?> {
+	override fun encode(t: Player?): String = when(t) {
+		Player.Red -> "R"
+		Player.Blue -> "B"
+		null -> "_"
+	}
+
+	override fun decode(s: String): Player? = when(s) {
+		"R" -> Player.Red
+		"B" -> Player.Blue
+		else -> null
+	}
+
+}

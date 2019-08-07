@@ -2,6 +2,7 @@ package de.earley.gogogo.backend
 
 import de.earley.gogogo.game.*
 import de.earley.gogogo.net.Messages
+import de.earley.gogogo.net.MoveNetFormat
 import de.earley.gogogo.net.PlayerInfo
 import io.ktor.http.cio.websocket.WebSocketSession
 import io.ktor.http.cio.websocket.send
@@ -46,11 +47,12 @@ data class ConnectedPlayer(
 
 			is State.INGAME -> {
 				// 1. get the move from the player
-				val move = msg.moveFromNetFormat()
+				val move = MoveNetFormat.decode(msg)
 				// 2. verify
+				//TODO what does throwing an exception here do? better feedback
 				require(s.game.move(move.from, move.to)) { "CHEATER!!!!" }
 				// 2. pass on to opponent
-				s.opponent.ws.send(move.toNetFormat())
+				s.opponent.ws.send(MoveNetFormat.encodeNullable(move))
 			}
 		}
 	}

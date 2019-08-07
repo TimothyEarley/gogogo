@@ -2,12 +2,10 @@ package de.earley.gogogo.game
 
 import de.earley.gogogo.game.grid.GameGrid
 import de.earley.gogogo.game.grid.Grid
-import kotlinx.serialization.Serializable
 
 const val GAME_WIDTH = 6
 const val GAME_HEIGHT = 5
 
-@Serializable
 data class Point(val x: Int, val y: Int) {
 	override fun toString(): String = "($x/$y)"
 
