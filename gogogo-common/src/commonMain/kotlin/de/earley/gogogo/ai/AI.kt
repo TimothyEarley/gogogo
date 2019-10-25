@@ -4,6 +4,9 @@ package de.earley.gogogo.ai
 
 import de.earley.gogogo.game.*
 
+/**
+ * the higher the [Int] better this [State] is for the [Player]
+ */
 typealias Strategy = (Player, State) -> Int
 
 fun Strategy.map(f: (Player, State, Int) -> Int): Strategy = { player, state ->
@@ -22,7 +25,7 @@ fun Strategy.debugBestMove(player: Player, state: State): MoveToState {
 		this(player, it.state) to it
 	}.maxBy { it.first } ?: error("No valid moves for player $player with state=${state.debugString()}")
 
-	println("Player $player thinks the move is worth: ${best.first} points. (easy: ${easy(player, best.second.state)})")
+	println("Player $player thinks the move is worth: ${best.first} points.")
 
 	return best.second
 }

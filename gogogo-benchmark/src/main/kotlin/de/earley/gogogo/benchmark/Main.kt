@@ -1,29 +1,42 @@
 package de.earley.gogogo.benchmark
 
-import de.earley.gogogo.ai.*
+import de.earley.gogogo.ai.Evaluations.mostForward
+import de.earley.gogogo.ai.Evaluations.sumSquarePosition
+import de.earley.gogogo.ai.Strategy
+import de.earley.gogogo.ai.bestMove
+import de.earley.gogogo.ai.random
+import de.earley.gogogo.ai.treeSearchStrategy
 import de.earley.gogogo.game.*
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 import kotlin.concurrent.thread
+import kotlin.random.Random
 
-val evaluations = mapOf(
-	"mostForward" to Evaluations.mostForward,
-	"sumPosition" to Evaluations.sumPosition,
-	"sumSquarePosition" to Evaluations.sumSquarePosition
-)
 
-fun setOfStrategies(name: String, baseStrategy: Strategy): Map<String, Strategy> = mapOf(
-	"hard ($name)" to treeSearchStrategy(2, baseStrategy, false),
-	"superStrategy ($name)" to treeSearchStrategy(3, baseStrategy, false),
-	"prunedSuper ($name)" to treeSearchStrategy(3, baseStrategy, true, 10),
-	"extreme ($name)" to treeSearchStrategy(4, baseStrategy, false)
-)
+fun allTreeSearchOptions(minLevel: Int, maxLevel: Int, prunes: List<Int>, bases: Map<String, Strategy>, withNoPrune: Boolean = true): List<Benchmarked> = sequence {
+	(minLevel..maxLevel).forEach { level ->
+		bases.forEach { (name, base) ->
+			if (withNoPrune)
+				yield(BenchmarkStrategy("$level: $name (-)", treeSearchStrategy(level, base, false)))
+			prunes.forEach { prune ->
+				yield(BenchmarkStrategy("$level: $name ($prune)", treeSearchStrategy(level, base, true, prune)))
+			}
+		}
+	}
+}.toList()
 
-val allOpponents = evaluations
-	.map { (name, eval) -> setOfStrategies(name, eval) }
-	.fold(emptyMap<String, Strategy>()) { acc, t -> acc + t }
-	.map { (name, strategy) -> BenchmarkStrategy(name, strategy) }
+val ranking = mapOf(
+	"4/ss/200" to treeSearchStrategy(4, sumSquarePosition, true, 200),
+	"4/ss/-" to treeSearchStrategy(4, sumSquarePosition, false),
+	"1/mf/-" to treeSearchStrategy(1, mostForward, false),
+	"3/ss/-" to treeSearchStrategy(3, sumSquarePosition, false)
+).map { BenchmarkStrategy(it.key, it.value) }
+
+val challengers = mapOf(
+	"5/ss/30" to treeSearchStrategy(5, sumSquarePosition, true, 40),
+	"4/(1/mf/-)/200" to treeSearchStrategy(4, treeSearchStrategy(1, mostForward, false), true, 200),
+	"5/(1/mf/-)/200" to treeSearchStrategy(5, treeSearchStrategy(1, mostForward, false), true, 200),
+	"6/(1/mf/-)/40" to treeSearchStrategy(5, treeSearchStrategy(1, mostForward, false), true, 40)
+	).map { BenchmarkStrategy(it.key, it.value) }
 
 fun main() {
 	val file = File("player.save")
@@ -33,103 +46,42 @@ fun main() {
 		RecordedPlayer.save(file)
 	})
 
-	val opponents = listOf(
-		RecordedPlayer.mockBenchmarked("player"),
-		RecordedPlayer.mockBenchmarked("player"),
-//		BenchmarkStrategy("randomBase", randomBase)
-		BenchmarkStrategy("easy", easy),
-		BenchmarkStrategy("medium", medium),
-		BenchmarkStrategy("hard", hard),
-		BenchmarkStrategy("superStrategy", superStrategy),
-		BenchmarkStrategy("extreme", extreme),
-		BenchmarkStrategy("base", base)
-//		BenchmarkStrategy("random", random)
-	)
+	val human = RecordedPlayer.mockBenchmarked("player")
 
-	league(opponents)
+	league(ranking + challengers)
 }
 
+private val rand = Random(1337)
+private val randStrat = random(rand)
+fun generateRandomState(): State {
+	val game = Game()
+	val turns = rand.nextInt(1, 10)
+	repeat(turns) {
+		val move = randStrat.bestMove(game.player, game.state).move
+		game.move(move.from, move.to)
+	}
+	return game.state
+}
+
+//TODO add random starting games and give each opponent a chance to play it.
+// with a fixed seed this should be reproducible. This should make testing more robust
 fun league(strats: List<Benchmarked>) {
-	val score: MutableMap<Benchmarked, Int> = mutableMapOf()
-	for (first in 0 until strats.size) {
-		for (second in first + 1 until strats.size) {
-			val a = strats[first]
-			val b = strats[second]
-			val (aScore, bScore) = benchmark(a, b, 2)
-			score.merge(a, aScore, Int::plus)
-			score.merge(b, bScore, Int::plus)
-		}
+	val hasHuman = strats.filter { it.ai == RecordedPlayer }.isNotEmpty()
+	val score = run(
+		strats,
+		if (hasHuman) 1 else 4,
+		if (hasHuman) Long.MAX_VALUE else 30 * 1000L,
+		(1..10).map { generateRandomState() } + State.inital
+	)
+
+	println("\nScores:\n")
+	score.entries.sortedBy { -it.value }.forEachIndexed { i, e ->
+		println("${i + 1}. ${e.key.name}: ${e.value}")
 	}
 
-	score.entries.sortedBy { it.value }.forEach {
-		println("${it.key.name}: ${it.value}")
-	}
+	println("\nStats:\n")
 
 	strats.sortedBy { it.avg() }.forEach {
 			println(it.stats())
 	}
 }
-
-fun benchmark(a: Benchmarked, b: Benchmarked, n: Int): Pair<Int, Int> {
-
-	return runBlocking {
-
-		print("${a.name} vs ${b.name}: ")
-
-		val result = runBothSidesRepeated(
-			a.name, a.ai,
-			b.name, b.ai,
-			n)
-
-		println(result)
-
-		result.getOrDefault(a.name, 0) to result.getOrDefault(b.name, 0)
-	}
-
-}
-
-suspend fun runBothSidesRepeated(nameA: String, a: PlayerController, nameB: String, b: PlayerController, n: Int): Map<String, Int> {
-
-	fun Map<Player?, Int>.mapKeysTo(red: String, blue: String): Map<String, Int> =
-			mapKeys { when (it.key) {
-				Player.Red -> red
-				Player.Blue -> blue
-				else -> "Draw"
-			}}
-
-	val wins = runSameSideRepeated(a, b, n/2)
-		.mapKeysTo(nameA, nameB)
-		.toMutableMap()
-
-	runSameSideRepeated(b, a, n/2)
-		.mapKeysTo(nameB, nameA)
-		.forEach { key, value -> wins.merge(key, value, Int::plus) }
-
-	return wins
-}
-
-
-suspend fun runSameSideRepeated(red: PlayerController, blue: PlayerController, n: Int): Map<Player?, Int> {
-	return (1..n).map {
-		runGame(red, blue).also {
-			print(it?.name?.get(0) ?: "D")
-		}
-	}.groupingBy { it }.eachCount().also {
-		print(", ")
-	}
-}
-
-object NoOpUiHook : UIHook {
-	override fun onSelect(point: Point?) {}
-	override fun onGameEnd() {}
-	override suspend fun onMove(move: Move) {}
-}
-
-suspend fun runGame(red: PlayerController, blue: PlayerController, timeout: Long = Long.MAX_VALUE): Player? =
-	withTimeoutOrNull(timeout) {
-		val game = ControlledGame(red, blue, NoOpUiHook)
-		with(game) {
-			start().join()
-		}
-		game.victor
-	}

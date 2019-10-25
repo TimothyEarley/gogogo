@@ -11,12 +11,12 @@ import de.earley.gogogo.game.grid.GameGrid
 interface NetFormat<T> {
 	fun encode(t: T): String
 	fun encodeNullable(t: T?): String = when (t) {
-		null -> "null"
-		else -> encodeNullable(t)
+		null -> "_"
+		else -> encode(t)
 	}
 	fun decode(s: String): T
 	fun decodeNullable(s: String): T? = when (s) {
-		"null" -> null
+		"_" -> null
 		else -> decode(s)
 	}
 }

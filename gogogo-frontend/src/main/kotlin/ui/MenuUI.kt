@@ -7,6 +7,8 @@ import kotlin.browser.document
 
 class MenuUI {
 
+	private val enableTestAI = false
+
 	private val btnPlayLocal: HTMLButtonElement = document.get("btn-play-local")
 	private val btnPlayOnline: HTMLButtonElement = document.get("btn-play-online")
 	private val btnRules: HTMLButtonElement = document.get("btn-rules")
@@ -42,6 +44,7 @@ class MenuUI {
 			menu.hide()
 		}
 
+		if (!enableTestAI) btnTestAI.hide()
 		btnTestAI.onClick {
 			menu.hide()
 			aiTest.unhide()

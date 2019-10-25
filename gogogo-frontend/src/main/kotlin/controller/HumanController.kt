@@ -37,7 +37,13 @@ class HumanController : PlayerController {
 		Log.debug { "Human clicked $point. From: $from" }
 
 		val s = state
-		require(s != null) { "Can't evaluate move since the state is unknown" }
+//		require(s != null) { "Can't evaluate move since the state is unknown" }
+		//TODO figure out error
+		if (s == null) {
+			Log.error { "Can't evaluate move since the state is unknown" }
+			return
+		}
+
 
 		// is this the first click?
 		if (from == null) {

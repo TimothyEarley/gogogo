@@ -29,8 +29,9 @@ private fun treeSearch(
 
 	if (level == 0) return baseStrategy(player, state)
 
-	if (state.victor != null)
+	if (state.victor != null) {
 		return if (player == state.victor) Int.MAX_VALUE else Int.MIN_VALUE
+	}
 
 	if (pruning) {
 		val currentPositionEvaluation = baseStrategy(player, state)
@@ -38,25 +39,51 @@ private fun treeSearch(
 		if (currentPositionEvaluation > pruneLevelMax) return currentPositionEvaluation
 	}
 
-	val opponentMoveScores = state.findAllMoves().map {
-		treeSearch(player.next(), it.state, level - 1, baseStrategy, pruning, pruneLevelMax, pruneLevelMin)
+	val moves = state.findAllMoves().map {
+		treeSearch(player, it.state, level- 1, baseStrategy, pruning, pruneLevelMax, pruneLevelMin)
 	}
 
-	return  - if (pruning) {
-		opponentMoveScores.maxWithPruning(pruneLevelMax) ?: 0
+	//TODO we have four cases. Can we combine some?
+	return if (player == state.playersTurn) {
+		// if it is my turn, find the best move I can do
+		if (pruning) {
+			// if we reach a good enough move, use that
+			moves.maxPruning(pruneLevelMax)
+		} else {
+			moves.max()!!
+		}
 	} else {
-		opponentMoveScores.max() ?: 0
+		// it is the opponents turn, what is the worst they can do?
+		if (pruning) {
+			moves.minPruning(pruneLevelMin)
+		} else {
+			moves.min()!!
+		}
 	}
 }
 
-private fun Sequence<Int>.maxWithPruning(pruneLevel: Int): Int? {
-	val iterator = iterator()
-	if (!iterator.hasNext()) return null
-	var max = iterator.next()
-	while (iterator.hasNext()) {
-		val e = iterator.next()
-		if (max < e) max = e
-		if (max > pruneLevel) return max
+private fun Sequence<Int>.maxPruning(pruneLevel: Int): Int {
+	var bestValue = Int.MIN_VALUE
+	this.forEach {
+		if (it > pruneLevel) {
+			return it
+		}
+		else if (it > bestValue) {
+			bestValue = it
+		}
 	}
-	return max
+	return bestValue
+}
+
+private fun Sequence<Int>.minPruning(pruneLevel: Int): Int {
+	// go through sequence adding to list until we reach the end or more than pruning
+	var worstValue = Int.MAX_VALUE
+	this.forEach {
+		if (it < pruneLevel) {
+			return it
+		} else if (it < worstValue) {
+			worstValue = it
+		}
+	}
+	return worstValue
 }

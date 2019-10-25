@@ -6,8 +6,9 @@ import kotlin.coroutines.coroutineContext
 class ControlledGame(
 	private var redController: PlayerController,
 	private var blueController: PlayerController,
-	private val uiHook: UIHook
-) : Game() {
+	private val uiHook: UIHook,
+	state: State = State.inital
+) : Game(state) {
 
 	private lateinit var scope: CoroutineScope
 	private var moveJob: Job? = null

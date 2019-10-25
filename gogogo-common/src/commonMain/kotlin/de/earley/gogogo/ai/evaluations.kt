@@ -9,6 +9,8 @@ typealias Evaluation = Strategy
 
 object Evaluations {
 
+	//TODO check evaluation bias (tends to be negative) -> correct towards 0
+
 	// closer to end -> good
 	private const val progressMult = 1
 	// immobile -> bad

@@ -1305,6 +1305,8 @@
     findNext$ObjectLiteral$get_findNext$ObjectLiteral$groupValues$ObjectLiteral.prototype.constructor = findNext$ObjectLiteral$get_findNext$ObjectLiteral$groupValues$ObjectLiteral;
     findNext$ObjectLiteral$groups$ObjectLiteral.prototype = Object.create(AbstractCollection.prototype);
     findNext$ObjectLiteral$groups$ObjectLiteral.prototype.constructor = findNext$ObjectLiteral$groups$ObjectLiteral;
+    State.prototype = Object.create(Enum.prototype);
+    State.prototype.constructor = State;
     AbstractList$SubList.prototype = Object.create(AbstractList.prototype);
     AbstractList$SubList.prototype.constructor = AbstractList$SubList;
     AbstractList$ListIteratorImpl.prototype = Object.create(AbstractList$IteratorImpl.prototype);
@@ -1317,6 +1319,10 @@
     AbstractMap$get_AbstractMap$values$ObjectLiteral.prototype.constructor = AbstractMap$get_AbstractMap$values$ObjectLiteral;
     SequenceBuilderIterator.prototype = Object.create(SequenceScope.prototype);
     SequenceBuilderIterator.prototype.constructor = SequenceBuilderIterator;
+    RingBuffer$iterator$ObjectLiteral.prototype = Object.create(AbstractIterator.prototype);
+    RingBuffer$iterator$ObjectLiteral.prototype.constructor = RingBuffer$iterator$ObjectLiteral;
+    RingBuffer.prototype = Object.create(AbstractList.prototype);
+    RingBuffer.prototype.constructor = RingBuffer;
     CoroutineSingletons.prototype = Object.create(Enum.prototype);
     CoroutineSingletons.prototype.constructor = CoroutineSingletons;
     Random$Default.prototype = Object.create(Random.prototype);
@@ -1325,6 +1331,8 @@
     Random$Companion.prototype.constructor = Random$Companion;
     XorWowRandom.prototype = Object.create(Random.prototype);
     XorWowRandom.prototype.constructor = XorWowRandom;
+    iterator$ObjectLiteral.prototype = Object.create(CharIterator.prototype);
+    iterator$ObjectLiteral.prototype.constructor = iterator$ObjectLiteral;
     NotImplementedError.prototype = Object.create(Error_0.prototype);
     NotImplementedError.prototype.constructor = NotImplementedError;
     function contains($receiver, element) {
@@ -1420,6 +1428,52 @@
       }
       return tmp$;
     }
+    function joinTo($receiver, buffer, separator, prefix, postfix, limit, truncated, transform) {
+      if (separator === void 0)
+        separator = ', ';
+      if (prefix === void 0)
+        prefix = '';
+      if (postfix === void 0)
+        postfix = '';
+      if (limit === void 0)
+        limit = -1;
+      if (truncated === void 0)
+        truncated = '...';
+      if (transform === void 0)
+        transform = null;
+      var tmp$;
+      buffer.append_gw00v9$(prefix);
+      var count = 0;
+      for (tmp$ = 0; tmp$ !== $receiver.length; ++tmp$) {
+        var element = $receiver[tmp$];
+        if ((count = count + 1 | 0, count) > 1)
+          buffer.append_gw00v9$(separator);
+        if (limit < 0 || count <= limit) {
+          appendElement_0(buffer, element, transform);
+        }
+         else
+          break;
+      }
+      if (limit >= 0 && count > limit)
+        buffer.append_gw00v9$(truncated);
+      buffer.append_gw00v9$(postfix);
+      return buffer;
+    }
+    function joinToString($receiver, separator, prefix, postfix, limit, truncated, transform) {
+      if (separator === void 0)
+        separator = ', ';
+      if (prefix === void 0)
+        prefix = '';
+      if (postfix === void 0)
+        postfix = '';
+      if (limit === void 0)
+        limit = -1;
+      if (truncated === void 0)
+        truncated = '...';
+      if (transform === void 0)
+        transform = null;
+      return joinTo($receiver, StringBuilder_init_1(), separator, prefix, postfix, limit, truncated, transform).toString();
+    }
     function Sequence$ObjectLiteral_0(closure$iterator) {
       this.closure$iterator = closure$iterator;
     }
@@ -1427,6 +1481,16 @@
       return this.closure$iterator();
     };
     Sequence$ObjectLiteral_0.$metadata$ = {kind: Kind_CLASS, interfaces: [Sequence]};
+    function first_17($receiver) {
+      if (Kotlin.isType($receiver, List))
+        return first_18($receiver);
+      else {
+        var iterator = $receiver.iterator();
+        if (!iterator.hasNext())
+          throw new NoSuchElementException('Collection is empty.');
+        return iterator.next();
+      }
+    }
     function first_18($receiver) {
       if ($receiver.isEmpty())
         throw new NoSuchElementException('List is empty.');
@@ -1461,6 +1525,31 @@
         default:throw IllegalArgumentException_init_0('List has more than one element.');
       }
       return tmp$;
+    }
+    function take_8($receiver, n) {
+      var tmp$, tmp$_0;
+      if (!(n >= 0)) {
+        var message = 'Requested element count ' + n + ' is less than zero.';
+        throw IllegalArgumentException_init_0(message.toString());
+      }
+      if (n === 0)
+        return emptyList();
+      if (Kotlin.isType($receiver, Collection)) {
+        if (n >= $receiver.size)
+          return toList_8($receiver);
+        if (n === 1)
+          return listOf(first_17($receiver));
+      }
+      var count = 0;
+      var list = ArrayList_init_0(n);
+      tmp$ = $receiver.iterator();
+      while (tmp$.hasNext()) {
+        var item = tmp$.next();
+        if ((tmp$_0 = count, count = tmp$_0 + 1 | 0, tmp$_0) === n)
+          break;
+        list.add_11rb$(item);
+      }
+      return optimizeReadOnlyList(list);
     }
     function sortedWith_8($receiver, comparator) {
       var tmp$;
@@ -1538,6 +1627,49 @@
       }
       return max;
     }
+    function min_11($receiver) {
+      var iterator = $receiver.iterator();
+      if (!iterator.hasNext())
+        return null;
+      var min = iterator.next();
+      while (iterator.hasNext()) {
+        var e = iterator.next();
+        if (Kotlin.compareTo(min, e) > 0)
+          min = e;
+      }
+      return min;
+    }
+    function windowed($receiver, size, step, partialWindows) {
+      if (step === void 0)
+        step = 1;
+      if (partialWindows === void 0)
+        partialWindows = false;
+      checkWindowSizeStep(size, step);
+      if (Kotlin.isType($receiver, RandomAccess) && Kotlin.isType($receiver, List)) {
+        var thisSize = $receiver.size;
+        var result = ArrayList_init_0((thisSize + step - 1 | 0) / step | 0);
+        var index = {v: 0};
+        while (index.v < thisSize) {
+          var windowSize = coerceAtMost_2(size, thisSize - index.v | 0);
+          if (windowSize < size && !partialWindows)
+            break;
+          var list = ArrayList_init_0(windowSize);
+          for (var index_0 = 0; index_0 < windowSize; index_0++) {
+            list.add_11rb$($receiver.get_za3lpa$(index_0 + index.v | 0));
+          }
+          result.add_11rb$(list);
+          index.v = index.v + step | 0;
+        }
+        return result;
+      }
+      var result_0 = ArrayList_init();
+      var $receiver_0 = windowedIterator($receiver.iterator(), size, step, partialWindows, false);
+      while ($receiver_0.hasNext()) {
+        var element = $receiver_0.next();
+        result_0.add_11rb$(element);
+      }
+      return result_0;
+    }
     function joinTo_8($receiver, buffer, separator, prefix, postfix, limit, truncated, transform) {
       if (separator === void 0)
         separator = ', ';
@@ -1593,6 +1725,9 @@
     function asSequence_8($receiver) {
       return new Sequence$ObjectLiteral_0(asSequence$lambda_8($receiver));
     }
+    function asSequence_9($receiver) {
+      return asSequence_8($receiver.entries);
+    }
     function downTo_4($receiver, to) {
       return IntProgression$Companion_getInstance().fromClosedRange_qt1dr2$($receiver, to, -1);
     }
@@ -1628,6 +1763,33 @@
         return maximumValue;
       return $receiver;
     }
+    function coerceIn_6($receiver, range) {
+      var tmp$;
+      if (range.isEmpty())
+        throw IllegalArgumentException_init_0('Cannot coerce value to an empty range: ' + range + '.');
+      if (range.lessThanOrEquals_n65qkk$($receiver, range.start) && !range.lessThanOrEquals_n65qkk$(range.start, $receiver))
+        tmp$ = range.start;
+      else if (range.lessThanOrEquals_n65qkk$(range.endInclusive, $receiver) && !range.lessThanOrEquals_n65qkk$($receiver, range.endInclusive))
+        tmp$ = range.endInclusive;
+      else
+        tmp$ = $receiver;
+      return tmp$;
+    }
+    function coerceIn_8($receiver, range) {
+      var tmp$;
+      if (Kotlin.isType(range, ClosedFloatingPointRange)) {
+        return coerceIn_6($receiver, range);
+      }
+      if (range.isEmpty())
+        throw IllegalArgumentException_init_0('Cannot coerce value to an empty range: ' + range + '.');
+      if ($receiver < range.start)
+        tmp$ = range.start;
+      else if ($receiver > range.endInclusive)
+        tmp$ = range.endInclusive;
+      else
+        tmp$ = $receiver;
+      return tmp$;
+    }
     function Iterable$ObjectLiteral_0(closure$iterator) {
       this.closure$iterator = closure$iterator;
     }
@@ -1648,19 +1810,6 @@
       else
         tmp$ = new TakeSequence($receiver, n);
       return tmp$;
-    }
-    function sortedWith$ObjectLiteral(this$sortedWith, closure$comparator) {
-      this.this$sortedWith = this$sortedWith;
-      this.closure$comparator = closure$comparator;
-    }
-    sortedWith$ObjectLiteral.prototype.iterator = function () {
-      var sortedList = toMutableList_10(this.this$sortedWith);
-      sortWith_0(sortedList, this.closure$comparator);
-      return sortedList.iterator();
-    };
-    sortedWith$ObjectLiteral.$metadata$ = {kind: Kind_CLASS, interfaces: [Sequence]};
-    function sortedWith_9($receiver, comparator) {
-      return new sortedWith$ObjectLiteral($receiver, comparator);
     }
     function toCollection_9($receiver, destination) {
       var tmp$;
@@ -1692,6 +1841,18 @@
       }
       return max;
     }
+    function min_14($receiver) {
+      var iterator = $receiver.iterator();
+      if (!iterator.hasNext())
+        return null;
+      var min = iterator.next();
+      while (iterator.hasNext()) {
+        var e = iterator.next();
+        if (Kotlin.compareTo(min, e) > 0)
+          min = e;
+      }
+      return min;
+    }
     function asIterable$lambda_8(this$asIterable) {
       return function () {
         return this$asIterable.iterator();
@@ -1699,6 +1860,32 @@
     }
     function asIterable_10($receiver) {
       return new Iterable$ObjectLiteral_0(asIterable$lambda_8($receiver));
+    }
+    function toCollection_10($receiver, destination) {
+      var tmp$;
+      tmp$ = iterator_4($receiver);
+      while (tmp$.hasNext()) {
+        var item = unboxChar(tmp$.next());
+        destination.add_11rb$(toBoxedChar(item));
+      }
+      return destination;
+    }
+    function toList_11($receiver) {
+      var tmp$;
+      switch ($receiver.length) {
+        case 0:
+          tmp$ = emptyList();
+          break;
+        case 1:
+          tmp$ = listOf(toBoxedChar($receiver.charCodeAt(0)));
+          break;
+        default:tmp$ = toMutableList_11($receiver);
+          break;
+      }
+      return tmp$;
+    }
+    function toMutableList_11($receiver) {
+      return toCollection_10($receiver, ArrayList_init_0($receiver.length));
     }
     var PI;
     var E;
@@ -2651,8 +2838,33 @@
       var tmp$, tmp$_0, tmp$_1;
       return (tmp$_1 = (tmp$_0 = Kotlin.isType(tmp$ = $receiver, CoroutineImpl) ? tmp$ : null) != null ? tmp$_0.intercepted() : null) != null ? tmp$_1 : $receiver;
     }
+    function lazy(initializer) {
+      return new UnsafeLazyImpl(initializer);
+    }
+    function arrayCopyResize(source, newSize, defaultValue) {
+      var tmp$;
+      var result = source.slice(0, newSize);
+      if (source.$type$ !== undefined) {
+        result.$type$ = source.$type$;
+      }
+      var index = source.length;
+      if (newSize > index) {
+        result.length = newSize;
+        while (index < newSize) {
+          result[tmp$ = index, index = tmp$ + 1 | 0, tmp$] = defaultValue;
+        }
+      }
+      return result;
+    }
     function asList($receiver) {
       return new ArrayList($receiver);
+    }
+    function copyOf_24($receiver, newSize) {
+      if (!(newSize >= 0)) {
+        var message = 'Invalid new array size: ' + newSize + '.';
+        throw IllegalArgumentException_init_0(message.toString());
+      }
+      return arrayCopyResize($receiver, newSize, null);
     }
     function copyOfRange_3($receiver, fromIndex, toIndex) {
       AbstractList$Companion_getInstance().checkRangeIndexes_cub51b$(fromIndex, toIndex, $receiver.length);
@@ -2695,6 +2907,9 @@
     }
     function setOf(element) {
       return hashSetOf_0([element]);
+    }
+    function mapOf(pair) {
+      return hashMapOf_0([pair]);
     }
     function shuffle($receiver) {
       shuffle_0($receiver, Random$Default_getInstance());
@@ -3469,6 +3684,11 @@
         var message_0 = 'Non-positive load factor: ' + loadFactor;
         throw IllegalArgumentException_init_0(message_0.toString());
       }
+      return $this;
+    }
+    function HashMap_init_2(initialCapacity, $this) {
+      $this = $this || Object.create(HashMap.prototype);
+      HashMap_init_1(initialCapacity, 0.0, $this);
       return $this;
     }
     function HashSet() {
@@ -4631,6 +4851,9 @@
       var tmp$;
       return (tmp$ = toIntOrNull($receiver)) != null ? tmp$ : numberFormatError($receiver);
     }
+    function toString_3($receiver, radix) {
+      return $receiver.toString(checkRadix(radix));
+    }
     function checkRadix(radix) {
       if (!(2 <= radix && radix <= 36)) {
         throw IllegalArgumentException_init_0('radix ' + radix + ' was not in valid range 2..36');
@@ -5062,10 +5285,100 @@
       return copyToArrayImpl_0(this, array);
     };
     AbstractCollection.$metadata$ = {kind: Kind_CLASS, simpleName: 'AbstractCollection', interfaces: [Collection]};
+    function State(name, ordinal) {
+      Enum.call(this);
+      this.name$ = name;
+      this.ordinal$ = ordinal;
+    }
+    function State_initFields() {
+      State_initFields = function () {
+      };
+      State$Ready_instance = new State('Ready', 0);
+      State$NotReady_instance = new State('NotReady', 1);
+      State$Done_instance = new State('Done', 2);
+      State$Failed_instance = new State('Failed', 3);
+    }
     var State$Ready_instance;
+    function State$Ready_getInstance() {
+      State_initFields();
+      return State$Ready_instance;
+    }
     var State$NotReady_instance;
+    function State$NotReady_getInstance() {
+      State_initFields();
+      return State$NotReady_instance;
+    }
     var State$Done_instance;
+    function State$Done_getInstance() {
+      State_initFields();
+      return State$Done_instance;
+    }
     var State$Failed_instance;
+    function State$Failed_getInstance() {
+      State_initFields();
+      return State$Failed_instance;
+    }
+    State.$metadata$ = {kind: Kind_CLASS, simpleName: 'State', interfaces: [Enum]};
+    function State$values() {
+      return [State$Ready_getInstance(), State$NotReady_getInstance(), State$Done_getInstance(), State$Failed_getInstance()];
+    }
+    State.values = State$values;
+    function State$valueOf(name) {
+      switch (name) {
+        case 'Ready':
+          return State$Ready_getInstance();
+        case 'NotReady':
+          return State$NotReady_getInstance();
+        case 'Done':
+          return State$Done_getInstance();
+        case 'Failed':
+          return State$Failed_getInstance();
+        default:throwISE('No enum constant kotlin.collections.State.' + name);
+      }
+    }
+    State.valueOf_61zpoe$ = State$valueOf;
+    function AbstractIterator() {
+      this.state_smy23j$_0 = State$NotReady_getInstance();
+      this.nextValue_phdh64$_0 = null;
+    }
+    AbstractIterator.prototype.hasNext = function () {
+      var tmp$;
+      if (!(this.state_smy23j$_0 !== State$Failed_getInstance())) {
+        var message = 'Failed requirement.';
+        throw IllegalArgumentException_init_0(message.toString());
+      }
+      switch (this.state_smy23j$_0.name) {
+        case 'Done':
+          tmp$ = false;
+          break;
+        case 'Ready':
+          tmp$ = true;
+          break;
+        default:tmp$ = this.tryToComputeNext_ser32m$_0();
+          break;
+      }
+      return tmp$;
+    };
+    AbstractIterator.prototype.next = function () {
+      var tmp$;
+      if (!this.hasNext())
+        throw NoSuchElementException_init();
+      this.state_smy23j$_0 = State$NotReady_getInstance();
+      return (tmp$ = this.nextValue_phdh64$_0) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE_0();
+    };
+    AbstractIterator.prototype.tryToComputeNext_ser32m$_0 = function () {
+      this.state_smy23j$_0 = State$Failed_getInstance();
+      this.computeNext();
+      return this.state_smy23j$_0 === State$Ready_getInstance();
+    };
+    AbstractIterator.prototype.setNext_11rb$ = function (value) {
+      this.nextValue_phdh64$_0 = value;
+      this.state_smy23j$_0 = State$Ready_getInstance();
+    };
+    AbstractIterator.prototype.done = function () {
+      this.state_smy23j$_0 = State$Done_getInstance();
+    };
+    AbstractIterator.$metadata$ = {kind: Kind_CLASS, simpleName: 'AbstractIterator', interfaces: [Iterator]};
     function AbstractList() {
       AbstractList$Companion_getInstance();
       AbstractCollection.call(this);
@@ -5744,6 +6057,11 @@
     function mapOf_0(pairs) {
       return pairs.length > 0 ? toMap_2(pairs, LinkedHashMap_init_2(mapCapacity(pairs.length))) : emptyMap();
     }
+    function hashMapOf_0(pairs) {
+      var $receiver = HashMap_init_2(mapCapacity(pairs.length));
+      putAll($receiver, pairs);
+      return $receiver;
+    }
     function mapCapacity(expectedSize) {
       if (expectedSize < 3) {
         return expectedSize + 1 | 0;
@@ -5762,9 +6080,48 @@
         $receiver.put_xwzc9p$(key, value);
       }
     }
+    function putAll_0($receiver, pairs) {
+      var tmp$;
+      tmp$ = pairs.iterator();
+      while (tmp$.hasNext()) {
+        var tmp$_0 = tmp$.next();
+        var key = tmp$_0.component1(), value = tmp$_0.component2();
+        $receiver.put_xwzc9p$(key, value);
+      }
+    }
+    function toMap($receiver) {
+      var tmp$;
+      if (Kotlin.isType($receiver, Collection)) {
+        switch ($receiver.size) {
+          case 0:
+            tmp$ = emptyMap();
+            break;
+          case 1:
+            tmp$ = mapOf(Kotlin.isType($receiver, List) ? $receiver.get_za3lpa$(0) : $receiver.iterator().next());
+            break;
+          default:tmp$ = toMap_0($receiver, LinkedHashMap_init_2(mapCapacity($receiver.size)));
+            break;
+        }
+        return tmp$;
+      }
+      return optimizeReadOnlyMap(toMap_0($receiver, LinkedHashMap_init()));
+    }
+    function toMap_0($receiver, destination) {
+      putAll_0(destination, $receiver);
+      return destination;
+    }
     function toMap_2($receiver, destination) {
       putAll(destination, $receiver);
       return destination;
+    }
+    function optimizeReadOnlyMap($receiver) {
+      switch ($receiver.size) {
+        case 0:
+          return emptyMap();
+        case 1:
+          return $receiver;
+        default:return $receiver;
+      }
     }
     function addAll($receiver, elements) {
       var tmp$;
@@ -6236,6 +6593,341 @@
         default:return $receiver;
       }
     }
+    function checkWindowSizeStep(size, step) {
+      if (!(size > 0 && step > 0)) {
+        var message = size !== step ? 'Both size ' + size + ' and step ' + step + ' must be greater than zero.' : 'size ' + size + ' must be greater than zero.';
+        throw IllegalArgumentException_init_0(message.toString());
+      }
+    }
+    function Coroutine$windowedIterator$lambda(closure$step_0, closure$size_0, closure$iterator_0, closure$reuseBuffer_0, closure$partialWindows_0, $receiver_0, controller, continuation_0) {
+      CoroutineImpl.call(this, continuation_0);
+      this.$controller = controller;
+      this.exceptionState_0 = 1;
+      this.local$closure$step = closure$step_0;
+      this.local$closure$size = closure$size_0;
+      this.local$closure$iterator = closure$iterator_0;
+      this.local$closure$reuseBuffer = closure$reuseBuffer_0;
+      this.local$closure$partialWindows = closure$partialWindows_0;
+      this.local$tmp$ = void 0;
+      this.local$tmp$_0 = void 0;
+      this.local$gap = void 0;
+      this.local$buffer = void 0;
+      this.local$skip = void 0;
+      this.local$e = void 0;
+      this.local$buffer_0 = void 0;
+      this.local$$receiver = $receiver_0;
+    }
+    Coroutine$windowedIterator$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
+    Coroutine$windowedIterator$lambda.prototype = Object.create(CoroutineImpl.prototype);
+    Coroutine$windowedIterator$lambda.prototype.constructor = Coroutine$windowedIterator$lambda;
+    Coroutine$windowedIterator$lambda.prototype.doResume = function () {
+      do
+        try {
+          switch (this.state_0) {
+            case 0:
+              this.local$gap = this.local$closure$step - this.local$closure$size | 0;
+              if (this.local$gap >= 0) {
+                this.local$buffer = ArrayList_init_0(this.local$closure$size);
+                this.local$skip = 0;
+                this.local$tmp$ = this.local$closure$iterator;
+                this.state_0 = 12;
+                continue;
+              }
+               else {
+                this.local$buffer_0 = new RingBuffer(this.local$closure$size);
+                this.local$tmp$_0 = this.local$closure$iterator;
+                this.state_0 = 2;
+                continue;
+              }
+
+            case 1:
+              throw this.exception_0;
+            case 2:
+              if (!this.local$tmp$_0.hasNext()) {
+                this.state_0 = 5;
+                continue;
+              }
+
+              var e_0 = this.local$tmp$_0.next();
+              this.local$buffer_0.add_11rb$(e_0);
+              if (this.local$buffer_0.isFull()) {
+                this.state_0 = 3;
+                this.result_0 = this.local$$receiver.yield_11rb$(this.local$closure$reuseBuffer ? this.local$buffer_0 : ArrayList_init_1(this.local$buffer_0), this);
+                if (this.result_0 === get_COROUTINE_SUSPENDED())
+                  return get_COROUTINE_SUSPENDED();
+                continue;
+              }
+               else {
+                this.state_0 = 4;
+                continue;
+              }
+
+            case 3:
+              this.local$buffer_0.removeFirst_za3lpa$(this.local$closure$step);
+              this.state_0 = 4;
+              continue;
+            case 4:
+              this.state_0 = 2;
+              continue;
+            case 5:
+              if (this.local$closure$partialWindows) {
+                this.state_0 = 6;
+                continue;
+              }
+               else {
+                this.state_0 = 11;
+                continue;
+              }
+
+            case 6:
+              if (this.local$buffer_0.size <= this.local$closure$step) {
+                this.state_0 = 8;
+                continue;
+              }
+
+              this.state_0 = 7;
+              this.result_0 = this.local$$receiver.yield_11rb$(this.local$closure$reuseBuffer ? this.local$buffer_0 : ArrayList_init_1(this.local$buffer_0), this);
+              if (this.result_0 === get_COROUTINE_SUSPENDED())
+                return get_COROUTINE_SUSPENDED();
+              continue;
+            case 7:
+              this.local$buffer_0.removeFirst_za3lpa$(this.local$closure$step);
+              this.state_0 = 6;
+              continue;
+            case 8:
+              if (!this.local$buffer_0.isEmpty()) {
+                this.state_0 = 9;
+                this.result_0 = this.local$$receiver.yield_11rb$(this.local$buffer_0, this);
+                if (this.result_0 === get_COROUTINE_SUSPENDED())
+                  return get_COROUTINE_SUSPENDED();
+                continue;
+              }
+               else {
+                this.state_0 = 10;
+                continue;
+              }
+
+            case 9:
+              return Unit;
+            case 10:
+              this.state_0 = 11;
+              continue;
+            case 11:
+              this.state_0 = 20;
+              continue;
+            case 12:
+              if (!this.local$tmp$.hasNext()) {
+                this.state_0 = 16;
+                continue;
+              }
+
+              this.local$e = this.local$tmp$.next();
+              if (this.local$skip > 0) {
+                this.local$skip = this.local$skip - 1 | 0;
+                this.state_0 = 12;
+                continue;
+              }
+               else {
+                this.state_0 = 13;
+                continue;
+              }
+
+            case 13:
+              this.local$buffer.add_11rb$(this.local$e);
+              if (this.local$buffer.size === this.local$closure$size) {
+                this.state_0 = 14;
+                this.result_0 = this.local$$receiver.yield_11rb$(this.local$buffer, this);
+                if (this.result_0 === get_COROUTINE_SUSPENDED())
+                  return get_COROUTINE_SUSPENDED();
+                continue;
+              }
+               else {
+                this.state_0 = 15;
+                continue;
+              }
+
+            case 14:
+              if (this.local$closure$reuseBuffer)
+                this.local$buffer.clear();
+              else
+                this.local$buffer = ArrayList_init_0(this.local$closure$size);
+              this.local$skip = this.local$gap;
+              this.state_0 = 15;
+              continue;
+            case 15:
+              this.state_0 = 12;
+              continue;
+            case 16:
+              if (!this.local$buffer.isEmpty()) {
+                if (this.local$closure$partialWindows || this.local$buffer.size === this.local$closure$size) {
+                  this.state_0 = 17;
+                  this.result_0 = this.local$$receiver.yield_11rb$(this.local$buffer, this);
+                  if (this.result_0 === get_COROUTINE_SUSPENDED())
+                    return get_COROUTINE_SUSPENDED();
+                  continue;
+                }
+                 else {
+                  this.state_0 = 18;
+                  continue;
+                }
+              }
+               else {
+                this.state_0 = 19;
+                continue;
+              }
+
+            case 17:
+              return Unit;
+            case 18:
+              this.state_0 = 19;
+              continue;
+            case 19:
+              this.state_0 = 20;
+              continue;
+            case 20:
+              return Unit;
+            default:this.state_0 = 1;
+              throw new Error('State Machine Unreachable execution');
+          }
+        }
+         catch (e) {
+          if (this.state_0 === 1) {
+            this.exceptionState_0 = this.state_0;
+            throw e;
+          }
+           else {
+            this.state_0 = this.exceptionState_0;
+            this.exception_0 = e;
+          }
+        }
+       while (true);
+    };
+    function windowedIterator$lambda(closure$step_0, closure$size_0, closure$iterator_0, closure$reuseBuffer_0, closure$partialWindows_0) {
+      return function ($receiver_0, continuation_0, suspended) {
+        var instance = new Coroutine$windowedIterator$lambda(closure$step_0, closure$size_0, closure$iterator_0, closure$reuseBuffer_0, closure$partialWindows_0, $receiver_0, this, continuation_0);
+        if (suspended)
+          return instance;
+        else
+          return instance.doResume(null);
+      };
+    }
+    function windowedIterator(iterator, size, step, partialWindows, reuseBuffer) {
+      if (!iterator.hasNext())
+        return EmptyIterator_getInstance();
+      return iterator_3(windowedIterator$lambda(step, size, iterator, reuseBuffer, partialWindows));
+    }
+    function RingBuffer(capacity) {
+      AbstractList.call(this);
+      this.capacity = capacity;
+      if (!(this.capacity >= 0)) {
+        var message = 'ring buffer capacity should not be negative but it is ' + this.capacity;
+        throw IllegalArgumentException_init_0(message.toString());
+      }
+      this.buffer_0 = Kotlin.newArray(this.capacity, null);
+      this.startIndex_0 = 0;
+      this.size_4goa01$_0 = 0;
+    }
+    Object.defineProperty(RingBuffer.prototype, 'size', {get: function () {
+      return this.size_4goa01$_0;
+    }, set: function (size) {
+      this.size_4goa01$_0 = size;
+    }});
+    RingBuffer.prototype.get_za3lpa$ = function (index) {
+      var tmp$;
+      AbstractList$Companion_getInstance().checkElementIndex_6xvm5r$(index, this.size);
+      return (tmp$ = this.buffer_0[(this.startIndex_0 + index | 0) % this.capacity]) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE_0();
+    };
+    RingBuffer.prototype.isFull = function () {
+      return this.size === this.capacity;
+    };
+    function RingBuffer$iterator$ObjectLiteral(this$RingBuffer) {
+      this.this$RingBuffer = this$RingBuffer;
+      AbstractIterator.call(this);
+      this.count_0 = this$RingBuffer.size;
+      this.index_0 = this$RingBuffer.startIndex_0;
+    }
+    RingBuffer$iterator$ObjectLiteral.prototype.computeNext = function () {
+      var tmp$;
+      if (this.count_0 === 0) {
+        this.done();
+      }
+       else {
+        this.setNext_11rb$((tmp$ = this.this$RingBuffer.buffer_0[this.index_0]) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE_0());
+        this.index_0 = (this.index_0 + 1 | 0) % this.this$RingBuffer.capacity;
+        this.count_0 = this.count_0 - 1 | 0;
+      }
+    };
+    RingBuffer$iterator$ObjectLiteral.$metadata$ = {kind: Kind_CLASS, interfaces: [AbstractIterator]};
+    RingBuffer.prototype.iterator = function () {
+      return new RingBuffer$iterator$ObjectLiteral(this);
+    };
+    RingBuffer.prototype.toArray_ro6dgy$ = function (array) {
+      var tmp$, tmp$_0, tmp$_1, tmp$_2;
+      var result = array.length < this.size ? copyOf_24(array, this.size) : Kotlin.isArray(tmp$ = array) ? tmp$ : throwCCE_0();
+      var size = this.size;
+      var widx = 0;
+      var idx = this.startIndex_0;
+      while (widx < size && idx < this.capacity) {
+        result[widx] = (tmp$_0 = this.buffer_0[idx]) == null || Kotlin.isType(tmp$_0, Any) ? tmp$_0 : throwCCE_0();
+        widx = widx + 1 | 0;
+        idx = idx + 1 | 0;
+      }
+      idx = 0;
+      while (widx < size) {
+        result[widx] = (tmp$_1 = this.buffer_0[idx]) == null || Kotlin.isType(tmp$_1, Any) ? tmp$_1 : throwCCE_0();
+        widx = widx + 1 | 0;
+        idx = idx + 1 | 0;
+      }
+      if (result.length > this.size)
+        result[this.size] = null;
+      return Kotlin.isArray(tmp$_2 = result) ? tmp$_2 : throwCCE_0();
+    };
+    RingBuffer.prototype.toArray = function () {
+      return this.toArray_ro6dgy$(Kotlin.newArray(this.size, null));
+    };
+    RingBuffer.prototype.add_11rb$ = function (element) {
+      if (this.isFull()) {
+        throw IllegalStateException_init_0('ring buffer is full');
+      }
+      this.buffer_0[(this.startIndex_0 + this.size | 0) % this.capacity] = element;
+      this.size = this.size + 1 | 0;
+    };
+    RingBuffer.prototype.removeFirst_za3lpa$ = function (n) {
+      if (!(n >= 0)) {
+        var message = "n shouldn't be negative but it is " + n;
+        throw IllegalArgumentException_init_0(message.toString());
+      }
+      if (!(n <= this.size)) {
+        var message_0 = "n shouldn't be greater than the buffer size: n = " + n + ', size = ' + this.size;
+        throw IllegalArgumentException_init_0(message_0.toString());
+      }
+      if (n > 0) {
+        var start = this.startIndex_0;
+        var end = (start + n | 0) % this.capacity;
+        if (start > end) {
+          this.fill_0(this.buffer_0, null, start, this.capacity);
+          this.fill_0(this.buffer_0, null, 0, end);
+        }
+         else {
+          this.fill_0(this.buffer_0, null, start, end);
+        }
+        this.startIndex_0 = end;
+        this.size = this.size - n | 0;
+      }
+    };
+    RingBuffer.prototype.forward_0 = function ($receiver, n) {
+      return ($receiver + n | 0) % this.capacity;
+    };
+    RingBuffer.prototype.fill_0 = function ($receiver, element, fromIndex, toIndex) {
+      if (fromIndex === void 0)
+        fromIndex = 0;
+      if (toIndex === void 0)
+        toIndex = $receiver.length;
+      for (var idx = fromIndex; idx < toIndex; idx++) {
+        $receiver[idx] = element;
+      }
+    };
+    RingBuffer.$metadata$ = {kind: Kind_CLASS, simpleName: 'RingBuffer', interfaces: [RandomAccess, AbstractList]};
     function compareValues(a, b) {
       var tmp$;
       if (a === b)
@@ -6854,6 +7546,15 @@
       XorWowRandom.call($this, seed1, seed2, 0, 0, ~seed1, seed1 << 10 ^ seed2 >>> 4);
       return $this;
     }
+    function ClosedFloatingPointRange() {
+    }
+    ClosedFloatingPointRange.prototype.contains_mef7kx$ = function (value) {
+      return this.lessThanOrEquals_n65qkk$(this.start, value) && this.lessThanOrEquals_n65qkk$(value, this.endInclusive);
+    };
+    ClosedFloatingPointRange.prototype.isEmpty = function () {
+      return !this.lessThanOrEquals_n65qkk$(this.start, this.endInclusive);
+    };
+    ClosedFloatingPointRange.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'ClosedFloatingPointRange', interfaces: [ClosedRange]};
     function ComparableRange(start, endInclusive) {
       this.start_p1gsmm$_0 = start;
       this.endInclusive_jj4lf7$_0 = endInclusive;
@@ -7043,6 +7744,44 @@
         }
       }
       return Kotlin.subSequence($receiver, startIndex, endIndex + 1 | 0);
+    }
+    function padStart($receiver, length, padChar) {
+      if (padChar === void 0)
+        padChar = 32;
+      var tmp$;
+      if (length < 0)
+        throw IllegalArgumentException_init_0('Desired length ' + length + ' is less than zero.');
+      if (length <= $receiver.length)
+        return Kotlin.subSequence($receiver, 0, $receiver.length);
+      var sb = StringBuilder_init(length);
+      tmp$ = length - $receiver.length | 0;
+      for (var i = 1; i <= tmp$; i++)
+        sb.append_s8itvh$(padChar);
+      sb.append_gw00v9$($receiver);
+      return sb;
+    }
+    function padStart_0($receiver, length, padChar) {
+      if (padChar === void 0)
+        padChar = 32;
+      var tmp$;
+      return padStart(Kotlin.isCharSequence(tmp$ = $receiver) ? tmp$ : throwCCE_0(), length, padChar).toString();
+    }
+    function iterator$ObjectLiteral(this$iterator) {
+      this.this$iterator = this$iterator;
+      CharIterator.call(this);
+      this.index_0 = 0;
+    }
+    iterator$ObjectLiteral.prototype.nextChar = function () {
+      var tmp$, tmp$_0;
+      tmp$_0 = (tmp$ = this.index_0, this.index_0 = tmp$ + 1 | 0, tmp$);
+      return this.this$iterator.charCodeAt(tmp$_0);
+    };
+    iterator$ObjectLiteral.prototype.hasNext = function () {
+      return this.index_0 < this.this$iterator.length;
+    };
+    iterator$ObjectLiteral.$metadata$ = {kind: Kind_CLASS, interfaces: [CharIterator]};
+    function iterator_4($receiver) {
+      return new iterator$ObjectLiteral($receiver);
     }
     function get_indices_13($receiver) {
       return new IntRange(0, $receiver.length - 1 | 0);
@@ -7334,6 +8073,18 @@
       var delimitersList = asList(delimiters);
       return new DelimitedRangesSequence($receiver, startIndex, limit, rangesDelimitedBy$lambda_0(delimitersList, ignoreCase));
     }
+    function splitToSequence$lambda(this$splitToSequence) {
+      return function (it) {
+        return substring_3(this$splitToSequence, it);
+      };
+    }
+    function splitToSequence($receiver, delimiters, ignoreCase, limit) {
+      if (ignoreCase === void 0)
+        ignoreCase = false;
+      if (limit === void 0)
+        limit = 0;
+      return map_10(rangesDelimitedBy_0($receiver, delimiters, void 0, ignoreCase, limit), splitToSequence$lambda($receiver));
+    }
     function split($receiver, delimiters, ignoreCase, limit) {
       if (ignoreCase === void 0)
         ignoreCase = false;
@@ -7396,6 +8147,12 @@
       result.add_11rb$(Kotlin.subSequence($receiver, currentOffset, $receiver.length).toString());
       return result;
     }
+    function lineSequence($receiver) {
+      return splitToSequence($receiver, ['\r\n', '\n', '\r']);
+    }
+    function lines($receiver) {
+      return toList_10(lineSequence($receiver));
+    }
     var Typography_instance = null;
     function MatchGroupCollection() {
     }
@@ -7444,10 +8201,58 @@
     MatchResult$Destructured.$metadata$ = {kind: Kind_CLASS, simpleName: 'Destructured', interfaces: []};
     MatchResult.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'MatchResult', interfaces: []};
     var KotlinVersion$Companion_instance = null;
+    function Lazy() {
+    }
+    Lazy.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'Lazy', interfaces: []};
     var LazyThreadSafetyMode$SYNCHRONIZED_instance;
     var LazyThreadSafetyMode$PUBLICATION_instance;
     var LazyThreadSafetyMode$NONE_instance;
+    function UNINITIALIZED_VALUE() {
+      UNINITIALIZED_VALUE_instance = this;
+    }
+    UNINITIALIZED_VALUE.$metadata$ = {kind: Kind_OBJECT, simpleName: 'UNINITIALIZED_VALUE', interfaces: []};
     var UNINITIALIZED_VALUE_instance = null;
+    function UNINITIALIZED_VALUE_getInstance() {
+      if (UNINITIALIZED_VALUE_instance === null) {
+        new UNINITIALIZED_VALUE();
+      }
+      return UNINITIALIZED_VALUE_instance;
+    }
+    function UnsafeLazyImpl(initializer) {
+      this.initializer_0 = initializer;
+      this._value_0 = UNINITIALIZED_VALUE_getInstance();
+    }
+    Object.defineProperty(UnsafeLazyImpl.prototype, 'value', {get: function () {
+      var tmp$;
+      if (this._value_0 === UNINITIALIZED_VALUE_getInstance()) {
+        this._value_0 = ensureNotNull(this.initializer_0)();
+        this.initializer_0 = null;
+      }
+      return (tmp$ = this._value_0) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE_0();
+    }});
+    UnsafeLazyImpl.prototype.isInitialized = function () {
+      return this._value_0 !== UNINITIALIZED_VALUE_getInstance();
+    };
+    UnsafeLazyImpl.prototype.toString = function () {
+      return this.isInitialized() ? toString(this.value) : 'Lazy value not initialized yet.';
+    };
+    UnsafeLazyImpl.prototype.writeReplace_0 = function () {
+      return new InitializedLazyImpl(this.value);
+    };
+    UnsafeLazyImpl.$metadata$ = {kind: Kind_CLASS, simpleName: 'UnsafeLazyImpl', interfaces: [Serializable, Lazy]};
+    function InitializedLazyImpl(value) {
+      this.value_7taq70$_0 = value;
+    }
+    Object.defineProperty(InitializedLazyImpl.prototype, 'value', {get: function () {
+      return this.value_7taq70$_0;
+    }});
+    InitializedLazyImpl.prototype.isInitialized = function () {
+      return true;
+    };
+    InitializedLazyImpl.prototype.toString = function () {
+      return toString(this.value);
+    };
+    InitializedLazyImpl.$metadata$ = {kind: Kind_CLASS, simpleName: 'InitializedLazyImpl', interfaces: [Serializable, Lazy]};
     function Result(value) {
       Result$Companion_getInstance();
       this.value = value;
@@ -7609,11 +8414,15 @@
     package$collections.ArrayList_init_ww73n8$ = ArrayList_init_0;
     package$kotlin.UnsupportedOperationException_init_pdl1vj$ = UnsupportedOperationException_init_0;
     package$collections.collectionSizeOrDefault_ba2ldo$ = collectionSizeOrDefault;
+    package$collections.joinTo_aust33$ = joinTo;
+    package$collections.joinToString_cgipc5$ = joinToString;
     package$collections.get_lastIndex_55thoc$ = get_lastIndex_12;
+    package$collections.first_7wnvza$ = first_17;
     package$collections.first_2p1efm$ = first_18;
     package$collections.last_2p1efm$ = last_18;
     package$collections.single_7wnvza$ = single_17;
     package$collections.single_2p1efm$ = single_18;
+    package$collections.take_ba2ldo$ = take_8;
     package$collections.toList_7wnvza$ = toList_8;
     package$collections.sortWith_nqfjgj$ = sortWith_0;
     package$collections.sortedWith_eknfly$ = sortedWith_8;
@@ -7623,29 +8432,38 @@
     package$collections.toSet_7wnvza$ = toSet_8;
     package$collections.Collection = Collection;
     package$collections.max_exjks8$ = max_11;
+    package$collections.min_exjks8$ = min_11;
+    package$collections.windowed_vo9c23$ = windowed;
     package$collections.joinTo_gcc71v$ = joinTo_8;
     package$collections.joinToString_fmv235$ = joinToString_8;
     package$collections.asSequence_7wnvza$ = asSequence_8;
     var package$comparisons = package$kotlin.comparisons || (package$kotlin.comparisons = {});
+    package$collections.asSequence_abgq59$ = asSequence_9;
     package$ranges.downTo_dqglrj$ = downTo_4;
     package$ranges.until_dqglrj$ = until_4;
     package$ranges.coerceAtMost_dqglrj$ = coerceAtMost_2;
     package$ranges.coerceIn_e4yvb3$ = coerceIn_2;
     package$ranges.coerceIn_ekzx8g$ = coerceIn_3;
+    package$ranges.coerceIn_52zmhz$ = coerceIn_6;
+    package$ranges.coerceIn_nayhkp$ = coerceIn_8;
     var package$sequences = package$kotlin.sequences || (package$kotlin.sequences = {});
     package$sequences.Sequence = Sequence;
     package$sequences.take_wuwhe2$ = take_9;
-    package$sequences.sortedWith_vjgqpk$ = sortedWith_9;
     package$sequences.toCollection_gtszxp$ = toCollection_9;
     package$sequences.toList_veqyi0$ = toList_10;
     package$sequences.toMutableList_veqyi0$ = toMutableList_10;
     package$sequences.map_z5avom$ = map_10;
     package$sequences.max_gtzq52$ = max_14;
+    package$sequences.min_gtzq52$ = min_14;
     package$sequences.asIterable_veqyi0$ = asIterable_10;
     var package$text = package$kotlin.text || (package$kotlin.text = {});
     package$text.get_lastIndex_gw00vp$ = get_lastIndex_13;
+    package$text.iterator_gw00vp$ = iterator_4;
     package$text.get_indices_gw00vp$ = get_indices_13;
     package$text.StringBuilder_init = StringBuilder_init_1;
+    package$text.toCollection_7uruwd$ = toCollection_10;
+    package$text.toList_gw00vp$ = toList_11;
+    package$text.toMutableList_gw00vp$ = toMutableList_11;
     var package$math = package$kotlin.math || (package$kotlin.math = {});
     package$kotlin.CharSequence = CharSequence;
     package$collections.Iterable = Iterable;
@@ -7733,8 +8551,11 @@
     package$intrinsics.createCoroutineUnintercepted_x18nsh$ = createCoroutineUnintercepted;
     package$intrinsics.createCoroutineUnintercepted_3a617i$ = createCoroutineUnintercepted_0;
     package$intrinsics.intercepted_f9mg25$ = intercepted;
+    package$kotlin.lazy_klfg04$ = lazy;
+    package$kotlin.arrayCopyResize_xao4iu$ = arrayCopyResize;
     package$collections.asList_us0mfu$ = asList;
     package$collections.arrayCopy = arrayCopy;
+    package$collections.copyOf_8ujjk8$ = copyOf_24;
     package$collections.copyOfRange_5f8l3u$ = copyOfRange_3;
     package$kotlin.Comparator = Comparator;
     var package$js = package$kotlin.js || (package$kotlin.js = {});
@@ -7743,6 +8564,7 @@
     package$collections.copyToExistingArrayImpl = copyToArrayImpl_0;
     package$collections.listOf_mh5how$ = listOf;
     package$collections.setOf_mh5how$ = setOf;
+    package$collections.mapOf_x2b85n$ = mapOf;
     package$collections.shuffle_vvxzk3$ = shuffle;
     package$collections.AbstractMutableCollection = AbstractMutableCollection;
     package$collections.AbstractMutableList = AbstractMutableList;
@@ -7758,6 +8580,7 @@
     package$collections.HashMap_init_va96d4$ = HashMap_init;
     package$collections.HashMap_init_q3lmfv$ = HashMap_init_0;
     package$collections.HashMap_init_xf5xz2$ = HashMap_init_1;
+    package$collections.HashMap_init_bwtc7$ = HashMap_init_2;
     package$collections.HashMap = HashMap;
     package$collections.HashSet_init_2wofer$ = HashSet_init_1;
     package$collections.HashSet_init_ww73n8$ = HashSet_init_2;
@@ -7838,6 +8661,7 @@
     package$js.reset_xjqeni$ = reset;
     package$text.isWhitespace_myv2d0$ = isWhitespace;
     package$text.toInt_pdl1vz$ = toInt;
+    package$text.toString_dqglrj$ = toString_3;
     package$text.checkRadix_za3lpa$ = checkRadix;
     package$text.digitOf_xvg9q0$ = digitOf;
     package$text.MatchGroup = MatchGroup;
@@ -7851,6 +8675,7 @@
     package$text.Appendable = Appendable;
     package$text.StringBuilder = StringBuilder;
     package$collections.AbstractCollection = AbstractCollection;
+    package$collections.AbstractIterator = AbstractIterator;
     Object.defineProperty(AbstractList, 'Companion', {get: AbstractList$Companion_getInstance});
     package$collections.AbstractList = AbstractList;
     Object.defineProperty(AbstractMap, 'Companion', {get: AbstractMap$Companion_getInstance});
@@ -7867,8 +8692,13 @@
     package$collections.IndexedValue = IndexedValue;
     package$collections.emptyMap_q3lmfv$ = emptyMap;
     package$collections.mapOf_qfcya0$ = mapOf_0;
+    package$collections.hashMapOf_qfcya0$ = hashMapOf_0;
     package$collections.putAll_5gv49o$ = putAll;
+    package$collections.putAll_cweazw$ = putAll_0;
+    package$collections.toMap_6hr0sd$ = toMap;
+    package$collections.toMap_jbpz7q$ = toMap_0;
     package$collections.toMap_ujwnei$ = toMap_2;
+    package$collections.optimizeReadOnlyMap_1vp4qn$ = optimizeReadOnlyMap;
     package$collections.removeAll_uhyeqt$ = removeAll_0;
     package$collections.removeAll_qafx1e$ = removeAll_1;
     package$collections.shuffle_9jeydg$ = shuffle_0;
@@ -7886,6 +8716,8 @@
     package$collections.emptySet_287e2$ = emptySet;
     package$collections.hashSetOf_i5x0yv$ = hashSetOf_0;
     package$collections.optimizeReadOnlySet_94kdbt$ = optimizeReadOnlySet;
+    package$collections.checkWindowSizeStep_6xvm5r$ = checkWindowSizeStep;
+    package$collections.windowedIterator_4ozct4$ = windowedIterator;
     package$coroutines.Continuation = Continuation;
     package$kotlin.Result = Result;
     package$coroutines.startCoroutine_x18nsh$ = startCoroutine;
@@ -7914,6 +8746,7 @@
     package$random.boundsErrorMessage_dgzutr$ = boundsErrorMessage;
     package$random.XorWowRandom_init_6xvm5r$ = XorWowRandom_init;
     package$random.XorWowRandom = XorWowRandom;
+    package$ranges.ClosedFloatingPointRange = ClosedFloatingPointRange;
     package$text.equals_4lte5s$ = equals_1;
     package$text.appendElement_k2zgzt$ = appendElement_0;
     package$text.toIntOrNull_pdl1vz$ = toIntOrNull;
@@ -7924,6 +8757,8 @@
     package$text.trimStart_wqw3xr$ = trimStart_2;
     package$text.trimEnd_wqw3xr$ = trimEnd_2;
     package$text.trim_gw00vp$ = trim_3;
+    package$text.padStart_yk9sg4$ = padStart;
+    package$text.padStart_vrc1nu$ = padStart_0;
     package$text.substring_i511yc$ = substring_3;
     package$text.regionMatchesImpl_4c7s8r$ = regionMatchesImpl;
     package$text.startsWith_sgbm27$ = startsWith_1;
@@ -7933,11 +8768,18 @@
     package$text.indexOf_l5u8uk$ = indexOf_17;
     package$text.lastIndexOf_8eortd$ = lastIndexOf_15;
     package$text.lastIndexOf_l5u8uk$ = lastIndexOf_16;
+    package$text.splitToSequence_ip8yn$ = splitToSequence;
     package$text.split_ip8yn$ = split;
     package$text.split_o64adg$ = split_0;
+    package$text.lineSequence_gw00vp$ = lineSequence;
+    package$text.lines_gw00vp$ = lines;
     package$text.MatchGroupCollection = MatchGroupCollection;
     MatchResult.Destructured = MatchResult$Destructured;
     package$text.MatchResult = MatchResult;
+    package$kotlin.Lazy = Lazy;
+    Object.defineProperty(package$kotlin, 'UNINITIALIZED_VALUE', {get: UNINITIALIZED_VALUE_getInstance});
+    package$kotlin.UnsafeLazyImpl = UnsafeLazyImpl;
+    package$kotlin.InitializedLazyImpl = InitializedLazyImpl;
     package$kotlin.createFailure_tcv7n7$ = createFailure;
     Object.defineProperty(Result, 'Companion', {get: Result$Companion_getInstance});
     Result.Failure = Result$Failure;

@@ -40,7 +40,7 @@ class BenchmarkStrategy(override val name: String, private val strategy: Strateg
 	}
 
 	override fun avg() = totalTime / invokeCount.toDouble()
-	override fun stats(): String = "[$name]: \tavg: ${avg().format(2)}ms, \tmax: ${max}ms, \tCount: $invokeCount"
+	override fun stats(): String = "${"[${name}]: ".padEnd(40)}avg: ${avg().format(2)}ms, \tmax: ${max}ms, \tCount: $invokeCount"
 
 }
 

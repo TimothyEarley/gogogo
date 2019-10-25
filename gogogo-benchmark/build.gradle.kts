@@ -20,6 +20,11 @@ dependencies {
 application {
 	mainClassName = "de.earley.gogogo.benchmark.MainKt"
 }
+
+tasks.withType<JavaExec> {
+	standardInput = System.`in`
+}
+
 repositories {
 	mavenCentral()
 }

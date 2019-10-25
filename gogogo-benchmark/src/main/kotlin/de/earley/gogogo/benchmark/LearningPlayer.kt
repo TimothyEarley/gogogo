@@ -1,9 +1,6 @@
 package de.earley.gogogo.benchmark
 
-import de.earley.gogogo.ai.AI
-import de.earley.gogogo.ai.easy
-import de.earley.gogogo.ai.medium
-import de.earley.gogogo.ai.random
+import de.earley.gogogo.ai.*
 import de.earley.gogogo.game.*
 import kotlinx.coroutines.runBlocking
 import org.deeplearning4j.gym.StepReply
@@ -142,9 +139,9 @@ fun train() {
 
 	// one epoch ~ 40 steps
 	val opponents = mapOf(
-		0..4_000 to AI(random, false, "random"),
-		4_000..10_000 to AI(easy, false, "easy"),
-		10_000..Int.MAX_VALUE to AI(medium, false, "medium")
+		0..4_000 to AI(random(), false, "random"),
+		4_000..10_000 to AI(Evaluations.sumSquarePosition, false, "easy"),
+		10_000..Int.MAX_VALUE to AI(extreme, false, "extreme")
 	)
 
 	val steps = 200 // 100
