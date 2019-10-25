@@ -12,14 +12,20 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   var println = Kotlin.kotlin.io.println_s8jyv4$;
   var COROUTINE_SUSPENDED = Kotlin.kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED;
   var CoroutineImpl = Kotlin.kotlin.coroutines.CoroutineImpl;
-  var Random = Kotlin.kotlin.random.Random;
-  var wrapFunction = Kotlin.wrapFunction;
-  var equals = Kotlin.equals;
-  var getCallableRef = Kotlin.getCallableRef;
-  var Kind_OBJECT = Kotlin.Kind.OBJECT;
+  var emptyList = Kotlin.kotlin.collections.emptyList_287e2$;
   var Unit = Kotlin.kotlin.Unit;
   var sequence = Kotlin.kotlin.sequences.sequence_o0x0bg$;
-  var max = Kotlin.kotlin.sequences.max_gtzq52$;
+  var equals = Kotlin.equals;
+  var getCallableRef = Kotlin.getCallableRef;
+  var toList = Kotlin.kotlin.sequences.toList_veqyi0$;
+  var max = Kotlin.kotlin.collections.max_exjks8$;
+  var ensureNotNull = Kotlin.ensureNotNull;
+  var min = Kotlin.kotlin.collections.min_exjks8$;
+  var Random = Kotlin.kotlin.random.Random;
+  var wrapFunction = Kotlin.wrapFunction;
+  var Kind_OBJECT = Kotlin.Kind.OBJECT;
+  var max_0 = Kotlin.kotlin.sequences.max_gtzq52$;
+  var min_0 = Kotlin.kotlin.sequences.min_gtzq52$;
   var throwUPAE = Kotlin.throwUPAE;
   var Job = $module$kotlinx_coroutines_core.kotlinx.coroutines.Job_5dx9e$;
   var withContext = $module$kotlinx_coroutines_core.kotlinx.coroutines.withContext_i5cbzn$;
@@ -41,13 +47,14 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   var toString = Kotlin.toString;
   var toBoxedChar = Kotlin.toBoxedChar;
   var defineInlineFunction = Kotlin.defineInlineFunction;
-  var emptyList = Kotlin.kotlin.collections.emptyList_287e2$;
   var contentEquals = Kotlin.arrayEquals;
   var contentHashCode = Kotlin.arrayHashCode;
   var ArrayList_init = Kotlin.kotlin.collections.ArrayList_init_mqih57$;
   var split = Kotlin.kotlin.text.split_o64adg$;
   var split_0 = Kotlin.kotlin.text.split_ip8yn$;
   var toInt = Kotlin.kotlin.text.toInt_pdl1vz$;
+  var joinToString = Kotlin.kotlin.collections.joinToString_cgipc5$;
+  var toList_0 = Kotlin.kotlin.text.toList_gw00vp$;
   var unboxChar = Kotlin.unboxChar;
   ControlledGame.prototype = Object.create(Game.prototype);
   ControlledGame.prototype.constructor = ControlledGame;
@@ -69,14 +76,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   MoveResult$Error$RepeatedMove.prototype.constructor = MoveResult$Error$RepeatedMove;
   MoveResult$Error$CannotMoveOfBoard.prototype = Object.create(MoveResult$Error.prototype);
   MoveResult$Error$CannotMoveOfBoard.prototype.constructor = MoveResult$Error$CannotMoveOfBoard;
-  function map$lambda(closure$f, this$map) {
-    return function (player, state) {
-      return closure$f(player, state, this$map(player, state));
-    };
-  }
-  function map_0($receiver, f) {
-    return map$lambda(f, $receiver);
-  }
   function MoveToState(move, state) {
     this.move = move;
     this.state = state;
@@ -179,7 +178,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
       throw IllegalStateException_init(('No valid moves for player ' + player + ' with state=' + debugString(state)).toString());
     }
     var best = tmp$_0;
-    println('Player ' + player + ' thinks the move is worth: ' + best.first + ' points. (easy: ' + easy(player, best.second.state) + ')');
+    println('Player ' + player + ' thinks the move is worth: ' + best.first + ' points.');
     return best.second;
   }
   function AI(strategy, debug, strategyName) {
@@ -199,17 +198,274 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
     return move;
   };
   AI.$metadata$ = {kind: Kind_CLASS, simpleName: 'AI', interfaces: [PlayerController]};
-  var easy;
-  var medium;
-  var base;
-  function randomBase$lambda(f, f_0, i) {
-    return i + Random.Default.nextInt_vux9f0$(-2, 2) | 0;
+  function MoveEvaluation(label, evaluation, byPlayer) {
+    this.label = label;
+    this.evaluation = evaluation;
+    this.byPlayer = byPlayer;
   }
-  var randomBase;
-  var hard;
-  var superStrategy;
+  MoveEvaluation.$metadata$ = {kind: Kind_CLASS, simpleName: 'MoveEvaluation', interfaces: []};
+  MoveEvaluation.prototype.component1 = function () {
+    return this.label;
+  };
+  MoveEvaluation.prototype.component2 = function () {
+    return this.evaluation;
+  };
+  MoveEvaluation.prototype.component3 = function () {
+    return this.byPlayer;
+  };
+  MoveEvaluation.prototype.copy_qsq6qi$ = function (label, evaluation, byPlayer) {
+    return new MoveEvaluation(label === void 0 ? this.label : label, evaluation === void 0 ? this.evaluation : evaluation, byPlayer === void 0 ? this.byPlayer : byPlayer);
+  };
+  MoveEvaluation.prototype.toString = function () {
+    return 'MoveEvaluation(label=' + Kotlin.toString(this.label) + (', evaluation=' + Kotlin.toString(this.evaluation)) + (', byPlayer=' + Kotlin.toString(this.byPlayer)) + ')';
+  };
+  MoveEvaluation.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.label) | 0;
+    result = result * 31 + Kotlin.hashCode(this.evaluation) | 0;
+    result = result * 31 + Kotlin.hashCode(this.byPlayer) | 0;
+    return result;
+  };
+  MoveEvaluation.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.label, other.label) && Kotlin.equals(this.evaluation, other.evaluation) && Kotlin.equals(this.byPlayer, other.byPlayer)))));
+  };
+  function extractEvaluation($receiver) {
+    return $receiver.v.evaluation;
+  }
+  function Tree(v, children) {
+    if (children === void 0)
+      children = emptyList();
+    this.v = v;
+    this.children = children;
+  }
+  Tree.$metadata$ = {kind: Kind_CLASS, simpleName: 'Tree', interfaces: []};
+  Tree.prototype.component1 = function () {
+    return this.v;
+  };
+  Tree.prototype.component2 = function () {
+    return this.children;
+  };
+  Tree.prototype.copy_vgdgbr$ = function (v, children) {
+    return new Tree(v === void 0 ? this.v : v, children === void 0 ? this.children : children);
+  };
+  Tree.prototype.toString = function () {
+    return 'Tree(v=' + Kotlin.toString(this.v) + (', children=' + Kotlin.toString(this.children)) + ')';
+  };
+  Tree.prototype.hashCode = function () {
+    var result = 0;
+    result = result * 31 + Kotlin.hashCode(this.v) | 0;
+    result = result * 31 + Kotlin.hashCode(this.children) | 0;
+    return result;
+  };
+  Tree.prototype.equals = function (other) {
+    return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.v, other.v) && Kotlin.equals(this.children, other.children)))));
+  };
+  function Coroutine$walk$lambda(this$walk_0, $receiver_0, controller, continuation_0) {
+    CoroutineImpl.call(this, continuation_0);
+    this.$controller = controller;
+    this.exceptionState_0 = 1;
+    this.local$this$walk = this$walk_0;
+    this.local$tmp$ = void 0;
+    this.local$$receiver = $receiver_0;
+  }
+  Coroutine$walk$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
+  Coroutine$walk$lambda.prototype = Object.create(CoroutineImpl.prototype);
+  Coroutine$walk$lambda.prototype.constructor = Coroutine$walk$lambda;
+  Coroutine$walk$lambda.prototype.doResume = function () {
+    do
+      try {
+        switch (this.state_0) {
+          case 0:
+            this.state_0 = 2;
+            this.result_0 = this.local$$receiver.yield_11rb$(this.local$this$walk.v, this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 1:
+            throw this.exception_0;
+          case 2:
+            this.local$tmp$ = this.local$this$walk.children.iterator();
+            this.state_0 = 3;
+            continue;
+          case 3:
+            if (!this.local$tmp$.hasNext()) {
+              this.state_0 = 5;
+              continue;
+            }
+
+            var element = this.local$tmp$.next();
+            this.state_0 = 4;
+            this.result_0 = this.local$$receiver.yieldAll_swo9gw$(walk(element), this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 4:
+            this.state_0 = 3;
+            continue;
+          case 5:
+            return Unit;
+          default:this.state_0 = 1;
+            throw new Error('State Machine Unreachable execution');
+        }
+      }
+       catch (e) {
+        if (this.state_0 === 1) {
+          this.exceptionState_0 = this.state_0;
+          throw e;
+        }
+         else {
+          this.state_0 = this.exceptionState_0;
+          this.exception_0 = e;
+        }
+      }
+     while (true);
+  };
+  function walk$lambda(this$walk_0) {
+    return function ($receiver_0, continuation_0, suspended) {
+      var instance = new Coroutine$walk$lambda(this$walk_0, $receiver_0, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
+  function walk($receiver) {
+    return sequence(walk$lambda($receiver));
+  }
+  function withDebug$lambda(this$withDebug) {
+    return function (player, state, label) {
+      return new Tree(new MoveEvaluation(label, this$withDebug(player, state), state.playersTurn));
+    };
+  }
+  function withDebug($receiver) {
+    return withDebug$lambda($receiver);
+  }
+  var easyDebug;
+  var level1;
+  var level2;
+  var level3;
+  var level4;
+  var superDebug;
+  var superDebugR;
+  function treeSearchStrategyDebug$lambda(closure$level, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin) {
+    return function (player, state, label) {
+      return treeSearchDebug(player, state, closure$level, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin, label);
+    };
+  }
+  function treeSearchStrategyDebug(level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin) {
+    if (pruneLevelMax === void 0)
+      pruneLevelMax = 0;
+    if (pruneLevelMin === void 0)
+      pruneLevelMin = -pruneLevelMax | 0;
+    return treeSearchStrategyDebug$lambda(level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin);
+  }
+  function treeSearchDebug$lambda(closure$player, closure$level, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin) {
+    return function (it) {
+      return treeSearchDebug(closure$player, it.state, closure$level - 1 | 0, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin, it.move.toString());
+    };
+  }
+  var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
+  var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
+  function treeSearchDebug(player, state, level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin, label) {
+    var tmp$;
+    var playerWhoMoved = next(state.playersTurn);
+    if (level === 0)
+      return baseStrategy(player, state, label);
+    if (state.victor != null) {
+      var value = equals(player, state.victor) ? 2147483647 : -2147483648;
+      return new Tree(new MoveEvaluation(label, value, playerWhoMoved));
+    }
+    if (pruning) {
+      var currentPositionEvaluation = baseStrategy(player, state, label);
+      var v = currentPositionEvaluation.v.evaluation;
+      if (v < pruneLevelMin)
+        return currentPositionEvaluation;
+      if (v > pruneLevelMax)
+        return currentPositionEvaluation;
+    }
+    var moves = map(findAllMoves(state), treeSearchDebug$lambda(player, level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin));
+    if (player === state.playersTurn) {
+      if (pruning) {
+        var tmp$_0 = maxPruning(moves, pruneLevelMax, getCallableRef('extractEvaluation', function ($receiver) {
+          return extractEvaluation($receiver);
+        }));
+        var best = tmp$_0.component1(), list = tmp$_0.component2();
+        tmp$ = new Tree(new MoveEvaluation(label, best, playerWhoMoved), list);
+      }
+       else {
+        var list_0 = toList(moves);
+        var destination = ArrayList_init_0(collectionSizeOrDefault(list_0, 10));
+        var tmp$_1;
+        tmp$_1 = list_0.iterator();
+        while (tmp$_1.hasNext()) {
+          var item = tmp$_1.next();
+          destination.add_11rb$(item.v.evaluation);
+        }
+        var best_0 = ensureNotNull(max(destination));
+        tmp$ = new Tree(new MoveEvaluation(label, best_0, playerWhoMoved), list_0);
+      }
+    }
+     else {
+      if (pruning) {
+        var tmp$_2 = minPruning(moves, pruneLevelMin, getCallableRef('extractEvaluation', function ($receiver) {
+          return extractEvaluation($receiver);
+        }));
+        var worst = tmp$_2.component1(), list_1 = tmp$_2.component2();
+        tmp$ = new Tree(new MoveEvaluation(label, worst, playerWhoMoved), list_1);
+      }
+       else {
+        var list_2 = toList(moves);
+        var destination_0 = ArrayList_init_0(collectionSizeOrDefault(list_2, 10));
+        var tmp$_3;
+        tmp$_3 = list_2.iterator();
+        while (tmp$_3.hasNext()) {
+          var item_0 = tmp$_3.next();
+          destination_0.add_11rb$(item_0.v.evaluation);
+        }
+        var worst_0 = ensureNotNull(min(destination_0));
+        tmp$ = new Tree(new MoveEvaluation(label, worst_0, playerWhoMoved), list_2);
+      }
+    }
+    return tmp$;
+  }
+  var ArrayList_init_1 = Kotlin.kotlin.collections.ArrayList_init_287e2$;
+  function maxPruning($receiver, pruneLevel, f) {
+    var result = ArrayList_init_1();
+    var bestValue = {v: -2147483648};
+    var tmp$;
+    tmp$ = $receiver.iterator();
+    while (tmp$.hasNext()) {
+      var element = tmp$.next();
+      result.add_11rb$(element);
+      var value = f(element);
+      if (value > pruneLevel) {
+        return to(value, result);
+      }
+       else if (value > bestValue.v) {
+        bestValue.v = value;
+      }
+    }
+    return to(bestValue.v, result);
+  }
+  function minPruning($receiver, pruneLevel, f) {
+    var result = ArrayList_init_1();
+    var worstValue = {v: 2147483647};
+    var tmp$;
+    tmp$ = $receiver.iterator();
+    while (tmp$.hasNext()) {
+      var element = tmp$.next();
+      result.add_11rb$(element);
+      var value = f(element);
+      if (value < pruneLevel) {
+        return to(value, result);
+      }
+       else if (value < worstValue.v) {
+        worstValue.v = value;
+      }
+    }
+    return to(worstValue.v, result);
+  }
   var extreme;
-  var random;
   function Evaluations() {
     Evaluations_instance = this;
     this.progressMult_0 = 1;
@@ -429,7 +685,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
       return Kotlin.isType(next, MoveResult$Success) ? new MoveToState(new Move(from, to), next.state) : null;
     };
   }
-  var ArrayList_init_0 = Kotlin.kotlin.collections.ArrayList_init_287e2$;
   function Coroutine$findAllMoves$lambda(this$findAllMoves_0, $receiver_0, controller, continuation_0) {
     CoroutineImpl.call(this, continuation_0);
     this.$controller = controller;
@@ -450,7 +705,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
           case 0:
             this.local$tryMove = findAllMoves$lambda$tryMove(this.local$this$findAllMoves);
             var $receiver = this.local$this$findAllMoves.grid.getAllFor_11rb$(this.local$this$findAllMoves.playersTurn);
-            var destination = ArrayList_init_0();
+            var destination = ArrayList_init_1();
             var tmp$;
             tmp$ = $receiver.iterator();
             while (tmp$.hasNext()) {
@@ -568,19 +823,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   function findAllMoves($receiver) {
     return sequence(findAllMoves$lambda($receiver));
   }
-  function recurseOnce$lambda(closure$baseStrategy) {
-    return function (ownPlayer, state) {
-      if (equals(state.victor, ownPlayer))
-        return 2147483647;
-      else {
-        var opponentMove = bestMove(closure$baseStrategy, next(ownPlayer), state);
-        return closure$baseStrategy(ownPlayer, opponentMove.state);
-      }
-    };
-  }
-  function recurseOnce(baseStrategy) {
-    return recurseOnce$lambda(baseStrategy);
-  }
   function treeSearchStrategy$lambda(closure$level, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin) {
     return function (player, state) {
       return treeSearch(player, state, closure$level, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin);
@@ -595,15 +837,16 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   }
   function treeSearch$lambda(closure$player, closure$level, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin) {
     return function (it) {
-      return treeSearch(next(closure$player), it.state, closure$level - 1 | 0, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin);
+      return treeSearch(closure$player, it.state, closure$level - 1 | 0, closure$baseStrategy, closure$pruning, closure$pruneLevelMax, closure$pruneLevelMin);
     };
   }
   function treeSearch(player, state, level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin) {
-    var tmp$, tmp$_0, tmp$_1;
+    var tmp$;
     if (level === 0)
       return baseStrategy(player, state);
-    if (state.victor != null)
+    if (state.victor != null) {
       return equals(player, state.victor) ? 2147483647 : -2147483648;
+    }
     if (pruning) {
       var currentPositionEvaluation = baseStrategy(player, state);
       if (currentPositionEvaluation < pruneLevelMin)
@@ -611,31 +854,59 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
       if (currentPositionEvaluation > pruneLevelMax)
         return currentPositionEvaluation;
     }
-    var opponentMoveScores = map(findAllMoves(state), treeSearch$lambda(player, level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin));
-    if (pruning) {
-      tmp$_1 = (tmp$ = maxWithPruning(opponentMoveScores, pruneLevelMax)) != null ? tmp$ : 0;
+    var moves = map(findAllMoves(state), treeSearch$lambda(player, level, baseStrategy, pruning, pruneLevelMax, pruneLevelMin));
+    if (player === state.playersTurn) {
+      if (pruning) {
+        tmp$ = maxPruning_0(moves, pruneLevelMax);
+      }
+       else {
+        tmp$ = ensureNotNull(max_0(moves));
+      }
     }
      else {
-      tmp$_1 = (tmp$_0 = max(opponentMoveScores)) != null ? tmp$_0 : 0;
+      if (pruning) {
+        tmp$ = minPruning_0(moves, pruneLevelMin);
+      }
+       else {
+        tmp$ = ensureNotNull(min_0(moves));
+      }
     }
-    return -tmp$_1 | 0;
+    return tmp$;
   }
-  function maxWithPruning($receiver, pruneLevel) {
-    var iterator = $receiver.iterator();
-    if (!iterator.hasNext())
-      return null;
-    var max = iterator.next();
-    while (iterator.hasNext()) {
-      var e = iterator.next();
-      if (max < e)
-        max = e;
-      if (max > pruneLevel)
-        return max;
+  function maxPruning_0($receiver, pruneLevel) {
+    var bestValue = {v: -2147483648};
+    var tmp$;
+    tmp$ = $receiver.iterator();
+    while (tmp$.hasNext()) {
+      var element = tmp$.next();
+      if (element > pruneLevel) {
+        return element;
+      }
+       else if (element > bestValue.v) {
+        bestValue.v = element;
+      }
     }
-    return max;
+    return bestValue.v;
   }
-  function ControlledGame(redController, blueController, uiHook) {
-    Game.call(this);
+  function minPruning_0($receiver, pruneLevel) {
+    var worstValue = {v: 2147483647};
+    var tmp$;
+    tmp$ = $receiver.iterator();
+    while (tmp$.hasNext()) {
+      var element = tmp$.next();
+      if (element < pruneLevel) {
+        return element;
+      }
+       else if (element < worstValue.v) {
+        worstValue.v = element;
+      }
+    }
+    return worstValue.v;
+  }
+  function ControlledGame(redController, blueController, uiHook, state) {
+    if (state === void 0)
+      state = State$Companion_getInstance().inital;
+    Game.call(this, state);
     this.redController_0 = redController;
     this.blueController_0 = blueController;
     this.uiHook_0 = uiHook;
@@ -1331,7 +1602,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
     var predicate = getCallableRef('isEligibleToMove', function ($receiver, p) {
       return $receiver.isEligibleToMove_bk5ui5$(p);
     }.bind(null, this));
-    var destination = ArrayList_init_0();
+    var destination = ArrayList_init_1();
     var tmp$;
     tmp$ = $receiver.iterator();
     while (tmp$.hasNext()) {
@@ -1426,6 +1697,12 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
     line();
     return sb.toString();
   }
+  function move($receiver, move) {
+    return $receiver.move_56t7qy$(move.from, move.to);
+  }
+  function canMove($receiver, move_0) {
+    return Kotlin.isType(move($receiver, move_0), MoveResult$Success);
+  }
   function appendln($receiver, s) {
     if (s === void 0)
       s = '';
@@ -1480,7 +1757,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
           var tmp$;
           var value = $receiver_0.get_11rb$(p);
           if (value == null) {
-            var answer = ArrayList_init_0();
+            var answer = ArrayList_init_1();
             $receiver_0.put_xwzc9p$(p, answer);
             tmp$ = answer;
           }
@@ -1522,7 +1799,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
         var tmp$_0;
         var value = $receiver.get_11rb$(t);
         if (value == null) {
-          var answer = ArrayList_init_0();
+          var answer = ArrayList_init_1();
           $receiver.put_xwzc9p$(t, answer);
           tmp$_0 = answer;
         }
@@ -1811,12 +2088,12 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   }
   NetFormat.prototype.encodeNullable_11rb$ = function (t) {
     if (t == null)
-      return 'null';
+      return '_';
     else
-      return this.encodeNullable_11rb$(t);
+      return this.encode_11rb$(t);
   };
   NetFormat.prototype.decodeNullable_61zpoe$ = function (s) {
-    if (equals(s, 'null'))
+    if (equals(s, '_'))
       return null;
     else
       return this.decode_61zpoe$(s);
@@ -1849,14 +2126,12 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
     var $receiver = PointNetFormat_getInstance();
     return $receiver.encode_11rb$(t.from) + ' -> ' + $receiver.encode_11rb$(t.to);
   };
-  var collectionSizeOrDefault = Kotlin.kotlin.collections.collectionSizeOrDefault_ba2ldo$;
-  var ArrayList_init_1 = Kotlin.kotlin.collections.ArrayList_init_ww73n8$;
   MoveNetFormat.prototype.decode_61zpoe$ = function (s) {
     var $receiver = split_0(s, [' -> '], void 0, 2);
     var transform = getCallableRef('decode', function ($receiver, s) {
       return $receiver.decode_61zpoe$(s);
     }.bind(null, PointNetFormat_getInstance()));
-    var destination = ArrayList_init_1(collectionSizeOrDefault($receiver, 10));
+    var destination = ArrayList_init_0(collectionSizeOrDefault($receiver, 10));
     var tmp$;
     tmp$ = $receiver.iterator();
     while (tmp$.hasNext()) {
@@ -1878,46 +2153,129 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   function StateNetFormat() {
     StateNetFormat_instance = this;
   }
+  StateNetFormat.prototype.encode_11rb$ = function (t) {
+    var receiver = PointNetFormat_getInstance();
+    var receiver_0 = MoveNetFormat_getInstance();
+    var receiver_1 = GameGridNetFormat_getInstance();
+    return t.playersTurn.toString() + ';' + receiver_1.encode_11rb$(t.grid) + ';' + receiver.encodeNullable_11rb$(t.lastPushed) + ';' + receiver_0.encodeNullable_11rb$(t.lastMove) + ';' + this.encodeNullable_11rb$(t.prev);
+  };
+  StateNetFormat.prototype.decode_61zpoe$ = function (s) {
+    var f = split_0(s, [';'], void 0, 5);
+    var playersTurn = f.get_za3lpa$(0);
+    var grid = f.get_za3lpa$(1);
+    var lastPushed = f.get_za3lpa$(2);
+    var lastMove = f.get_za3lpa$(3);
+    var prev = f.get_za3lpa$(4);
+    var tmp$, tmp$_0, tmp$_1, tmp$_2;
+    tmp$ = Player$valueOf(playersTurn);
+    tmp$_0 = GameGridNetFormat_getInstance().decode_61zpoe$(grid);
+    tmp$_1 = PointNetFormat_getInstance().decodeNullable_61zpoe$(lastPushed);
+    tmp$_2 = MoveNetFormat_getInstance().decodeNullable_61zpoe$(lastMove);
+    return new State(tmp$, tmp$_1, tmp$_0, this.decodeNullable_61zpoe$(prev), tmp$_2);
+  };
+  StateNetFormat.$metadata$ = {kind: Kind_OBJECT, simpleName: 'StateNetFormat', interfaces: [NetFormat]};
   var StateNetFormat_instance = null;
+  function StateNetFormat_getInstance() {
+    if (StateNetFormat_instance === null) {
+      new StateNetFormat();
+    }
+    return StateNetFormat_instance;
+  }
   function GameGridNetFormat() {
     GameGridNetFormat_instance = this;
   }
+  GameGridNetFormat.prototype.encode_11rb$ = function (t) {
+    return t.width.toString() + ',' + t.height + ',' + joinToString(t.elems, '', void 0, void 0, void 0, void 0, getCallableRef('encodeNullable', function ($receiver, t) {
+      return $receiver.encodeNullable_11rb$(t);
+    }.bind(null, PlayerNetFormat_getInstance())));
+  };
   var copyToArray = Kotlin.kotlin.collections.copyToArray;
+  GameGridNetFormat.prototype.decode_61zpoe$ = function (s) {
+    var f = split_0(s, [','], void 0, 3);
+    var width = f.get_za3lpa$(0);
+    var height = f.get_za3lpa$(1);
+    var elems = f.get_za3lpa$(2);
+    var tmp$ = GameGrid$Companion_getInstance();
+    var tmp$_0 = toInt(width);
+    var tmp$_1 = toInt(height);
+    var $receiver = toList_0(elems);
+    var destination = ArrayList_init_0(collectionSizeOrDefault($receiver, 10));
+    var tmp$_2;
+    tmp$_2 = $receiver.iterator();
+    while (tmp$_2.hasNext()) {
+      var item = tmp$_2.next();
+      destination.add_11rb$(String.fromCharCode(unboxChar(item)));
+    }
+    var transform = getCallableRef('decode', function ($receiver, s) {
+      return $receiver.decode_61zpoe$(s);
+    }.bind(null, PlayerNetFormat_getInstance()));
+    var destination_0 = ArrayList_init_0(collectionSizeOrDefault(destination, 10));
+    var tmp$_3;
+    tmp$_3 = destination.iterator();
+    while (tmp$_3.hasNext()) {
+      var item_0 = tmp$_3.next();
+      destination_0.add_11rb$(transform(item_0));
+    }
+    return tmp$.create_vnf2z1$(tmp$_0, tmp$_1, copyToArray(destination_0));
+  };
+  GameGridNetFormat.$metadata$ = {kind: Kind_OBJECT, simpleName: 'GameGridNetFormat', interfaces: [NetFormat]};
   var GameGridNetFormat_instance = null;
+  function GameGridNetFormat_getInstance() {
+    if (GameGridNetFormat_instance === null) {
+      new GameGridNetFormat();
+    }
+    return GameGridNetFormat_instance;
+  }
   function PlayerNetFormat() {
     PlayerNetFormat_instance = this;
   }
+  PlayerNetFormat.prototype.encode_11rb$ = function (t) {
+    if (equals(t, Player$Red_getInstance()))
+      return 'R';
+    else if (equals(t, Player$Blue_getInstance()))
+      return 'B';
+    else if (t == null)
+      return '_';
+    else
+      return Kotlin.noWhenBranchMatched();
+  };
+  PlayerNetFormat.prototype.decode_61zpoe$ = function (s) {
+    switch (s) {
+      case 'R':
+        return Player$Red_getInstance();
+      case 'B':
+        return Player$Blue_getInstance();
+      default:return null;
+    }
+  };
+  PlayerNetFormat.$metadata$ = {kind: Kind_OBJECT, simpleName: 'PlayerNetFormat', interfaces: [NetFormat]};
   var PlayerNetFormat_instance = null;
+  function PlayerNetFormat_getInstance() {
+    if (PlayerNetFormat_instance === null) {
+      new PlayerNetFormat();
+    }
+    return PlayerNetFormat_instance;
+  }
   var package$de = _.de || (_.de = {});
   var package$earley = package$de.earley || (package$de.earley = {});
   var package$gogogo = package$earley.gogogo || (package$earley.gogogo = {});
   var package$ai = package$gogogo.ai || (package$gogogo.ai = {});
-  package$ai.map_xpuobx$ = map_0;
   package$ai.MoveToState = MoveToState;
   package$ai.bestMove_7dht$ = bestMove;
   package$ai.debugBestMove_7dht$ = debugBestMove;
   package$ai.AI = AI;
-  Object.defineProperty(package$ai, 'easy', {get: function () {
-    return easy;
+  var package$debug = package$ai.debug || (package$ai.debug = {});
+  package$debug.MoveEvaluation = MoveEvaluation;
+  package$debug.extractEvaluation_t333es$ = extractEvaluation;
+  package$debug.Tree = Tree;
+  package$debug.walk_y6tmdh$ = walk;
+  package$debug.withDebug_h7o6yf$ = withDebug;
+  Object.defineProperty(package$debug, 'superDebug', {get: function () {
+    return superDebug;
   }});
-  Object.defineProperty(package$ai, 'medium', {get: function () {
-    return medium;
-  }});
-  Object.defineProperty(package$ai, 'base', {get: function () {
-    return base;
-  }});
-  Object.defineProperty(package$ai, 'hard', {get: function () {
-    return hard;
-  }});
-  Object.defineProperty(package$ai, 'superStrategy', {get: function () {
-    return superStrategy;
-  }});
-  Object.defineProperty(package$ai, 'extreme', {get: function () {
-    return extreme;
-  }});
+  package$debug.treeSearchStrategyDebug_jqvrqk$ = treeSearchStrategyDebug;
   Object.defineProperty(package$ai, 'Evaluations', {get: Evaluations_getInstance});
   package$ai.findAllMoves_1pq5d1$ = findAllMoves;
-  package$ai.recurseOnce_xtbmsm$ = recurseOnce;
   package$ai.treeSearchStrategy_r1a1ux$ = treeSearchStrategy;
   var package$game = package$gogogo.game || (package$gogogo.game = {});
   package$game.ControlledGame = ControlledGame;
@@ -1942,6 +2300,8 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   Object.defineProperty(State, 'Companion', {get: State$Companion_getInstance});
   package$game.State = State;
   package$game.debugString_1pq5d1$ = debugString;
+  package$game.move_yawtop$ = move;
+  package$game.canMove_yawtop$ = canMove;
   var package$grid = package$game.grid || (package$game.grid = {});
   package$grid.Alterations = Alterations;
   Object.defineProperty(GameGrid, 'Companion', {get: GameGrid$Companion_getInstance});
@@ -1960,6 +2320,9 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   package$net.NetFormat = NetFormat;
   Object.defineProperty(package$net, 'PointNetFormat', {get: PointNetFormat_getInstance});
   Object.defineProperty(package$net, 'MoveNetFormat', {get: MoveNetFormat_getInstance});
+  Object.defineProperty(package$net, 'StateNetFormat', {get: StateNetFormat_getInstance});
+  Object.defineProperty(package$net, 'GameGridNetFormat', {get: GameGridNetFormat_getInstance});
+  Object.defineProperty(package$net, 'PlayerNetFormat', {get: PlayerNetFormat_getInstance});
   PointNetFormat.prototype.encodeNullable_11rb$ = NetFormat.prototype.encodeNullable_11rb$;
   PointNetFormat.prototype.decodeNullable_61zpoe$ = NetFormat.prototype.decodeNullable_61zpoe$;
   MoveNetFormat.prototype.encodeNullable_11rb$ = NetFormat.prototype.encodeNullable_11rb$;
@@ -1970,12 +2333,13 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   GameGridNetFormat.prototype.decodeNullable_61zpoe$ = NetFormat.prototype.decodeNullable_61zpoe$;
   PlayerNetFormat.prototype.encodeNullable_11rb$ = NetFormat.prototype.encodeNullable_11rb$;
   PlayerNetFormat.prototype.decodeNullable_61zpoe$ = NetFormat.prototype.decodeNullable_61zpoe$;
-  easy = Evaluations_getInstance().sumPosition;
-  medium = recurseOnce(easy);
-  base = treeSearchStrategy(2, medium, false);
-  randomBase = map_0(treeSearchStrategy(2, medium, false), randomBase$lambda);
-  hard = treeSearchStrategy(2, Evaluations_getInstance().sumPosition, false);
-  superStrategy = treeSearchStrategy(3, Evaluations_getInstance().sumSquarePosition, true, 10);
+  easyDebug = withDebug(Evaluations_getInstance().sumSquarePosition);
+  level1 = treeSearchStrategyDebug(1, easyDebug, false);
+  level2 = treeSearchStrategyDebug(2, easyDebug, false);
+  level3 = treeSearchStrategyDebug(3, easyDebug, false);
+  level4 = treeSearchStrategyDebug(4, easyDebug, false);
+  superDebug = treeSearchStrategyDebug(7, level3, true, 40);
+  superDebugR = treeSearchStrategyDebug(6, level3, true, 40);
   extreme = treeSearchStrategy(4, Evaluations_getInstance().sumSquarePosition, false);
   GAME_WIDTH = 6;
   GAME_HEIGHT = 5;

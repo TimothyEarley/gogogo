@@ -278,3 +278,12 @@ h1 {
     transform: rotate(360deg);
   }
 }
+
+/* Test AI  */
+.tf-nc {
+	padding: 2px !important;
+}
+
+.tf-tree li {
+	padding: 0 0.1em !important;
+}

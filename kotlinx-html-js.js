@@ -670,6 +670,12 @@
   function set_id($receiver, newValue) {
     attributeStringString.set_fid0sb$($receiver, 'id', newValue);
   }
+  function set_style($receiver, newValue) {
+    attributeStringString.set_fid0sb$($receiver, 'style', newValue);
+  }
+  function set_title($receiver, newValue) {
+    attributeStringString.set_fid0sb$($receiver, 'title', newValue);
+  }
   function FormServerAttributeGroupFacade() {
   }
   function InputServerAttributeGroupFacade() {
@@ -2137,6 +2143,7 @@
   var letterRangeLowerCase;
   var letterRangeUpperCase;
   var digitRange;
+  var iterator = Kotlin.kotlin.text.iterator_gw00vp$;
   var package$kotlinx = _.kotlinx || (_.kotlinx = {});
   var package$html = package$kotlinx.html || (package$kotlinx.html = {});
   var package$js = package$html.js || (package$html.js = {});
@@ -2175,6 +2182,8 @@
   package$impl.DelegatingMap = DelegatingMap;
   package$html.CommonAttributeGroupFacade = CommonAttributeGroupFacade;
   package$html.set_id_ueiko3$ = set_id;
+  package$html.set_style_ueiko3$ = set_style;
+  package$html.set_title_ueiko3$ = set_title;
   package$html.FormServerAttributeGroupFacade = FormServerAttributeGroupFacade;
   package$html.InputServerAttributeGroupFacade = InputServerAttributeGroupFacade;
   package$html.SelectServerAttributeGroupFacade = SelectServerAttributeGroupFacade;
