@@ -29,4 +29,12 @@ kotlin {
 			}
 		}
 	}
+
+	targets.all { 
+		compilations.all {
+			kotlinOptions.freeCompilerArgs = listOf(
+				"-Xno-param-assertions" // much better performance
+			)
+		}
+	}
 }

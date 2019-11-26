@@ -35,7 +35,7 @@ data class State(
 		)
 	}
 
-	val victor: Player? = isVictory()
+	val victor: Player? by lazy { isVictory() }
 
 
 	fun move(from: Point, to: Point): MoveResult {
@@ -43,7 +43,7 @@ data class State(
 			return it
 		}
 
-		val next = nextOver(from ,to)
+		val next = nextOver(from, to)
 		val pushing = grid[to] != null
 
 		val pushed = if (pushing) next else null
@@ -66,16 +66,18 @@ data class State(
 
 	}
 
+	//HOTSPOT - SLOW
 	private fun findMoveError(from: Point, to: Point): MoveResult.Error? = when {
 		playersTurn != grid[from] -> MoveResult.Error.NotPlayersPiece
 		lastPushed == from -> MoveResult.Error.WasPushed
 		! grid.isInGrid(to.x, to.y) -> MoveResult.Error.CannotMoveOfBoard
 		! isAdjacent(from, to) -> MoveResult.Error.NotAdjacent
-		! canPush(from, to) -> MoveResult.Error.CannotPush
-		isRepeatedMove(from, to) -> MoveResult.Error.RepeatedMove
+		/* SLOW */ ! canPush(from, to) -> MoveResult.Error.CannotPush
+		/* SLOW */ isRepeatedMove(from, to) -> MoveResult.Error.RepeatedMove
 		else -> null
 	}
 
+	//HOTSPOT
 	fun isEligibleToMove(p: Point): Boolean {
 		return playersTurn == grid[p] && lastPushed != p
 	}
@@ -89,12 +91,14 @@ data class State(
 		// rule: if in the same situation the same move was done, it is illegal
 
 		// check if the same move was made four moves ago
-		val threeMovesAgo = applyN(3, State::prev) ?: return false
+//		val threeMovesAgo = applyN(3, State::prev) ?: return false
+		val threeMovesAgo = prev?.prev?.prev ?: return false
 		if (threeMovesAgo.lastMove != Move(from, to)) return false
 
 		// check the state four moves ago
 
-		val fourMovesAgo = applyN(4, State::prev) ?: return false
+//		val fourMovesAgo = applyN(4, State::prev) ?: return false
+		val fourMovesAgo = threeMovesAgo.prev ?: return false
 
 		// we do a sort of equals here, but only on the relevant parts
 		if (fourMovesAgo.lastPushed != lastPushed) return false
@@ -104,6 +108,7 @@ data class State(
 		return true
 	}
 
+	//HOTSPOT - relatively slow
 	private fun isVictory(): Player? {
 
 		// if no move are present, then no victory is possible
@@ -153,6 +158,7 @@ private fun isAdjacent(from: Point, to: Point): Boolean {
 	return (dx == 1 && dy == 0) || (dx == 0 && dy == 1)
 }
 
+//HOTSPOT
 private tailrec fun <T> T.applyN(n: Int, next: (T) -> T?): T? = when(n) {
 	0 -> this
 	else -> next(this)?.applyN(n - 1, next)

@@ -1863,15 +1863,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
     return this.elems_xn6fgu$_0;
   }});
   GenericGrid.prototype.get_vux9f0$ = function (x, y) {
-    var tmp$, tmp$_0, tmp$_1;
-    tmp$ = this.width - 1 | 0;
-    if (0 <= x && x <= tmp$) {
-      tmp$_0 = this.height - 1 | 0;
-      tmp$_1 = (0 <= y && y <= tmp$_0);
-    }
-     else
-      tmp$_1 = false;
-    return tmp$_1 ? this.elems[Kotlin.imul(y, this.width) + x | 0] : null;
+    return isInGrid(this, x, y) ? this.elems[Kotlin.imul(y, this.width) + x | 0] : null;
   };
   GenericGrid.prototype.set_vq7693$ = function (x, y, t) {
     this.elems[Kotlin.imul(y, this.width) + x | 0] = t;

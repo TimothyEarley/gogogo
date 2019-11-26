@@ -34,6 +34,7 @@ class GameGrid private constructor(
 		}
 
 	//TODO code duplication with GenericGrid
+	//HOTSPOT
 	override operator fun get(x: Int, y: Int): Player? =
 		if (isInGrid(x, y)) elems[y * width + x] else null
 

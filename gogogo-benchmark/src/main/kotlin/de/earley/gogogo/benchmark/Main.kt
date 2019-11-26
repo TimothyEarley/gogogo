@@ -32,7 +32,7 @@ val ranking = mapOf(
 ).map { BenchmarkStrategy(it.key, it.value) }
 
 val challengers = mapOf(
-	"5/ss/30" to treeSearchStrategy(5, sumSquarePosition, true, 40),
+	"5/ss/40" to treeSearchStrategy(5, sumSquarePosition, true, 40),
 	"4/(1/mf/-)/200" to treeSearchStrategy(4, treeSearchStrategy(1, mostForward, false), true, 200),
 	"5/(1/mf/-)/200" to treeSearchStrategy(5, treeSearchStrategy(1, mostForward, false), true, 200),
 	"6/(1/mf/-)/40" to treeSearchStrategy(5, treeSearchStrategy(1, mostForward, false), true, 40)
