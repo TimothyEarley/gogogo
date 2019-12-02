@@ -14,6 +14,9 @@ enum class ControllerTypes(
 	Easy(AI(treeSearchStrategy(1, mostForward, false))::withUIAwareness),
 	Medium(AI(treeSearchStrategy(3, sumSquarePosition, false))::withUIAwareness),
 	Hard(HumanPlusAI(treeSearchStrategy(4, sumSquarePosition, false))::withUIAwareness),
+
+	MC(MonteCarlo(random(), 2000, Int.MAX_VALUE, true)::withUIAwareness)
+
 }
 
 fun controllerTypesAsString(): List<String> = ControllerTypes.values().map(ControllerTypes::toString)

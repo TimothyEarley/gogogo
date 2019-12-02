@@ -104,6 +104,16 @@
   Kotlin.toChar = function (a) {
     return a & 65535;
   };
+  Kotlin.numberToInt = function (a) {
+    return a instanceof Kotlin.Long ? a.toInt() : Kotlin.doubleToInt(a);
+  };
+  Kotlin.doubleToInt = function (a) {
+    if (a > 2147483647)
+      return 2147483647;
+    if (a < -2147483648)
+      return -2147483648;
+    return a | 0;
+  };
   Kotlin.toBoxedChar = function (a) {
     if (a == null)
       return a;
@@ -203,7 +213,7 @@
     return obj;
   };
   Kotlin.Long.fromNumber = function (value) {
-    if (isNaN(value) || !isFinite(value)) {
+    if (isNaN(value)) {
       return Kotlin.Long.ZERO;
     }
      else if (value <= -Kotlin.Long.TWO_PWR_63_DBL_) {
@@ -920,9 +930,40 @@
       return Math.log(x) * Math.LOG2E;
     };
   }
+  if (typeof Math.clz32 === 'undefined') {
+    Math.clz32 = function (log, LN2) {
+      return function (x) {
+        var asUint = x >>> 0;
+        if (asUint === 0) {
+          return 32;
+        }
+        return 31 - (log(asUint) / LN2 | 0) | 0;
+      };
+    }(Math.log, Math.LN2);
+  }
   if (typeof ArrayBuffer.isView === 'undefined') {
     ArrayBuffer.isView = function (a) {
       return a != null && a.__proto__ != null && a.__proto__.__proto__ === Int8Array.prototype.__proto__;
+    };
+  }
+  if (typeof Array.prototype.fill === 'undefined') {
+    Array.prototype.fill = function () {
+      if (this == null) {
+        throw new TypeError('this is null or not defined');
+      }
+      var O = Object(this);
+      var len = O.length >>> 0;
+      var start = arguments[1];
+      var relativeStart = start >> 0;
+      var k = relativeStart < 0 ? Math.max(len + relativeStart, 0) : Math.min(relativeStart, len);
+      var end = arguments[2];
+      var relativeEnd = end === undefined ? len : end >> 0;
+      var final = relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
+      while (k < final) {
+        O[k] = value;
+        k++;
+      }
+      return O;
     };
   }
   (function () {
@@ -942,6 +983,9 @@
     var arrays = [Int8Array, Int16Array, Uint16Array, Int32Array, Float32Array, Float64Array];
     for (var i = 0; i < arrays.length; ++i) {
       var TypedArray = arrays[i];
+      if (typeof TypedArray.prototype.fill === 'undefined') {
+        TypedArray.prototype.fill = Array.prototype.fill;
+      }
       if (typeof TypedArray.prototype.slice === 'undefined') {
         Object.defineProperty(TypedArray.prototype, 'slice', {value: typedArraySlice});
       }
@@ -1168,6 +1212,7 @@
     var toByte = Kotlin.toByte;
     var L_128 = Kotlin.Long.fromInt(-128);
     var L127 = Kotlin.Long.fromInt(127);
+    var numberToInt = Kotlin.numberToInt;
     var L_2147483648 = Kotlin.Long.fromInt(-2147483648);
     var L2147483647 = Kotlin.Long.fromInt(2147483647);
     var Long$Companion$MIN_VALUE = Kotlin.Long.MIN_VALUE;
@@ -1196,6 +1241,7 @@
     var L8246714829545688274 = new Kotlin.Long(-888910638, 1920087921);
     var L3406603774387020532 = new Kotlin.Long(1993859828, 793161749);
     var L_9223372036854775807 = new Kotlin.Long(1, -2147483648);
+    var L_256204778801521550 = new Kotlin.Long(1908874354, -59652324);
     var L2047 = Kotlin.Long.fromInt(2047);
     CharProgressionIterator.prototype = Object.create(CharIterator.prototype);
     CharProgressionIterator.prototype.constructor = CharProgressionIterator;
@@ -1305,6 +1351,14 @@
     findNext$ObjectLiteral$get_findNext$ObjectLiteral$groupValues$ObjectLiteral.prototype.constructor = findNext$ObjectLiteral$get_findNext$ObjectLiteral$groupValues$ObjectLiteral;
     findNext$ObjectLiteral$groups$ObjectLiteral.prototype = Object.create(AbstractCollection.prototype);
     findNext$ObjectLiteral$groups$ObjectLiteral.prototype.constructor = findNext$ObjectLiteral$groups$ObjectLiteral;
+    DurationUnit.prototype = Object.create(Enum.prototype);
+    DurationUnit.prototype.constructor = DurationUnit;
+    HrTimeClock$markNow$ObjectLiteral.prototype = Object.create(ClockMark.prototype);
+    HrTimeClock$markNow$ObjectLiteral.prototype.constructor = HrTimeClock$markNow$ObjectLiteral;
+    PerformanceClock.prototype = Object.create(AbstractDoubleClock.prototype);
+    PerformanceClock.prototype.constructor = PerformanceClock;
+    DateNowClock.prototype = Object.create(AbstractDoubleClock.prototype);
+    DateNowClock.prototype.constructor = DateNowClock;
     State.prototype = Object.create(Enum.prototype);
     State.prototype.constructor = State;
     AbstractList$SubList.prototype = Object.create(AbstractList.prototype);
@@ -1333,6 +1387,10 @@
     XorWowRandom.prototype.constructor = XorWowRandom;
     iterator$ObjectLiteral.prototype = Object.create(CharIterator.prototype);
     iterator$ObjectLiteral.prototype.constructor = iterator$ObjectLiteral;
+    AdjustedClockMark.prototype = Object.create(ClockMark.prototype);
+    AdjustedClockMark.prototype.constructor = AdjustedClockMark;
+    AbstractDoubleClock$DoubleClockMark.prototype = Object.create(ClockMark.prototype);
+    AbstractDoubleClock$DoubleClockMark.prototype.constructor = AbstractDoubleClock$DoubleClockMark;
     NotImplementedError.prototype = Object.create(Error_0.prototype);
     NotImplementedError.prototype.constructor = NotImplementedError;
     function contains($receiver, element) {
@@ -1527,7 +1585,7 @@
       return tmp$;
     }
     function take_8($receiver, n) {
-      var tmp$, tmp$_0;
+      var tmp$;
       if (!(n >= 0)) {
         var message = 'Requested element count ' + n + ' is less than zero.';
         throw IllegalArgumentException_init_0(message.toString());
@@ -1545,9 +1603,9 @@
       tmp$ = $receiver.iterator();
       while (tmp$.hasNext()) {
         var item = tmp$.next();
-        if ((tmp$_0 = count, count = tmp$_0 + 1 | 0, tmp$_0) === n)
-          break;
         list.add_11rb$(item);
+        if ((count = count + 1 | 0, count) === n)
+          break;
       }
       return optimizeReadOnlyList(list);
     }
@@ -1644,12 +1702,17 @@
         step = 1;
       if (partialWindows === void 0)
         partialWindows = false;
+      var tmp$;
       checkWindowSizeStep(size, step);
       if (Kotlin.isType($receiver, RandomAccess) && Kotlin.isType($receiver, List)) {
         var thisSize = $receiver.size;
-        var result = ArrayList_init_0((thisSize + step - 1 | 0) / step | 0);
+        var resultCapacity = (thisSize / step | 0) + (thisSize % step === 0 ? 0 : 1) | 0;
+        var result = ArrayList_init_0(resultCapacity);
         var index = {v: 0};
-        while (index.v < thisSize) {
+        while (true) {
+          tmp$ = index.v;
+          if (!(0 <= tmp$ && tmp$ < thisSize))
+            break;
           var windowSize = coerceAtMost_2(size, thisSize - index.v | 0);
           if (windowSize < size && !partialWindows)
             break;
@@ -2870,6 +2933,14 @@
       AbstractList$Companion_getInstance().checkRangeIndexes_cub51b$(fromIndex, toIndex, $receiver.length);
       return $receiver.slice(fromIndex, toIndex);
     }
+    function fill_3($receiver, element, fromIndex, toIndex) {
+      if (fromIndex === void 0)
+        fromIndex = 0;
+      if (toIndex === void 0)
+        toIndex = $receiver.length;
+      AbstractList$Companion_getInstance().checkRangeIndexes_cub51b$(fromIndex, toIndex, $receiver.length);
+      $receiver.fill(element, fromIndex, toIndex);
+    }
     function sortWith($receiver, comparator) {
       if ($receiver.length > 1)
         sortArrayWith_0($receiver, comparator);
@@ -2946,6 +3017,12 @@
           }
         }
       }
+    }
+    function checkCountOverflow(count) {
+      if (count < 0) {
+        throwCountOverflow();
+      }
+      return count;
     }
     function AbstractMutableCollection() {
       AbstractCollection.call(this);
@@ -4491,6 +4568,16 @@
     function Serializable() {
     }
     Serializable.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'Serializable', interfaces: []};
+    function json(pairs) {
+      var tmp$;
+      var res = {};
+      for (tmp$ = 0; tmp$ !== pairs.length; ++tmp$) {
+        var tmp$_0 = pairs[tmp$];
+        var name = tmp$_0.component1(), value = tmp$_0.component2();
+        res[name] = value;
+      }
+      return res;
+    }
     function nextDown($receiver) {
       if (isNaN_0($receiver) || $receiver === kotlin_js_internal_DoubleCompanionObject.NEGATIVE_INFINITY)
         return $receiver;
@@ -4515,15 +4602,6 @@
     }
     function defaultPlatformRandom() {
       return Random_0(Math.random() * Math.pow(2, 32) | 0);
-    }
-    function fastLog2(value) {
-      var v = value;
-      var log = -1;
-      while (v !== 0) {
-        v = v >>> 1;
-        log = log + 1 | 0;
-      }
-      return log;
     }
     var INV_2_26;
     var INV_2_53;
@@ -4660,6 +4738,7 @@
       }
       return NothingKClassImpl_instance;
     }
+    var DynamicKType_instance = null;
     function PrimitiveClasses() {
       PrimitiveClasses_instance = this;
       this.anyClass = new PrimitiveKClassImpl(Object, 'Any', PrimitiveClasses$anyClass$lambda);
@@ -5221,6 +5300,180 @@
     var MAX_BYTES_PER_CHAR;
     var REPLACEMENT_BYTE_SEQUENCE;
     var REPLACEMENT_CHAR;
+    function DurationUnit(name, ordinal, scale) {
+      Enum.call(this);
+      this.scale_8be2vx$ = scale;
+      this.name$ = name;
+      this.ordinal$ = ordinal;
+    }
+    function DurationUnit_initFields() {
+      DurationUnit_initFields = function () {
+      };
+      DurationUnit$NANOSECONDS_instance = new DurationUnit('NANOSECONDS', 0, 1.0);
+      DurationUnit$MICROSECONDS_instance = new DurationUnit('MICROSECONDS', 1, 1000.0);
+      DurationUnit$MILLISECONDS_instance = new DurationUnit('MILLISECONDS', 2, 1000000.0);
+      DurationUnit$SECONDS_instance = new DurationUnit('SECONDS', 3, 1.0E9);
+      DurationUnit$MINUTES_instance = new DurationUnit('MINUTES', 4, 6.0E10);
+      DurationUnit$HOURS_instance = new DurationUnit('HOURS', 5, 3.6E12);
+      DurationUnit$DAYS_instance = new DurationUnit('DAYS', 6, 8.64E13);
+    }
+    var DurationUnit$NANOSECONDS_instance;
+    function DurationUnit$NANOSECONDS_getInstance() {
+      DurationUnit_initFields();
+      return DurationUnit$NANOSECONDS_instance;
+    }
+    var DurationUnit$MICROSECONDS_instance;
+    function DurationUnit$MICROSECONDS_getInstance() {
+      DurationUnit_initFields();
+      return DurationUnit$MICROSECONDS_instance;
+    }
+    var DurationUnit$MILLISECONDS_instance;
+    function DurationUnit$MILLISECONDS_getInstance() {
+      DurationUnit_initFields();
+      return DurationUnit$MILLISECONDS_instance;
+    }
+    var DurationUnit$SECONDS_instance;
+    function DurationUnit$SECONDS_getInstance() {
+      DurationUnit_initFields();
+      return DurationUnit$SECONDS_instance;
+    }
+    var DurationUnit$MINUTES_instance;
+    function DurationUnit$MINUTES_getInstance() {
+      DurationUnit_initFields();
+      return DurationUnit$MINUTES_instance;
+    }
+    var DurationUnit$HOURS_instance;
+    function DurationUnit$HOURS_getInstance() {
+      DurationUnit_initFields();
+      return DurationUnit$HOURS_instance;
+    }
+    var DurationUnit$DAYS_instance;
+    function DurationUnit$DAYS_getInstance() {
+      DurationUnit_initFields();
+      return DurationUnit$DAYS_instance;
+    }
+    DurationUnit.$metadata$ = {kind: Kind_CLASS, simpleName: 'DurationUnit', interfaces: [Enum]};
+    function DurationUnit$values() {
+      return [DurationUnit$NANOSECONDS_getInstance(), DurationUnit$MICROSECONDS_getInstance(), DurationUnit$MILLISECONDS_getInstance(), DurationUnit$SECONDS_getInstance(), DurationUnit$MINUTES_getInstance(), DurationUnit$HOURS_getInstance(), DurationUnit$DAYS_getInstance()];
+    }
+    DurationUnit.values = DurationUnit$values;
+    function DurationUnit$valueOf(name) {
+      switch (name) {
+        case 'NANOSECONDS':
+          return DurationUnit$NANOSECONDS_getInstance();
+        case 'MICROSECONDS':
+          return DurationUnit$MICROSECONDS_getInstance();
+        case 'MILLISECONDS':
+          return DurationUnit$MILLISECONDS_getInstance();
+        case 'SECONDS':
+          return DurationUnit$SECONDS_getInstance();
+        case 'MINUTES':
+          return DurationUnit$MINUTES_getInstance();
+        case 'HOURS':
+          return DurationUnit$HOURS_getInstance();
+        case 'DAYS':
+          return DurationUnit$DAYS_getInstance();
+        default:throwISE('No enum constant kotlin.time.DurationUnit.' + name);
+      }
+    }
+    DurationUnit.valueOf_61zpoe$ = DurationUnit$valueOf;
+    function convertDurationUnit(value, sourceUnit, targetUnit) {
+      var tmp$;
+      var sourceCompareTarget = Kotlin.compareTo(sourceUnit.scale_8be2vx$, targetUnit.scale_8be2vx$);
+      if (sourceCompareTarget > 0)
+        tmp$ = value * (sourceUnit.scale_8be2vx$ / targetUnit.scale_8be2vx$);
+      else if (sourceCompareTarget < 0)
+        tmp$ = value / (targetUnit.scale_8be2vx$ / sourceUnit.scale_8be2vx$);
+      else
+        tmp$ = value;
+      return tmp$;
+    }
+    function MonoClock() {
+      MonoClock_instance = this;
+      var tmp$, tmp$_0, tmp$_1;
+      var isNode = typeof process !== 'undefined' && process.versions && !!process.versions.node;
+      this.actualClock_0 = isNode ? new HrTimeClock(process) : (tmp$_1 = (tmp$_0 = (tmp$ = self) != null ? tmp$.performance : null) != null ? new PerformanceClock(tmp$_0) : null) != null ? tmp$_1 : DateNowClock_getInstance();
+    }
+    MonoClock.prototype.markNow = function () {
+      return this.actualClock_0.markNow();
+    };
+    MonoClock.$metadata$ = {kind: Kind_OBJECT, simpleName: 'MonoClock', interfaces: [Clock]};
+    var MonoClock_instance = null;
+    function MonoClock_getInstance() {
+      if (MonoClock_instance === null) {
+        new MonoClock();
+      }
+      return MonoClock_instance;
+    }
+    function HrTimeClock(process) {
+      this.process = process;
+    }
+    function HrTimeClock$markNow$ObjectLiteral(this$HrTimeClock) {
+      this.this$HrTimeClock = this$HrTimeClock;
+      ClockMark.call(this);
+      this.startedAt = this$HrTimeClock.process.hrtime();
+    }
+    HrTimeClock$markNow$ObjectLiteral.prototype.elapsedNow = function () {
+      var f = this.this$HrTimeClock.process.hrtime(this.startedAt);
+      var seconds = f[0];
+      var nanos = f[1];
+      return get_seconds_1(seconds).plus_cgako$(get_nanoseconds_1(nanos));
+    };
+    HrTimeClock$markNow$ObjectLiteral.$metadata$ = {kind: Kind_CLASS, interfaces: [ClockMark]};
+    HrTimeClock.prototype.markNow = function () {
+      return new HrTimeClock$markNow$ObjectLiteral(this);
+    };
+    HrTimeClock.prototype.toString = function () {
+      return 'Clock(process.hrtime())';
+    };
+    HrTimeClock.$metadata$ = {kind: Kind_CLASS, simpleName: 'HrTimeClock', interfaces: [Clock]};
+    function PerformanceClock(performance) {
+      AbstractDoubleClock.call(this, DurationUnit$MILLISECONDS_getInstance());
+      this.performance = performance;
+    }
+    PerformanceClock.prototype.read = function () {
+      return this.performance.now();
+    };
+    PerformanceClock.prototype.toString = function () {
+      return 'Clock(self.performance.now())';
+    };
+    PerformanceClock.$metadata$ = {kind: Kind_CLASS, simpleName: 'PerformanceClock', interfaces: [AbstractDoubleClock]};
+    function DateNowClock() {
+      DateNowClock_instance = this;
+      AbstractDoubleClock.call(this, DurationUnit$MILLISECONDS_getInstance());
+    }
+    DateNowClock.prototype.read = function () {
+      return Date.now();
+    };
+    DateNowClock.prototype.toString = function () {
+      return 'Clock(Date.now())';
+    };
+    DateNowClock.$metadata$ = {kind: Kind_OBJECT, simpleName: 'DateNowClock', interfaces: [AbstractDoubleClock]};
+    var DateNowClock_instance = null;
+    function DateNowClock_getInstance() {
+      if (DateNowClock_instance === null) {
+        new DateNowClock();
+      }
+      return DateNowClock_instance;
+    }
+    function formatToExactDecimals(value, decimals) {
+      var tmp$;
+      if (decimals === 0) {
+        tmp$ = value;
+      }
+       else {
+        var pow = Math_0.pow(10.0, decimals);
+        tmp$ = Math.round(Math_0.abs(value) * pow) / pow * Math_0.sign(value);
+      }
+      var rounded = tmp$;
+      return rounded.toFixed(decimals);
+    }
+    function formatUpToDecimals(value, decimals) {
+      return value.toLocaleString('en-us', json([to('maximumFractionDigits', decimals)]));
+    }
+    function formatScientific(value) {
+      return value.toExponential(2);
+    }
     var Experimental$Level$WARNING_instance;
     var Experimental$Level$ERROR_instance;
     function AbstractCollection() {
@@ -5961,6 +6214,9 @@
         default:return $receiver;
       }
     }
+    function throwCountOverflow() {
+      throw new ArithmeticException('Count overflow has happened.');
+    }
     function IndexedValue(index, value) {
       this.index = index;
       this.value = value;
@@ -6599,12 +6855,12 @@
         throw IllegalArgumentException_init_0(message.toString());
       }
     }
-    function Coroutine$windowedIterator$lambda(closure$step_0, closure$size_0, closure$iterator_0, closure$reuseBuffer_0, closure$partialWindows_0, $receiver_0, controller, continuation_0) {
+    function Coroutine$windowedIterator$lambda(closure$size_0, closure$step_0, closure$iterator_0, closure$reuseBuffer_0, closure$partialWindows_0, $receiver_0, controller, continuation_0) {
       CoroutineImpl.call(this, continuation_0);
       this.$controller = controller;
       this.exceptionState_0 = 1;
-      this.local$closure$step = closure$step_0;
       this.local$closure$size = closure$size_0;
+      this.local$closure$step = closure$step_0;
       this.local$closure$iterator = closure$iterator_0;
       this.local$closure$reuseBuffer = closure$reuseBuffer_0;
       this.local$closure$partialWindows = closure$partialWindows_0;
@@ -6625,16 +6881,17 @@
         try {
           switch (this.state_0) {
             case 0:
+              var bufferInitialCapacity = coerceAtMost_2(this.local$closure$size, 1024);
               this.local$gap = this.local$closure$step - this.local$closure$size | 0;
               if (this.local$gap >= 0) {
-                this.local$buffer = ArrayList_init_0(this.local$closure$size);
+                this.local$buffer = ArrayList_init_0(bufferInitialCapacity);
                 this.local$skip = 0;
                 this.local$tmp$ = this.local$closure$iterator;
-                this.state_0 = 12;
+                this.state_0 = 13;
                 continue;
               }
                else {
-                this.local$buffer_0 = new RingBuffer(this.local$closure$size);
+                this.local$buffer_0 = RingBuffer_init(bufferInitialCapacity);
                 this.local$tmp$_0 = this.local$closure$iterator;
                 this.state_0 = 2;
                 continue;
@@ -6644,34 +6901,72 @@
               throw this.exception_0;
             case 2:
               if (!this.local$tmp$_0.hasNext()) {
-                this.state_0 = 5;
+                this.state_0 = 6;
                 continue;
               }
 
               var e_0 = this.local$tmp$_0.next();
               this.local$buffer_0.add_11rb$(e_0);
               if (this.local$buffer_0.isFull()) {
-                this.state_0 = 3;
-                this.result_0 = this.local$$receiver.yield_11rb$(this.local$closure$reuseBuffer ? this.local$buffer_0 : ArrayList_init_1(this.local$buffer_0), this);
-                if (this.result_0 === get_COROUTINE_SUSPENDED())
-                  return get_COROUTINE_SUSPENDED();
-                continue;
+                if (this.local$buffer_0.size < this.local$closure$size) {
+                  this.local$buffer_0 = this.local$buffer_0.expanded_za3lpa$(this.local$closure$size);
+                  this.state_0 = 2;
+                  continue;
+                }
+                 else {
+                  this.state_0 = 3;
+                  continue;
+                }
               }
                else {
-                this.state_0 = 4;
+                this.state_0 = 5;
                 continue;
               }
 
             case 3:
-              this.local$buffer_0.removeFirst_za3lpa$(this.local$closure$step);
               this.state_0 = 4;
+              this.result_0 = this.local$$receiver.yield_11rb$(this.local$closure$reuseBuffer ? this.local$buffer_0 : ArrayList_init_1(this.local$buffer_0), this);
+              if (this.result_0 === get_COROUTINE_SUSPENDED())
+                return get_COROUTINE_SUSPENDED();
               continue;
             case 4:
-              this.state_0 = 2;
+              this.local$buffer_0.removeFirst_za3lpa$(this.local$closure$step);
+              this.state_0 = 5;
               continue;
             case 5:
+              this.state_0 = 2;
+              continue;
+            case 6:
               if (this.local$closure$partialWindows) {
-                this.state_0 = 6;
+                this.state_0 = 7;
+                continue;
+              }
+               else {
+                this.state_0 = 12;
+                continue;
+              }
+
+            case 7:
+              if (this.local$buffer_0.size <= this.local$closure$step) {
+                this.state_0 = 9;
+                continue;
+              }
+
+              this.state_0 = 8;
+              this.result_0 = this.local$$receiver.yield_11rb$(this.local$closure$reuseBuffer ? this.local$buffer_0 : ArrayList_init_1(this.local$buffer_0), this);
+              if (this.result_0 === get_COROUTINE_SUSPENDED())
+                return get_COROUTINE_SUSPENDED();
+              continue;
+            case 8:
+              this.local$buffer_0.removeFirst_za3lpa$(this.local$closure$step);
+              this.state_0 = 7;
+              continue;
+            case 9:
+              if (!this.local$buffer_0.isEmpty()) {
+                this.state_0 = 10;
+                this.result_0 = this.local$$receiver.yield_11rb$(this.local$buffer_0, this);
+                if (this.result_0 === get_COROUTINE_SUSPENDED())
+                  return get_COROUTINE_SUSPENDED();
                 continue;
               }
                else {
@@ -6679,112 +6974,84 @@
                 continue;
               }
 
-            case 6:
-              if (this.local$buffer_0.size <= this.local$closure$step) {
-                this.state_0 = 8;
-                continue;
-              }
-
-              this.state_0 = 7;
-              this.result_0 = this.local$$receiver.yield_11rb$(this.local$closure$reuseBuffer ? this.local$buffer_0 : ArrayList_init_1(this.local$buffer_0), this);
-              if (this.result_0 === get_COROUTINE_SUSPENDED())
-                return get_COROUTINE_SUSPENDED();
-              continue;
-            case 7:
-              this.local$buffer_0.removeFirst_za3lpa$(this.local$closure$step);
-              this.state_0 = 6;
-              continue;
-            case 8:
-              if (!this.local$buffer_0.isEmpty()) {
-                this.state_0 = 9;
-                this.result_0 = this.local$$receiver.yield_11rb$(this.local$buffer_0, this);
-                if (this.result_0 === get_COROUTINE_SUSPENDED())
-                  return get_COROUTINE_SUSPENDED();
-                continue;
-              }
-               else {
-                this.state_0 = 10;
-                continue;
-              }
-
-            case 9:
-              return Unit;
             case 10:
-              this.state_0 = 11;
-              continue;
+              return Unit;
             case 11:
-              this.state_0 = 20;
+              this.state_0 = 12;
               continue;
             case 12:
+              this.state_0 = 21;
+              continue;
+            case 13:
               if (!this.local$tmp$.hasNext()) {
-                this.state_0 = 16;
+                this.state_0 = 17;
                 continue;
               }
 
               this.local$e = this.local$tmp$.next();
               if (this.local$skip > 0) {
                 this.local$skip = this.local$skip - 1 | 0;
-                this.state_0 = 12;
-                continue;
-              }
-               else {
                 this.state_0 = 13;
                 continue;
               }
+               else {
+                this.state_0 = 14;
+                continue;
+              }
 
-            case 13:
+            case 14:
               this.local$buffer.add_11rb$(this.local$e);
               if (this.local$buffer.size === this.local$closure$size) {
-                this.state_0 = 14;
+                this.state_0 = 15;
                 this.result_0 = this.local$$receiver.yield_11rb$(this.local$buffer, this);
                 if (this.result_0 === get_COROUTINE_SUSPENDED())
                   return get_COROUTINE_SUSPENDED();
                 continue;
               }
                else {
-                this.state_0 = 15;
+                this.state_0 = 16;
                 continue;
               }
 
-            case 14:
+            case 15:
               if (this.local$closure$reuseBuffer)
                 this.local$buffer.clear();
               else
                 this.local$buffer = ArrayList_init_0(this.local$closure$size);
               this.local$skip = this.local$gap;
-              this.state_0 = 15;
-              continue;
-            case 15:
-              this.state_0 = 12;
+              this.state_0 = 16;
               continue;
             case 16:
+              this.state_0 = 13;
+              continue;
+            case 17:
               if (!this.local$buffer.isEmpty()) {
                 if (this.local$closure$partialWindows || this.local$buffer.size === this.local$closure$size) {
-                  this.state_0 = 17;
+                  this.state_0 = 18;
                   this.result_0 = this.local$$receiver.yield_11rb$(this.local$buffer, this);
                   if (this.result_0 === get_COROUTINE_SUSPENDED())
                     return get_COROUTINE_SUSPENDED();
                   continue;
                 }
                  else {
-                  this.state_0 = 18;
+                  this.state_0 = 19;
                   continue;
                 }
               }
                else {
-                this.state_0 = 19;
+                this.state_0 = 20;
                 continue;
               }
 
-            case 17:
-              return Unit;
             case 18:
-              this.state_0 = 19;
-              continue;
+              return Unit;
             case 19:
               this.state_0 = 20;
               continue;
             case 20:
+              this.state_0 = 21;
+              continue;
+            case 21:
               return Unit;
             default:this.state_0 = 1;
               throw new Error('State Machine Unreachable execution');
@@ -6802,9 +7069,9 @@
         }
        while (true);
     };
-    function windowedIterator$lambda(closure$step_0, closure$size_0, closure$iterator_0, closure$reuseBuffer_0, closure$partialWindows_0) {
+    function windowedIterator$lambda(closure$size_0, closure$step_0, closure$iterator_0, closure$reuseBuffer_0, closure$partialWindows_0) {
       return function ($receiver_0, continuation_0, suspended) {
-        var instance = new Coroutine$windowedIterator$lambda(closure$step_0, closure$size_0, closure$iterator_0, closure$reuseBuffer_0, closure$partialWindows_0, $receiver_0, this, continuation_0);
+        var instance = new Coroutine$windowedIterator$lambda(closure$size_0, closure$step_0, closure$iterator_0, closure$reuseBuffer_0, closure$partialWindows_0, $receiver_0, this, continuation_0);
         if (suspended)
           return instance;
         else
@@ -6814,18 +7081,22 @@
     function windowedIterator(iterator, size, step, partialWindows, reuseBuffer) {
       if (!iterator.hasNext())
         return EmptyIterator_getInstance();
-      return iterator_3(windowedIterator$lambda(step, size, iterator, reuseBuffer, partialWindows));
+      return iterator_3(windowedIterator$lambda(size, step, iterator, reuseBuffer, partialWindows));
     }
-    function RingBuffer(capacity) {
+    function RingBuffer(buffer, filledSize) {
       AbstractList.call(this);
-      this.capacity = capacity;
-      if (!(this.capacity >= 0)) {
-        var message = 'ring buffer capacity should not be negative but it is ' + this.capacity;
+      this.buffer_0 = buffer;
+      if (!(filledSize >= 0)) {
+        var message = 'ring buffer filled size should not be negative but it is ' + filledSize;
         throw IllegalArgumentException_init_0(message.toString());
       }
-      this.buffer_0 = Kotlin.newArray(this.capacity, null);
+      if (!(filledSize <= this.buffer_0.length)) {
+        var message_0 = 'ring buffer filled size: ' + filledSize + ' cannot be larger than the buffer size: ' + this.buffer_0.length;
+        throw IllegalArgumentException_init_0(message_0.toString());
+      }
+      this.capacity_0 = this.buffer_0.length;
       this.startIndex_0 = 0;
-      this.size_4goa01$_0 = 0;
+      this.size_4goa01$_0 = filledSize;
     }
     Object.defineProperty(RingBuffer.prototype, 'size', {get: function () {
       return this.size_4goa01$_0;
@@ -6835,10 +7106,10 @@
     RingBuffer.prototype.get_za3lpa$ = function (index) {
       var tmp$;
       AbstractList$Companion_getInstance().checkElementIndex_6xvm5r$(index, this.size);
-      return (tmp$ = this.buffer_0[(this.startIndex_0 + index | 0) % this.capacity]) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE_0();
+      return (tmp$ = this.buffer_0[(this.startIndex_0 + index | 0) % this.capacity_0]) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE_0();
     };
     RingBuffer.prototype.isFull = function () {
-      return this.size === this.capacity;
+      return this.size === this.capacity_0;
     };
     function RingBuffer$iterator$ObjectLiteral(this$RingBuffer) {
       this.this$RingBuffer = this$RingBuffer;
@@ -6853,7 +7124,7 @@
       }
        else {
         this.setNext_11rb$((tmp$ = this.this$RingBuffer.buffer_0[this.index_0]) == null || Kotlin.isType(tmp$, Any) ? tmp$ : throwCCE_0());
-        this.index_0 = (this.index_0 + 1 | 0) % this.this$RingBuffer.capacity;
+        this.index_0 = (this.index_0 + 1 | 0) % this.this$RingBuffer.capacity_0;
         this.count_0 = this.count_0 - 1 | 0;
       }
     };
@@ -6867,7 +7138,7 @@
       var size = this.size;
       var widx = 0;
       var idx = this.startIndex_0;
-      while (widx < size && idx < this.capacity) {
+      while (widx < size && idx < this.capacity_0) {
         result[widx] = (tmp$_0 = this.buffer_0[idx]) == null || Kotlin.isType(tmp$_0, Any) ? tmp$_0 : throwCCE_0();
         widx = widx + 1 | 0;
         idx = idx + 1 | 0;
@@ -6885,11 +7156,16 @@
     RingBuffer.prototype.toArray = function () {
       return this.toArray_ro6dgy$(Kotlin.newArray(this.size, null));
     };
+    RingBuffer.prototype.expanded_za3lpa$ = function (maxCapacity) {
+      var newCapacity = coerceAtMost_2(this.capacity_0 + (this.capacity_0 >> 1) + 1 | 0, maxCapacity);
+      var newBuffer = this.startIndex_0 === 0 ? copyOf_24(this.buffer_0, newCapacity) : this.toArray_ro6dgy$(Kotlin.newArray(newCapacity, null));
+      return new RingBuffer(newBuffer, this.size);
+    };
     RingBuffer.prototype.add_11rb$ = function (element) {
       if (this.isFull()) {
         throw IllegalStateException_init_0('ring buffer is full');
       }
-      this.buffer_0[(this.startIndex_0 + this.size | 0) % this.capacity] = element;
+      this.buffer_0[(this.startIndex_0 + this.size | 0) % this.capacity_0] = element;
       this.size = this.size + 1 | 0;
     };
     RingBuffer.prototype.removeFirst_za3lpa$ = function (n) {
@@ -6903,31 +7179,27 @@
       }
       if (n > 0) {
         var start = this.startIndex_0;
-        var end = (start + n | 0) % this.capacity;
+        var end = (start + n | 0) % this.capacity_0;
         if (start > end) {
-          this.fill_0(this.buffer_0, null, start, this.capacity);
-          this.fill_0(this.buffer_0, null, 0, end);
+          fill_3(this.buffer_0, null, start, this.capacity_0);
+          fill_3(this.buffer_0, null, 0, end);
         }
          else {
-          this.fill_0(this.buffer_0, null, start, end);
+          fill_3(this.buffer_0, null, start, end);
         }
         this.startIndex_0 = end;
         this.size = this.size - n | 0;
       }
     };
     RingBuffer.prototype.forward_0 = function ($receiver, n) {
-      return ($receiver + n | 0) % this.capacity;
-    };
-    RingBuffer.prototype.fill_0 = function ($receiver, element, fromIndex, toIndex) {
-      if (fromIndex === void 0)
-        fromIndex = 0;
-      if (toIndex === void 0)
-        toIndex = $receiver.length;
-      for (var idx = fromIndex; idx < toIndex; idx++) {
-        $receiver[idx] = element;
-      }
+      return ($receiver + n | 0) % this.capacity_0;
     };
     RingBuffer.$metadata$ = {kind: Kind_CLASS, simpleName: 'RingBuffer', interfaces: [RandomAccess, AbstractList]};
+    function RingBuffer_init(capacity, $this) {
+      $this = $this || Object.create(RingBuffer.prototype);
+      RingBuffer.call($this, Kotlin.newArray(capacity, null), 0);
+      return $this;
+    }
     function compareValues(a, b) {
       var tmp$;
       if (a === b)
@@ -7484,6 +7756,9 @@
     function Random_0(seed) {
       return XorWowRandom_init(seed, seed >> 31);
     }
+    function fastLog2(value) {
+      return 31 - Math_0.clz32(value) | 0;
+    }
     function takeUpperBits($receiver, bitCount) {
       return $receiver >>> 32 - bitCount & (-bitCount | 0) >> 31;
     }
@@ -7586,7 +7861,6 @@
       return toIntOrNull_0($receiver, 10);
     }
     function toIntOrNull_0($receiver, radix) {
-      var tmp$;
       checkRadix(radix);
       var length = $receiver.length;
       if (length === 0)
@@ -7615,15 +7889,24 @@
         isNegative = false;
         limit = -2147483647;
       }
-      var limitBeforeMul = limit / radix | 0;
+      var limitForMaxRadix = -59652323;
+      var limitBeforeMul = limitForMaxRadix;
       var result = 0;
-      tmp$ = length - 1 | 0;
-      for (var i = start; i <= tmp$; i++) {
+      for (var i = start; i < length; i++) {
         var digit = digitOf($receiver.charCodeAt(i), radix);
         if (digit < 0)
           return null;
-        if (result < limitBeforeMul)
-          return null;
+        if (result < limitBeforeMul) {
+          if (limitBeforeMul === limitForMaxRadix) {
+            limitBeforeMul = limit / radix | 0;
+            if (result < limitBeforeMul) {
+              return null;
+            }
+          }
+           else {
+            return null;
+          }
+        }
         result = Kotlin.imul(result, radix);
         if (result < (limit + digit | 0))
           return null;
@@ -7635,7 +7918,6 @@
       return toLongOrNull_0($receiver, 10);
     }
     function toLongOrNull_0($receiver, radix) {
-      var tmp$;
       checkRadix(radix);
       var length = $receiver.length;
       if (length === 0)
@@ -7664,15 +7946,24 @@
         isNegative = false;
         limit = L_9223372036854775807;
       }
-      var limitBeforeMul = limit.div(Kotlin.Long.fromInt(radix));
+      var limitForMaxRadix = L_256204778801521550;
+      var limitBeforeMul = limitForMaxRadix;
       var result = L0;
-      tmp$ = length - 1 | 0;
-      for (var i = start; i <= tmp$; i++) {
+      for (var i = start; i < length; i++) {
         var digit = digitOf($receiver.charCodeAt(i), radix);
         if (digit < 0)
           return null;
-        if (result.compareTo_11rb$(limitBeforeMul) < 0)
-          return null;
+        if (result.compareTo_11rb$(limitBeforeMul) < 0) {
+          if (equals(limitBeforeMul, limitForMaxRadix)) {
+            limitBeforeMul = limit.div(Kotlin.Long.fromInt(radix));
+            if (result.compareTo_11rb$(limitBeforeMul) < 0) {
+              return null;
+            }
+          }
+           else {
+            return null;
+          }
+        }
         result = result.multiply(Kotlin.Long.fromInt(radix));
         if (result.compareTo_11rb$(limit.add(Kotlin.Long.fromInt(digit))) < 0)
           return null;
@@ -8200,6 +8491,346 @@
     };
     MatchResult$Destructured.$metadata$ = {kind: Kind_CLASS, simpleName: 'Destructured', interfaces: []};
     MatchResult.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'MatchResult', interfaces: []};
+    function Clock() {
+    }
+    Clock.$metadata$ = {kind: Kind_INTERFACE, simpleName: 'Clock', interfaces: []};
+    function ClockMark() {
+    }
+    ClockMark.prototype.plus_cgako$ = function (duration) {
+      return new AdjustedClockMark(this, duration);
+    };
+    ClockMark.prototype.minus_cgako$ = function (duration) {
+      return this.plus_cgako$(duration.unaryMinus());
+    };
+    ClockMark.prototype.hasPassedNow = function () {
+      return !this.elapsedNow().isNegative();
+    };
+    ClockMark.prototype.hasNotPassedNow = function () {
+      return this.elapsedNow().isNegative();
+    };
+    ClockMark.$metadata$ = {kind: Kind_CLASS, simpleName: 'ClockMark', interfaces: []};
+    function AdjustedClockMark(mark, adjustment) {
+      ClockMark.call(this);
+      this.mark = mark;
+      this.adjustment = adjustment;
+    }
+    AdjustedClockMark.prototype.elapsedNow = function () {
+      return this.mark.elapsedNow().minus_cgako$(this.adjustment);
+    };
+    AdjustedClockMark.prototype.plus_cgako$ = function (duration) {
+      return new AdjustedClockMark(this.mark, this.adjustment.plus_cgako$(duration));
+    };
+    AdjustedClockMark.$metadata$ = {kind: Kind_CLASS, simpleName: 'AdjustedClockMark', interfaces: [ClockMark]};
+    function AbstractDoubleClock(unit) {
+      this.unit = unit;
+    }
+    function AbstractDoubleClock$DoubleClockMark(startedAt, clock, offset) {
+      ClockMark.call(this);
+      this.startedAt_0 = startedAt;
+      this.clock_0 = clock;
+      this.offset_0 = offset;
+    }
+    AbstractDoubleClock$DoubleClockMark.prototype.elapsedNow = function () {
+      return toDuration_1(this.clock_0.read() - this.startedAt_0, this.clock_0.unit).minus_cgako$(this.offset_0);
+    };
+    AbstractDoubleClock$DoubleClockMark.prototype.plus_cgako$ = function (duration) {
+      return new AbstractDoubleClock$DoubleClockMark(this.startedAt_0, this.clock_0, this.offset_0.plus_cgako$(duration));
+    };
+    AbstractDoubleClock$DoubleClockMark.$metadata$ = {kind: Kind_CLASS, simpleName: 'DoubleClockMark', interfaces: [ClockMark]};
+    AbstractDoubleClock.prototype.markNow = function () {
+      return new AbstractDoubleClock$DoubleClockMark(this.read(), this, Duration$Companion_getInstance().ZERO);
+    };
+    AbstractDoubleClock.$metadata$ = {kind: Kind_CLASS, simpleName: 'AbstractDoubleClock', interfaces: [Clock]};
+    function Duration(value) {
+      Duration$Companion_getInstance();
+      this.value_8be2vx$ = value;
+    }
+    function Duration$Companion() {
+      Duration$Companion_instance = this;
+      this.ZERO = new Duration(0.0);
+      this.INFINITE = new Duration(kotlin_js_internal_DoubleCompanionObject.POSITIVE_INFINITY);
+    }
+    Duration$Companion.prototype.convert_d8pp1e$ = function (value, sourceUnit, targetUnit) {
+      return convertDurationUnit(value, sourceUnit, targetUnit);
+    };
+    Duration$Companion.$metadata$ = {kind: Kind_OBJECT, simpleName: 'Companion', interfaces: []};
+    var Duration$Companion_instance = null;
+    function Duration$Companion_getInstance() {
+      if (Duration$Companion_instance === null) {
+        new Duration$Companion();
+      }
+      return Duration$Companion_instance;
+    }
+    Duration.prototype.unaryMinus = function () {
+      return new Duration(-this.value_8be2vx$);
+    };
+    Duration.prototype.plus_cgako$ = function (other) {
+      return new Duration(this.value_8be2vx$ + other.value_8be2vx$);
+    };
+    Duration.prototype.minus_cgako$ = function (other) {
+      return new Duration(this.value_8be2vx$ - other.value_8be2vx$);
+    };
+    Duration.prototype.times_za3lpa$ = function (scale) {
+      return new Duration(this.value_8be2vx$ * scale);
+    };
+    Duration.prototype.times_14dthe$ = function (scale) {
+      return new Duration(this.value_8be2vx$ * scale);
+    };
+    Duration.prototype.div_za3lpa$ = function (scale) {
+      return new Duration(this.value_8be2vx$ / scale);
+    };
+    Duration.prototype.div_14dthe$ = function (scale) {
+      return new Duration(this.value_8be2vx$ / scale);
+    };
+    Duration.prototype.div_cgako$ = function (other) {
+      return this.value_8be2vx$ / other.value_8be2vx$;
+    };
+    Duration.prototype.isNegative = function () {
+      return this.value_8be2vx$ < 0;
+    };
+    Duration.prototype.isPositive = function () {
+      return this.value_8be2vx$ > 0;
+    };
+    Duration.prototype.isInfinite = function () {
+      return isInfinite(this.value_8be2vx$);
+    };
+    Duration.prototype.isFinite = function () {
+      return isFinite(this.value_8be2vx$);
+    };
+    Object.defineProperty(Duration.prototype, 'absoluteValue', {get: function () {
+      return this.isNegative() ? this.unaryMinus() : this;
+    }});
+    Duration.prototype.compareTo_11rb$ = function (other) {
+      return Kotlin.compareTo(this.value_8be2vx$, other.value_8be2vx$);
+    };
+    Duration.prototype.toComponents_fnu26o$ = defineInlineFunction('kotlin.kotlin.time.Duration.toComponents_fnu26o$', wrapFunction(function () {
+      var numberToInt = Kotlin.numberToInt;
+      return function (action) {
+        return action(numberToInt(this.inDays), this.hoursComponent, this.minutesComponent, this.secondsComponent, this.nanosecondsComponent);
+      };
+    }));
+    Duration.prototype.toComponents_v6nad0$ = defineInlineFunction('kotlin.kotlin.time.Duration.toComponents_v6nad0$', wrapFunction(function () {
+      var numberToInt = Kotlin.numberToInt;
+      return function (action) {
+        return action(numberToInt(this.inHours), this.minutesComponent, this.secondsComponent, this.nanosecondsComponent);
+      };
+    }));
+    Duration.prototype.toComponents_sg9n6w$ = defineInlineFunction('kotlin.kotlin.time.Duration.toComponents_sg9n6w$', wrapFunction(function () {
+      var numberToInt = Kotlin.numberToInt;
+      return function (action) {
+        return action(numberToInt(this.inMinutes), this.secondsComponent, this.nanosecondsComponent);
+      };
+    }));
+    Duration.prototype.toComponents_obfv9r$ = defineInlineFunction('kotlin.kotlin.time.Duration.toComponents_obfv9r$', function (action) {
+      return action(Kotlin.Long.fromNumber(this.inSeconds), this.nanosecondsComponent);
+    });
+    Object.defineProperty(Duration.prototype, 'hoursComponent', {get: function () {
+      return numberToInt(this.inHours % 24);
+    }});
+    Object.defineProperty(Duration.prototype, 'minutesComponent', {get: function () {
+      return numberToInt(this.inMinutes % 60);
+    }});
+    Object.defineProperty(Duration.prototype, 'secondsComponent', {get: function () {
+      return numberToInt(this.inSeconds % 60);
+    }});
+    Object.defineProperty(Duration.prototype, 'nanosecondsComponent', {get: function () {
+      return numberToInt(this.inNanoseconds % 1.0E9);
+    }});
+    Duration.prototype.toDouble_p6uejw$ = function (unit) {
+      return convertDurationUnit(this.value_8be2vx$, DurationUnit$NANOSECONDS_getInstance(), unit);
+    };
+    Duration.prototype.toLong_p6uejw$ = function (unit) {
+      return Kotlin.Long.fromNumber(this.toDouble_p6uejw$(unit));
+    };
+    Duration.prototype.toInt_p6uejw$ = function (unit) {
+      return numberToInt(this.toDouble_p6uejw$(unit));
+    };
+    Object.defineProperty(Duration.prototype, 'inDays', {get: function () {
+      return this.toDouble_p6uejw$(DurationUnit$DAYS_getInstance());
+    }});
+    Object.defineProperty(Duration.prototype, 'inHours', {get: function () {
+      return this.toDouble_p6uejw$(DurationUnit$HOURS_getInstance());
+    }});
+    Object.defineProperty(Duration.prototype, 'inMinutes', {get: function () {
+      return this.toDouble_p6uejw$(DurationUnit$MINUTES_getInstance());
+    }});
+    Object.defineProperty(Duration.prototype, 'inSeconds', {get: function () {
+      return this.toDouble_p6uejw$(DurationUnit$SECONDS_getInstance());
+    }});
+    Object.defineProperty(Duration.prototype, 'inMilliseconds', {get: function () {
+      return this.toDouble_p6uejw$(DurationUnit$MILLISECONDS_getInstance());
+    }});
+    Object.defineProperty(Duration.prototype, 'inMicroseconds', {get: function () {
+      return this.toDouble_p6uejw$(DurationUnit$MICROSECONDS_getInstance());
+    }});
+    Object.defineProperty(Duration.prototype, 'inNanoseconds', {get: function () {
+      return this.toDouble_p6uejw$(DurationUnit$NANOSECONDS_getInstance());
+    }});
+    Duration.prototype.toLongNanoseconds = function () {
+      return this.toLong_p6uejw$(DurationUnit$NANOSECONDS_getInstance());
+    };
+    Duration.prototype.toLongMilliseconds = function () {
+      return this.toLong_p6uejw$(DurationUnit$MILLISECONDS_getInstance());
+    };
+    Duration.prototype.toString = function () {
+      var tmp$, tmp$_0;
+      if (this.isInfinite())
+        return this.value_8be2vx$.toString();
+      else if (this.value_8be2vx$ === 0.0)
+        return '0s';
+      else {
+        var absNs = this.absoluteValue.inNanoseconds;
+        var scientific = {v: false};
+        var maxDecimals = {v: 0};
+        if (absNs < 1.0E-6) {
+          var $receiver = DurationUnit$SECONDS_getInstance();
+          scientific.v = true;
+          tmp$ = $receiver;
+        }
+         else if (absNs < 1) {
+          var $receiver_0 = DurationUnit$NANOSECONDS_getInstance();
+          maxDecimals.v = 7;
+          tmp$ = $receiver_0;
+        }
+         else if (absNs < 1000.0)
+          tmp$ = DurationUnit$NANOSECONDS_getInstance();
+        else if (absNs < 1000000.0)
+          tmp$ = DurationUnit$MICROSECONDS_getInstance();
+        else if (absNs < 1.0E9)
+          tmp$ = DurationUnit$MILLISECONDS_getInstance();
+        else if (absNs < 1.0E12)
+          tmp$ = DurationUnit$SECONDS_getInstance();
+        else if (absNs < 6.0E13)
+          tmp$ = DurationUnit$MINUTES_getInstance();
+        else if (absNs < 3.6E15)
+          tmp$ = DurationUnit$HOURS_getInstance();
+        else if (absNs < 8.64E13 * 1.0E7)
+          tmp$ = DurationUnit$DAYS_getInstance();
+        else {
+          var $receiver_1 = DurationUnit$DAYS_getInstance();
+          scientific.v = true;
+          tmp$ = $receiver_1;
+        }
+        var unit = tmp$;
+        var value = this.toDouble_p6uejw$(unit);
+        if (scientific.v)
+          tmp$_0 = formatScientific(value);
+        else if (maxDecimals.v > 0)
+          tmp$_0 = formatUpToDecimals(value, maxDecimals.v);
+        else {
+          tmp$_0 = formatToExactDecimals(value, this.precision_0(Math_0.abs(value)));
+        }
+        return tmp$_0 + shortName(unit);
+      }
+    };
+    Duration.prototype.precision_0 = function (value) {
+      if (value < 1)
+        return 3;
+      else if (value < 10)
+        return 2;
+      else if (value < 100)
+        return 1;
+      else
+        return 0;
+    };
+    Duration.prototype.toString_mha1pa$ = function (unit, decimals) {
+      if (decimals === void 0)
+        decimals = 0;
+      var tmp$;
+      if (!(decimals >= 0)) {
+        var message = 'decimals must be not negative, but was ' + decimals;
+        throw IllegalArgumentException_init_0(message.toString());
+      }
+      if (this.isInfinite())
+        return this.value_8be2vx$.toString();
+      var number = this.toDouble_p6uejw$(unit);
+      if (Math_0.abs(number) < 1.0E14)
+        tmp$ = formatToExactDecimals(number, coerceAtMost_2(decimals, 12));
+      else
+        tmp$ = formatScientific(number);
+      return tmp$ + shortName(unit);
+    };
+    Duration.prototype.toIsoString = function () {
+      var $receiver = StringBuilder_init_1();
+      if (this.isNegative())
+        $receiver.append_s8itvh$(45);
+      $receiver.append_gw00v9$('PT');
+      var $this = this.absoluteValue;
+      var hours = numberToInt($this.inHours);
+      var minutes = $this.minutesComponent;
+      var seconds = $this.secondsComponent;
+      var nanoseconds = $this.nanosecondsComponent;
+      var hasHours = hours !== 0;
+      var hasSeconds = seconds !== 0 || nanoseconds !== 0;
+      var hasMinutes = minutes !== 0 || (hasSeconds && hasHours);
+      if (hasHours) {
+        $receiver.append_s8jyv4$(hours).append_s8itvh$(72);
+      }
+      if (hasMinutes) {
+        $receiver.append_s8jyv4$(minutes).append_s8itvh$(77);
+      }
+      if (hasSeconds || (!hasHours && !hasMinutes)) {
+        $receiver.append_s8jyv4$(seconds);
+        if (nanoseconds !== 0) {
+          $receiver.append_s8itvh$(46);
+          var nss = padStart_0(nanoseconds.toString(), 9, 48);
+          if (nanoseconds % 1000000 === 0)
+            $receiver.append_ezbsdh$(nss, 0, 3);
+          else if (nanoseconds % 1000 === 0)
+            $receiver.append_ezbsdh$(nss, 0, 6);
+          else
+            $receiver.append_gw00v9$(nss);
+        }
+        $receiver.append_s8itvh$(83);
+      }
+      return $receiver.toString();
+    };
+    Duration.$metadata$ = {kind: Kind_CLASS, simpleName: 'Duration', interfaces: [Comparable]};
+    Duration.prototype.unbox = function () {
+      return this.value_8be2vx$;
+    };
+    Duration.prototype.hashCode = function () {
+      var result = 0;
+      result = result * 31 + Kotlin.hashCode(this.value_8be2vx$) | 0;
+      return result;
+    };
+    Duration.prototype.equals = function (other) {
+      return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && Kotlin.equals(this.value_8be2vx$, other.value_8be2vx$))));
+    };
+    function toDuration($receiver, unit) {
+      return toDuration_1($receiver, unit);
+    }
+    function toDuration_1($receiver, unit) {
+      return new Duration(convertDurationUnit($receiver, unit, DurationUnit$NANOSECONDS_getInstance()));
+    }
+    function get_nanoseconds_1($receiver) {
+      return toDuration_1($receiver, DurationUnit$NANOSECONDS_getInstance());
+    }
+    function get_milliseconds($receiver) {
+      return toDuration($receiver, DurationUnit$MILLISECONDS_getInstance());
+    }
+    function get_seconds_1($receiver) {
+      return toDuration_1($receiver, DurationUnit$SECONDS_getInstance());
+    }
+    function shortName($receiver) {
+      switch ($receiver.name) {
+        case 'NANOSECONDS':
+          return 'ns';
+        case 'MICROSECONDS':
+          return 'us';
+        case 'MILLISECONDS':
+          return 'ms';
+        case 'SECONDS':
+          return 's';
+        case 'MINUTES':
+          return 'm';
+        case 'HOURS':
+          return 'h';
+        case 'DAYS':
+          return 'd';
+        default:return Kotlin.noWhenBranchMatched();
+      }
+    }
     var KotlinVersion$Companion_instance = null;
     function Lazy() {
     }
@@ -8431,6 +9062,7 @@
     package$collections.toMutableList_4c7yge$ = toMutableList_9;
     package$collections.toSet_7wnvza$ = toSet_8;
     package$collections.Collection = Collection;
+    package$collections.checkCountOverflow_za3lpa$ = checkCountOverflow;
     package$collections.max_exjks8$ = max_11;
     package$collections.min_exjks8$ = min_11;
     package$collections.windowed_vo9c23$ = windowed;
@@ -8551,14 +9183,15 @@
     package$intrinsics.createCoroutineUnintercepted_x18nsh$ = createCoroutineUnintercepted;
     package$intrinsics.createCoroutineUnintercepted_3a617i$ = createCoroutineUnintercepted_0;
     package$intrinsics.intercepted_f9mg25$ = intercepted;
+    var package$js = package$kotlin.js || (package$kotlin.js = {});
     package$kotlin.lazy_klfg04$ = lazy;
     package$kotlin.arrayCopyResize_xao4iu$ = arrayCopyResize;
     package$collections.asList_us0mfu$ = asList;
     package$collections.arrayCopy = arrayCopy;
     package$collections.copyOf_8ujjk8$ = copyOf_24;
     package$collections.copyOfRange_5f8l3u$ = copyOfRange_3;
+    package$collections.fill_jfbbbd$ = fill_3;
     package$kotlin.Comparator = Comparator;
-    var package$js = package$kotlin.js || (package$kotlin.js = {});
     package$collections.copyToArray = copyToArray;
     package$collections.copyToArrayImpl = copyToArrayImpl;
     package$collections.copyToExistingArrayImpl = copyToArrayImpl_0;
@@ -8640,13 +9273,13 @@
     package$kotlin.UninitializedPropertyAccessException_init_pdl1vj$ = UninitializedPropertyAccessException_init_0;
     package$kotlin.UninitializedPropertyAccessException = UninitializedPropertyAccessException;
     package$io.Serializable = Serializable;
+    package$js.json_pyyo18$ = json;
     package$math.nextDown_yrwdxr$ = nextDown;
     package$math.abs_za3lpa$ = abs_1;
     package$kotlin.isNaN_yrwdxr$ = isNaN_0;
     package$kotlin.isInfinite_yrwdxr$ = isInfinite;
     package$kotlin.isFinite_yrwdxr$ = isFinite;
     package$random.defaultPlatformRandom_8be2vx$ = defaultPlatformRandom;
-    package$random.fastLog2_kcn2v3$ = fastLog2;
     package$random.doubleFromParts_6xvm5r$ = doubleFromParts;
     package$js.get_js_1yb8b7$ = get_js;
     var package$js_1 = package$reflect.js || (package$reflect.js = {});
@@ -8674,6 +9307,23 @@
     package$text.regionMatches_h3ii2q$ = regionMatches;
     package$text.Appendable = Appendable;
     package$text.StringBuilder = StringBuilder;
+    Object.defineProperty(DurationUnit, 'NANOSECONDS', {get: DurationUnit$NANOSECONDS_getInstance});
+    Object.defineProperty(DurationUnit, 'MICROSECONDS', {get: DurationUnit$MICROSECONDS_getInstance});
+    Object.defineProperty(DurationUnit, 'MILLISECONDS', {get: DurationUnit$MILLISECONDS_getInstance});
+    Object.defineProperty(DurationUnit, 'SECONDS', {get: DurationUnit$SECONDS_getInstance});
+    Object.defineProperty(DurationUnit, 'MINUTES', {get: DurationUnit$MINUTES_getInstance});
+    Object.defineProperty(DurationUnit, 'HOURS', {get: DurationUnit$HOURS_getInstance});
+    Object.defineProperty(DurationUnit, 'DAYS', {get: DurationUnit$DAYS_getInstance});
+    var package$time = package$kotlin.time || (package$kotlin.time = {});
+    package$time.DurationUnit = DurationUnit;
+    package$time.convertDurationUnit_sgln0f$ = convertDurationUnit;
+    Object.defineProperty(package$time, 'MonoClock', {get: MonoClock_getInstance});
+    package$time.HrTimeClock = HrTimeClock;
+    package$time.PerformanceClock = PerformanceClock;
+    Object.defineProperty(package$time, 'DateNowClock', {get: DateNowClock_getInstance});
+    package$time.formatToExactDecimals_coldnx$ = formatToExactDecimals;
+    package$time.formatUpToDecimals_coldnx$ = formatUpToDecimals;
+    package$time.formatScientific_tq0o01$ = formatScientific;
     package$collections.AbstractCollection = AbstractCollection;
     package$collections.AbstractIterator = AbstractIterator;
     Object.defineProperty(AbstractList, 'Companion', {get: AbstractList$Companion_getInstance});
@@ -8689,6 +9339,7 @@
     package$collections.get_indices_gzk92b$ = get_indices_12;
     package$collections.optimizeReadOnlyList_qzupvv$ = optimizeReadOnlyList;
     package$comparisons.compareValues_s00gnj$ = compareValues;
+    package$collections.throwCountOverflow = throwCountOverflow;
     package$collections.IndexedValue = IndexedValue;
     package$collections.emptyMap_q3lmfv$ = emptyMap;
     package$collections.mapOf_qfcya0$ = mapOf_0;
@@ -8739,6 +9390,7 @@
     Object.defineProperty(Random, 'Default', {get: Random$Default_getInstance});
     Object.defineProperty(Random, 'Companion', {get: Random$Companion_getInstance});
     package$random.Random_za3lpa$ = Random_0;
+    package$random.fastLog2_kcn2v3$ = fastLog2;
     package$random.takeUpperBits_b6l1hq$ = takeUpperBits;
     package$random.checkRangeBounds_6xvm5r$ = checkRangeBounds;
     package$random.checkRangeBounds_cfj5zr$ = checkRangeBounds_0;
@@ -8776,6 +9428,17 @@
     package$text.MatchGroupCollection = MatchGroupCollection;
     MatchResult.Destructured = MatchResult$Destructured;
     package$text.MatchResult = MatchResult;
+    package$time.Clock = Clock;
+    package$time.ClockMark = ClockMark;
+    package$time.AbstractDoubleClock = AbstractDoubleClock;
+    Object.defineProperty(Duration, 'Companion', {get: Duration$Companion_getInstance});
+    package$time.Duration = Duration;
+    package$time.toDuration_14orw9$ = toDuration;
+    package$time.toDuration_n769wd$ = toDuration_1;
+    package$time.get_nanoseconds_yrwdxr$ = get_nanoseconds_1;
+    package$time.get_milliseconds_s8ev3n$ = get_milliseconds;
+    package$time.get_seconds_yrwdxr$ = get_seconds_1;
+    package$time.shortName_d5gje$ = shortName;
     package$kotlin.Lazy = Lazy;
     Object.defineProperty(package$kotlin, 'UNINITIALIZED_VALUE', {get: UNINITIALIZED_VALUE_getInstance});
     package$kotlin.UnsafeLazyImpl = UnsafeLazyImpl;

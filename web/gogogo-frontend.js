@@ -35,6 +35,8 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   var ai = $module$gogogo_common.de.earley.gogogo.ai;
   var treeSearchStrategy = $module$gogogo_common.de.earley.gogogo.ai.treeSearchStrategy_r1a1ux$;
   var AI = $module$gogogo_common.de.earley.gogogo.ai.AI;
+  var random = $module$gogogo_common.de.earley.gogogo.ai.random_57bg73$;
+  var MonteCarlo = $module$gogogo_common.de.earley.gogogo.ai.MonteCarlo;
   var Enum = Kotlin.kotlin.Enum;
   var throwISE = Kotlin.throwISE;
   var throwUPAE = Kotlin.throwUPAE;
@@ -265,6 +267,9 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     ControllerTypes$Hard_instance = new ControllerTypes('Hard', 3, getCallableRef('withUIAwareness', function ($receiver) {
       return withUIAwareness($receiver);
     }.bind(null, new HumanPlusAI(treeSearchStrategy(4, ai.Evaluations.sumSquarePosition, false)))));
+    ControllerTypes$MC_instance = new ControllerTypes('MC', 4, getCallableRef('withUIAwareness', function ($receiver) {
+      return withUIAwareness($receiver);
+    }.bind(null, new MonteCarlo(random(), 2000, 2147483647, true))));
   }
   var ControllerTypes$Human_instance;
   function ControllerTypes$Human_getInstance() {
@@ -286,9 +291,14 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     ControllerTypes_initFields();
     return ControllerTypes$Hard_instance;
   }
+  var ControllerTypes$MC_instance;
+  function ControllerTypes$MC_getInstance() {
+    ControllerTypes_initFields();
+    return ControllerTypes$MC_instance;
+  }
   ControllerTypes.$metadata$ = {kind: Kind_CLASS, simpleName: 'ControllerTypes', interfaces: [Enum]};
   function ControllerTypes$values() {
-    return [ControllerTypes$Human_getInstance(), ControllerTypes$Easy_getInstance(), ControllerTypes$Medium_getInstance(), ControllerTypes$Hard_getInstance()];
+    return [ControllerTypes$Human_getInstance(), ControllerTypes$Easy_getInstance(), ControllerTypes$Medium_getInstance(), ControllerTypes$Hard_getInstance(), ControllerTypes$MC_getInstance()];
   }
   ControllerTypes.values = ControllerTypes$values;
   function ControllerTypes$valueOf(name) {
@@ -301,6 +311,8 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
         return ControllerTypes$Medium_getInstance();
       case 'Hard':
         return ControllerTypes$Hard_getInstance();
+      case 'MC':
+        return ControllerTypes$MC_getInstance();
       default:throwISE('No enum constant de.earley.gogogo.ui.ControllerTypes.' + name);
     }
   }
@@ -2007,6 +2019,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
   Object.defineProperty(ControllerTypes, 'Easy', {get: ControllerTypes$Easy_getInstance});
   Object.defineProperty(ControllerTypes, 'Medium', {get: ControllerTypes$Medium_getInstance});
   Object.defineProperty(ControllerTypes, 'Hard', {get: ControllerTypes$Hard_getInstance});
+  Object.defineProperty(ControllerTypes, 'MC', {get: ControllerTypes$MC_getInstance});
   var package$ui = package$gogogo.ui || (package$gogogo.ui = {});
   package$ui.ControllerTypes = ControllerTypes;
   package$ui.controllerTypesAsString = controllerTypesAsString;

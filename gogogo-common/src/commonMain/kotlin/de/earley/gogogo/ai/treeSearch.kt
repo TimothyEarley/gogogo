@@ -4,6 +4,7 @@ import de.earley.gogogo.game.Player
 import de.earley.gogogo.game.State
 import de.earley.gogogo.game.next
 
+//TODO better overloading
 fun treeSearchStrategy(
 	level: Int,
 	baseStrategy: Strategy,

@@ -49,6 +49,7 @@ fun run(
 private fun CoroutineScope.progresser(totalGames: Int) = actor<Unit>(capacity = 10) {
 	val progressBar = ProgressBar(totalGames).also {
 		it.start()
+		it.show()
 	}
 	for (u in channel) {
 		progressBar.tick()

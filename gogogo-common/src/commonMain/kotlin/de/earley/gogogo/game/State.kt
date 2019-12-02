@@ -1,5 +1,6 @@
 package de.earley.gogogo.game
 
+import de.earley.gogogo.ai.findAllMoves
 import de.earley.gogogo.game.grid.GameGrid
 import de.earley.gogogo.game.grid.*
 import kotlin.math.abs
@@ -21,9 +22,11 @@ data class State(
 	val lastPushed: Point?,
 	val grid: GameGrid,
 	// memory
+	//TODO store previous moves instead, i.e. List<Move>? That should take less memory, but may be slower (Where? Only repeated moves checks it)
 	val prev: State?, // DO NOT INTRODUCE CYCLES
 	val lastMove: Move?
-) {
+	// possible performance improvement: keep track of tokens for each player.
+	) {
 
 	companion object {
 		val inital = State(
@@ -79,7 +82,7 @@ data class State(
 
 	//HOTSPOT
 	fun isEligibleToMove(p: Point): Boolean {
-		return playersTurn == grid[p] && lastPushed != p
+		return lastPushed != p && playersTurn == grid[p]
 	}
 
 
@@ -128,18 +131,23 @@ data class State(
 			if (lastPushed.x == GAME_WIDTH - 1 && grid[lastPushed] == Player.Blue) return Player.Blue
 		}
 
-		//pushed or moved last piece off board
-		if (countActiveTokens() <= 0) {
-			// we cannot move, and so lose
+		// check if we can move
+		if (! findAllMoves().iterator().hasNext()) {
 			return lastPlayer
 		}
+
+		//pushed or moved last piece off board
+//		if (countActiveTokens() <= 0) {
+//			// we cannot move, and so lose
+//			return lastPlayer
+//		}
 
 		return null
 	}
 
 	private fun countActiveTokens(): Int = grid
 		.getAllFor(playersTurn)
-		.filter(this@State::isEligibleToMove).size
+		.count(this@State::isEligibleToMove)
 
 	fun isSimilar(other: State): Boolean =
 		playersTurn == other.playersTurn &&  lastPushed == other.lastPushed && grid == other.grid

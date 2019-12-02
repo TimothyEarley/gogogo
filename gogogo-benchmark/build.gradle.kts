@@ -25,6 +25,10 @@ tasks.withType<JavaExec> {
 	standardInput = System.`in`
 }
 
+tasks.withType<KotlinCompile>().all {
+	kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
+}
+
 repositories {
 	mavenCentral()
 }

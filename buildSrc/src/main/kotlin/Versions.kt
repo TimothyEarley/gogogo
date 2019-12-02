@@ -1,6 +1,6 @@
 object Versions {
 
-	const val kotlin = "1.3.41"
+	const val kotlin = "1.3.60"
 	const val ktor = "1.1.1"
 	const val coroutines = "1.3.0-RC"
 	const val shadow = "4.0.3"
