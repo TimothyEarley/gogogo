@@ -70,7 +70,7 @@ private data class Node(
 	var draws: Int = 0
 ) {
 	fun accScore(): Double = wins + draws.toDouble()/2
-	fun score(): Double = if (visits == 0) Double.MIN_VALUE else ((wins + draws).toDouble() / visits)
+	fun score(): Double = if (visits == 0) Double.MIN_VALUE else (accScore() / visits)
 	override fun toString(): String
 		= "Node(  move=$move, visits=$visits, wins=$wins, draws=$draws, score=${score()})"
 }
@@ -96,8 +96,25 @@ class MonteCarlo(
 		state: State,
 		fromSelectCallback: (Point?) -> Unit
 	): Move {
-		val player = state.playersTurn
+		val root = evaluateRootNode(state, state.playersTurn)
+		val chosen = root.children.maxBy { it.score() }
+		if (caching) cachedChosen = chosen
+		return chosen?.move ?: error("No moves. Did we timeout?") //TODO chose a random move if we have no children?
+	}
 
+	/**
+	 * Values from 0 to 100
+	 */
+	fun asStrategy(): Strategy = {player, state ->
+		val root = evaluateRootNode(state, player)
+		//TODO caching?
+		(root.score() * 100).toInt()
+	}
+
+	private fun evaluateRootNode(
+		state: State,
+		player: Player
+	): Node {
 		//TODO timeout relative to state depth?
 		val start = MonoClock.markNow().plus(timeoutMs.milliseconds)
 
@@ -105,9 +122,9 @@ class MonteCarlo(
 			// can we reach this new state from the cached root?
 			// go down 2 levels
 			//TODO infer caching from lastMove
-			 cachedChosen!!.children.find { it.state == state }?.copy(
-				 parent = null // remove parent link, i.e. truncate to root. This reduces backprop time (and mem usage)
-			 )
+			cachedChosen!!.children.find { it.state == state }?.copy(
+				parent = null // remove parent link, i.e. truncate to root. This reduces backprop time (and mem usage)
+			)
 		} else null
 
 		val root = cachedRootMatch ?: Node(state)
@@ -130,9 +147,7 @@ class MonteCarlo(
 		rounds++
 		simulations += root.visits
 
-		val chosen = root.children.maxBy { it.score() }
-		if (caching) cachedChosen = chosen
-		return chosen?.move ?: error("No moves. Did we timeout?") //TODO chose a random move if we have no children?
+		return root
 	}
 
 	private enum class WinLossDraw(val flip: () -> WinLossDraw) {

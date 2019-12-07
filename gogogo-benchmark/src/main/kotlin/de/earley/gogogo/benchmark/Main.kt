@@ -63,9 +63,16 @@ mc(3/ss/200,500): Rounds=1092, sims=   536943, sims/round=   491.70604395604397
  */
 val ranking = mapOf(
 	"4/ss/200" to treeSearchStrategy(4, sumSquarePosition, true, 200),
-	"4/ss/-" to treeSearchStrategy(4, sumSquarePosition, false),
+//	"4/ss/-" to treeSearchStrategy(4, sumSquarePosition, false),
 	"1/mf/-" to treeSearchStrategy(1, mostForward, false),
-	"3/ss/-" to treeSearchStrategy(3, sumSquarePosition, false)
+//	"3/ss/-" to treeSearchStrategy(3, sumSquarePosition, false),
+
+	"3/mc/95" to treeSearchStrategy(3, MonteCarlo(random(), 500, Int.MAX_VALUE, true).asStrategy(), true, 95, 5),
+	"4/mc/60" to treeSearchStrategy(4, MonteCarlo(random(), 500, Int.MAX_VALUE, true).asStrategy(), true, 60, 40),
+	"4/mc/95" to treeSearchStrategy(4, MonteCarlo(random(), 50, Int.MAX_VALUE, true).asStrategy(), true, 95, 5)
+
+
+//	"4/mc/95" to treeSearchStrategy(4, MonteCarlo(random(), 500, Int.MAX_VALUE, true).asStrategy(), true, 95, 5)
 ).map { benchmarkStrategy(it.key, it.value) }
 
 val challengers = mapOf(
@@ -97,25 +104,9 @@ val monteCarlos = listOf(1000).flatMap { timeout ->
 fun main() {
 //	val human = loadHuman()
 
-	val mc = BenchmarkAI("mc", MonteCarlo(
-		random(),
-		5000,
-		Int.MAX_VALUE,
-		true
-	))
-
-	val mc2 = BenchmarkAI("mc", MonteCarlo(
-		treeSearchStrategy(4, sumSquarePosition, true, 200),
-		5000,
-		Int.MAX_VALUE,
-		true
-	))
-
-	league(listOf(ranking.first()) + mc + mc2, timeout = false)
+	league(ranking, timeout = true)
 
 	println()
-	println("mc: " + (mc.wrapped as MonteCarlo).stats())
-	println("mc2: " + (mc2.wrapped as MonteCarlo).stats())
 //	monteCarlos.forEach {
 //		println(it.name + ": " + (it.wrapped as MonteCarlo).stats())
 //	}
