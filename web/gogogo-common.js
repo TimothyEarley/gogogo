@@ -15,14 +15,21 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   var kotlin_js_internal_DoubleCompanionObject = Kotlin.kotlin.js.internal.DoubleCompanionObject;
   var toString = Kotlin.toString;
   var emptyList = Kotlin.kotlin.collections.emptyList_287e2$;
+  var coroutines = $module$kotlinx_coroutines_core.kotlinx.coroutines;
+  var cancelAndJoin = $module$kotlinx_coroutines_core.kotlinx.coroutines.cancelAndJoin_5dx9u$;
+  var Unit = Kotlin.kotlin.Unit;
+  var ensureNotNull = Kotlin.ensureNotNull;
+  var get_isActive = $module$kotlinx_coroutines_core.kotlinx.coroutines.get_isActive_e9pf1l$;
+  var yield_0 = $module$kotlinx_coroutines_core.kotlinx.coroutines.yield;
+  var launch = $module$kotlinx_coroutines_core.kotlinx.coroutines.launch_s496o7$;
+  var numberToInt = Kotlin.numberToInt;
   var time = Kotlin.kotlin.time;
   var get_milliseconds = Kotlin.kotlin.time.get_milliseconds_s8ev3n$;
-  var ensureNotNull = Kotlin.ensureNotNull;
   var equals = Kotlin.equals;
   var Enum = Kotlin.kotlin.Enum;
   var throwISE = Kotlin.throwISE;
-  var Unit = Kotlin.kotlin.Unit;
   var toList = Kotlin.kotlin.sequences.toList_veqyi0$;
+  var CoroutineScope = $module$kotlinx_coroutines_core.kotlinx.coroutines.CoroutineScope;
   var sequence = Kotlin.kotlin.sequences.sequence_o0x0bg$;
   var getCallableRef = Kotlin.getCallableRef;
   var max = Kotlin.kotlin.collections.max_exjks8$;
@@ -37,9 +44,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   var withContext = $module$kotlinx_coroutines_core.kotlinx.coroutines.withContext_i5cbzn$;
   var CancellationException = $module$kotlinx_coroutines_core.kotlinx.coroutines.CancellationException;
   var IllegalStateException_init = Kotlin.kotlin.IllegalStateException_init_pdl1vj$;
-  var get_isActive = $module$kotlinx_coroutines_core.kotlinx.coroutines.get_isActive_e9pf1l$;
-  var launch = $module$kotlinx_coroutines_core.kotlinx.coroutines.launch_s496o7$;
-  var cancelAndJoin = $module$kotlinx_coroutines_core.kotlinx.coroutines.cancelAndJoin_5dx9u$;
   var Kind_INTERFACE = Kotlin.Kind.INTERFACE;
   var last = Kotlin.kotlin.collections.last_2p1efm$;
   var get_lastIndex = Kotlin.kotlin.collections.get_lastIndex_55thoc$;
@@ -228,7 +232,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
     return this.wins + this.draws / 2;
   };
   Node.prototype.score = function () {
-    return this.visits === 0 ? kotlin_js_internal_DoubleCompanionObject.MIN_VALUE : (this.wins + this.draws | 0) / this.visits;
+    return this.visits === 0 ? kotlin_js_internal_DoubleCompanionObject.MIN_VALUE : this.accScore() / this.visits;
   };
   Node.prototype.toString = function () {
     return 'Node(  move=' + toString(this.move) + ', visits=' + this.visits + ', wins=' + this.wins + ', draws=' + this.draws + ', score=' + this.score() + ')';
@@ -272,36 +276,249 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   Node.prototype.equals = function (other) {
     return this === other || (other !== null && (typeof other === 'object' && (Object.getPrototypeOf(this) === Object.getPrototypeOf(other) && (Kotlin.equals(this.state, other.state) && Kotlin.equals(this.move, other.move) && Kotlin.equals(this.parent, other.parent) && Kotlin.equals(this.children, other.children) && Kotlin.equals(this.visits, other.visits) && Kotlin.equals(this.wins, other.wins) && Kotlin.equals(this.draws, other.draws)))));
   };
-  function MonteCarlo(playoutStrategy, timeoutMs, playoutLimit, caching) {
+  function MonteCarlo(playoutStrategy, timeoutMs, playoutLimit, caching, pondering) {
     this.playoutStrategy_0 = playoutStrategy;
     this.timeoutMs_0 = timeoutMs;
     this.playoutLimit_0 = playoutLimit;
     this.caching_0 = caching;
+    this.pondering_0 = pondering;
     this.name_ix0uzi$_0 = 'MonteCarlo';
     this.simulations_0 = 0;
     this.rounds_0 = 0;
     this.cachedChosen_0 = null;
+    this.ponderJob_0 = null;
+    this.lastVisits_0 = 0;
   }
   Object.defineProperty(MonteCarlo.prototype, 'name', {get: function () {
     return this.name_ix0uzi$_0;
   }});
+  Object.defineProperty(MonteCarlo.prototype, 'coroutineContext', {get: function () {
+    return coroutines.Dispatchers.Default;
+  }});
   MonteCarlo.prototype.stats = function () {
     return 'Rounds=' + this.rounds_0 + ', sims=' + this.simulations_0 + ', sims/round=' + this.simulations_0 / this.rounds_0;
   };
-  MonteCarlo.prototype.getMove_jr41iw$ = function (lastMove, state, fromSelectCallback, continuation) {
-    var tmp$, tmp$_0, tmp$_1, tmp$_2, tmp$_3, tmp$_4;
-    var player = state.playersTurn;
+  function Coroutine$getMove_jr41iw$($this, lastMove_0, state_0, fromSelectCallback_0, continuation_0) {
+    CoroutineImpl.call(this, continuation_0);
+    this.exceptionState_0 = 1;
+    this.$this = $this;
+    this.local$state = state_0;
+  }
+  Coroutine$getMove_jr41iw$.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
+  Coroutine$getMove_jr41iw$.prototype = Object.create(CoroutineImpl.prototype);
+  Coroutine$getMove_jr41iw$.prototype.constructor = Coroutine$getMove_jr41iw$;
+  Coroutine$getMove_jr41iw$.prototype.doResume = function () {
+    do
+      try {
+        switch (this.state_0) {
+          case 0:
+            var tmp$, tmp$_0, tmp$_1;
+            if (this.$this.pondering_0) {
+              println('Cancel ' + toString(this.$this.ponderJob_0));
+              if ((tmp$ = this.$this.ponderJob_0) != null) {
+                this.state_0 = 2;
+                this.result_0 = cancelAndJoin(tmp$, this);
+                if (this.result_0 === COROUTINE_SUSPENDED)
+                  return COROUTINE_SUSPENDED;
+                continue;
+              }
+               else {
+                this.result_0 = null;
+                this.state_0 = 3;
+                continue;
+              }
+            }
+             else {
+              this.state_0 = 4;
+              continue;
+            }
+
+          case 1:
+            throw this.exception_0;
+          case 2:
+            this.result_0 = Unit;
+            this.state_0 = 3;
+            continue;
+          case 3:
+            this.$this.ponderJob_0 = null;
+            if (this.$this.lastVisits_0 !== 0) {
+              println('pondered on ' + (ensureNotNull(this.$this.cachedChosen_0).visits - this.$this.lastVisits_0 | 0) + ' moves');
+            }
+
+            this.state_0 = 4;
+            continue;
+          case 4:
+            var root = this.$this.evaluateRootNode_0(this.local$state, this.local$state.playersTurn);
+            var $receiver = root.children;
+            var maxBy$result;
+            maxBy$break: do {
+              var iterator = $receiver.iterator();
+              if (!iterator.hasNext()) {
+                maxBy$result = null;
+                break maxBy$break;
+              }
+              var maxElem = iterator.next();
+              if (!iterator.hasNext()) {
+                maxBy$result = maxElem;
+                break maxBy$break;
+              }
+              var maxValue = maxElem.score();
+              do {
+                var e_0 = iterator.next();
+                var v = e_0.score();
+                if (Kotlin.compareTo(maxValue, v) < 0) {
+                  maxElem = e_0;
+                  maxValue = v;
+                }
+              }
+               while (iterator.hasNext());
+              maxBy$result = maxElem;
+            }
+             while (false);
+            var chosen = maxBy$result;
+            if (this.$this.caching_0)
+              this.$this.cachedChosen_0 = chosen;
+            if (this.$this.pondering_0) {
+              println('pondering');
+              this.$this.lastVisits_0 = (tmp$_0 = chosen != null ? chosen.visits : null) != null ? tmp$_0 : 0;
+              this.$this.ponder_0();
+            }
+
+            println('Score: ' + toString(chosen != null ? chosen.score() : null) + ' after ' + toString(chosen != null ? chosen.visits : null) + ' visits (total root: ' + root.visits + ')');
+            var tmp$_2;
+            if ((tmp$_1 = chosen != null ? chosen.move : null) != null)
+              tmp$_2 = tmp$_1;
+            else {
+              throw IllegalStateException_init('No moves. Did we timeout?'.toString());
+            }
+
+            return tmp$_2;
+          default:this.state_0 = 1;
+            throw new Error('State Machine Unreachable execution');
+        }
+      }
+       catch (e) {
+        if (this.state_0 === 1) {
+          this.exceptionState_0 = this.state_0;
+          throw e;
+        }
+         else {
+          this.state_0 = this.exceptionState_0;
+          this.exception_0 = e;
+        }
+      }
+     while (true);
+  };
+  MonteCarlo.prototype.getMove_jr41iw$ = function (lastMove_0, state_0, fromSelectCallback_0, continuation_0, suspended) {
+    var instance = new Coroutine$getMove_jr41iw$(this, lastMove_0, state_0, fromSelectCallback_0, continuation_0);
+    if (suspended)
+      return instance;
+    else
+      return instance.doResume(null);
+  };
+  function Coroutine$MonteCarlo$ponder$lambda(closure$sims_0, closure$maxSims_0, this$MonteCarlo_0, $receiver_0, controller, continuation_0) {
+    CoroutineImpl.call(this, continuation_0);
+    this.$controller = controller;
+    this.exceptionState_0 = 1;
+    this.local$closure$sims = closure$sims_0;
+    this.local$closure$maxSims = closure$maxSims_0;
+    this.local$this$MonteCarlo = this$MonteCarlo_0;
+    this.local$$receiver = $receiver_0;
+  }
+  Coroutine$MonteCarlo$ponder$lambda.$metadata$ = {kind: Kotlin.Kind.CLASS, simpleName: null, interfaces: [CoroutineImpl]};
+  Coroutine$MonteCarlo$ponder$lambda.prototype = Object.create(CoroutineImpl.prototype);
+  Coroutine$MonteCarlo$ponder$lambda.prototype.constructor = Coroutine$MonteCarlo$ponder$lambda;
+  Coroutine$MonteCarlo$ponder$lambda.prototype.doResume = function () {
+    do
+      try {
+        switch (this.state_0) {
+          case 0:
+            var tmp$, tmp$_0;
+            this.state_0 = 2;
+            continue;
+          case 1:
+            throw this.exception_0;
+          case 2:
+            if (!get_isActive(this.local$$receiver) || this.local$closure$sims.v >= this.local$closure$maxSims) {
+              this.state_0 = 4;
+              continue;
+            }
+
+            this.state_0 = 3;
+            this.result_0 = yield_0(this);
+            if (this.result_0 === COROUTINE_SUSPENDED)
+              return COROUTINE_SUSPENDED;
+            continue;
+          case 3:
+            if ((tmp$ = this.local$this$MonteCarlo.cachedChosen_0) != null) {
+              this.local$this$MonteCarlo.evaluate_0(tmp$, tmp$.state.playersTurn);
+            }
+
+            tmp$_0 = this.local$closure$sims.v;
+            this.local$closure$sims.v = tmp$_0 + 1 | 0;
+            this.state_0 = 2;
+            continue;
+          case 4:
+            return println('done pondering'), Unit;
+          default:this.state_0 = 1;
+            throw new Error('State Machine Unreachable execution');
+        }
+      }
+       catch (e) {
+        if (this.state_0 === 1) {
+          this.exceptionState_0 = this.state_0;
+          throw e;
+        }
+         else {
+          this.state_0 = this.exceptionState_0;
+          this.exception_0 = e;
+        }
+      }
+     while (true);
+  };
+  function MonteCarlo$ponder$lambda(closure$sims_0, closure$maxSims_0, this$MonteCarlo_0) {
+    return function ($receiver_0, continuation_0, suspended) {
+      var instance = new Coroutine$MonteCarlo$ponder$lambda(closure$sims_0, closure$maxSims_0, this$MonteCarlo_0, $receiver_0, this, continuation_0);
+      if (suspended)
+        return instance;
+      else
+        return instance.doResume(null);
+    };
+  }
+  var IllegalArgumentException_init = Kotlin.kotlin.IllegalArgumentException_init_pdl1vj$;
+  MonteCarlo.prototype.ponder_0 = function () {
+    if (!(this.ponderJob_0 == null)) {
+      var message = 'Failed requirement.';
+      throw IllegalArgumentException_init(message.toString());
+    }
+    var maxSims = 8000;
+    var sims = {v: 0};
+    this.ponderJob_0 = launch(this, void 0, void 0, MonteCarlo$ponder$lambda(sims, maxSims, this));
+  };
+  function MonteCarlo$asStrategy$lambda(this$MonteCarlo) {
+    return function (player, state) {
+      var root = this$MonteCarlo.evaluateRootNode_0(state, player);
+      return numberToInt(root.score() * 100);
+    };
+  }
+  MonteCarlo.prototype.asStrategy = function () {
+    return MonteCarlo$asStrategy$lambda(this);
+  };
+  MonteCarlo.prototype.evaluateRootNode_0 = function (state, player) {
+    var tmp$, tmp$_0;
     var start = time.MonoClock.markNow().plus_cgako$(get_milliseconds(this.timeoutMs_0));
+    var minSims = 2500;
+    var sims = 0;
     if (this.caching_0 && this.cachedChosen_0 != null) {
       var $receiver = ensureNotNull(this.cachedChosen_0).children;
       var firstOrNull$result;
       firstOrNull$break: do {
-        var tmp$_5;
-        tmp$_5 = $receiver.iterator();
-        while (tmp$_5.hasNext()) {
-          var element = tmp$_5.next();
-          var tmp$_6;
-          if ((tmp$_6 = element.state) != null ? tmp$_6.equals(state) : null) {
+        var tmp$_1;
+        tmp$_1 = $receiver.iterator();
+        while (tmp$_1.hasNext()) {
+          var element = tmp$_1.next();
+          var tmp$_2;
+          if ((tmp$_2 = element.state) != null ? tmp$_2.equals(state) : null) {
             firstOrNull$result = element;
             break firstOrNull$break;
           }
@@ -315,61 +532,31 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
       tmp$_0 = null;
     var cachedRootMatch = tmp$_0;
     var root = cachedRootMatch != null ? cachedRootMatch : new Node(state);
-    while (start.hasNotPassedNow()) {
-      var selected = this.select_0(root);
-      if (!this.isDone_0(selected)) {
-        this.expand_0(selected);
-      }
-      var toExplore = (tmp$_1 = this.chooseChildUCT_0(selected)) != null ? tmp$_1 : selected;
-      var result = this.playout_0(toExplore);
-      tmp$_2 = result.victor;
-      if (equals(tmp$_2, player))
-        tmp$_3 = MonteCarlo$WinLossDraw$WIN_getInstance();
-      else if (equals(tmp$_2, next(player)))
-        tmp$_3 = MonteCarlo$WinLossDraw$LOSS_getInstance();
-      else
-        tmp$_3 = MonteCarlo$WinLossDraw$DRAW_getInstance();
-      var score = tmp$_3;
-      this.backprop_0(toExplore, score);
+    while (sims < minSims || start.hasNotPassedNow()) {
+      this.evaluate_0(root, player);
+      sims = sims + 1 | 0;
     }
     this.rounds_0 = this.rounds_0 + 1 | 0;
     this.simulations_0 = this.simulations_0 + root.visits | 0;
-    var $receiver_0 = root.children;
-    var maxBy$result;
-    maxBy$break: do {
-      var iterator = $receiver_0.iterator();
-      if (!iterator.hasNext()) {
-        maxBy$result = null;
-        break maxBy$break;
-      }
-      var maxElem = iterator.next();
-      if (!iterator.hasNext()) {
-        maxBy$result = maxElem;
-        break maxBy$break;
-      }
-      var maxValue = maxElem.score();
-      do {
-        var e = iterator.next();
-        var v = e.score();
-        if (Kotlin.compareTo(maxValue, v) < 0) {
-          maxElem = e;
-          maxValue = v;
-        }
-      }
-       while (iterator.hasNext());
-      maxBy$result = maxElem;
+    return root;
+  };
+  MonteCarlo.prototype.evaluate_0 = function (root, player) {
+    var tmp$, tmp$_0, tmp$_1;
+    var selected = this.select_0(root);
+    if (!this.isDone_0(selected)) {
+      this.expand_0(selected);
     }
-     while (false);
-    var chosen = maxBy$result;
-    if (this.caching_0)
-      this.cachedChosen_0 = chosen;
-    var tmp$_7;
-    if ((tmp$_4 = chosen != null ? chosen.move : null) != null)
-      tmp$_7 = tmp$_4;
-    else {
-      throw IllegalStateException_init('No moves. Did we timeout?'.toString());
-    }
-    return tmp$_7;
+    var toExplore = (tmp$ = this.chooseChildUCT_0(selected)) != null ? tmp$ : selected;
+    var result = this.playout_0(toExplore);
+    tmp$_0 = result.victor;
+    if (equals(tmp$_0, player))
+      tmp$_1 = MonteCarlo$WinLossDraw$WIN_getInstance();
+    else if (equals(tmp$_0, next(player)))
+      tmp$_1 = MonteCarlo$WinLossDraw$LOSS_getInstance();
+    else
+      tmp$_1 = MonteCarlo$WinLossDraw$DRAW_getInstance();
+    var score = tmp$_1;
+    this.backprop_0(toExplore, score);
   };
   function MonteCarlo$WinLossDraw(name, ordinal, flip) {
     Enum.call(this);
@@ -500,7 +687,6 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
       return new Node(it.state, it.move, closure$node, emptyList(), 0, 0);
     };
   }
-  var IllegalArgumentException_init = Kotlin.kotlin.IllegalArgumentException_init_pdl1vj$;
   MonteCarlo.prototype.expand_0 = function (node) {
     if (!node.children.isEmpty()) {
       var message = 'Failed requirement.';
@@ -520,7 +706,7 @@ this['gogogo-common'] = function (_, Kotlin, $module$kotlinx_coroutines_core) {
   MonteCarlo.prototype.isDone_0 = function ($receiver) {
     return $receiver.state.victor != null;
   };
-  MonteCarlo.$metadata$ = {kind: Kind_CLASS, simpleName: 'MonteCarlo', interfaces: [PlayerController]};
+  MonteCarlo.$metadata$ = {kind: Kind_CLASS, simpleName: 'MonteCarlo', interfaces: [CoroutineScope, PlayerController]};
   function MoveEvaluation(label, evaluation, byPlayer) {
     this.label = label;
     this.evaluation = evaluation;

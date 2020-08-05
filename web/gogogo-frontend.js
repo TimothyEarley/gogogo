@@ -269,7 +269,7 @@ this['gogogo-frontend'] = function (_, Kotlin, $module$kotlinx_coroutines_core, 
     }.bind(null, new HumanPlusAI(treeSearchStrategy(4, ai.Evaluations.sumSquarePosition, false)))));
     ControllerTypes$MC_instance = new ControllerTypes('MC', 4, getCallableRef('withUIAwareness', function ($receiver) {
       return withUIAwareness($receiver);
-    }.bind(null, new MonteCarlo(random(), 2000, 2147483647, true))));
+    }.bind(null, new MonteCarlo(random(), 3000, 2147483647, true, true))));
   }
   var ControllerTypes$Human_instance;
   function ControllerTypes$Human_getInstance() {

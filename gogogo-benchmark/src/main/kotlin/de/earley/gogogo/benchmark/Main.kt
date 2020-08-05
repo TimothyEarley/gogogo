@@ -4,123 +4,29 @@ import de.earley.gogogo.ai.*
 import de.earley.gogogo.ai.Evaluations.mostForward
 import de.earley.gogogo.ai.Evaluations.sumSquarePosition
 import de.earley.gogogo.game.*
-import java.io.File
-import kotlin.concurrent.thread
 import kotlin.random.Random
 
-
-fun allTreeSearchOptions(minLevel: Int, maxLevel: Int, prunes: List<Int>, bases: Map<String, Strategy>, withNoPrune: Boolean = true): List<Benchmarked> = sequence {
-	(minLevel..maxLevel).forEach { level ->
-		bases.forEach { (name, base) ->
-			if (withNoPrune)
-				yield(benchmarkStrategy("$level: $name (-)", treeSearchStrategy(level, base, false)))
-			prunes.forEach { prune ->
-				yield(benchmarkStrategy("$level: $name ($prune)", treeSearchStrategy(level, base, true, prune)))
-			}
-		}
-	}
-}.toList()
-
-
-/*
-1. 4/ss/200: 43
-2. 4/ss/-: 43
-3. 3/ss/-: 26
-4. 1/mf/-: 20
-
-[1/mf/-]:    avg: 0.01ms, 	max: 14ms, 	Count: 5003
-[3/ss/-]:    avg: 1.15ms, 	max: 27ms, 	Count: 4986
-[4/ss/200]:  avg: 9.84ms, 	max: 323ms, Count: 7178
-[4/ss/-]:    avg: 17.06ms, 	max: 287ms, Count: 7178
-
-1. 4/ss/200: 123
-2. mc(ss,1000): 106
-3. mc(1/mf/-,500): 97
-4. mc(ss,500): 94
-5. mc(rand,1000): 74
-6. 1/mf/-: 61
-7. mc(rand,500): 60
-8. mc(3/ss/200,500): 1
-
-Stats:
-
-[1/mf/-]:                               avg: 262us, 	max: 17.0ms, 	Count: 931
-[4/ss/200]:                             avg: 321ms, 	max: 1.86s, 	Count: 1222
-[mc(1/mf/-,500)]:                       avg: 502ms, 	max: 605ms, 	Count: 1231
-[mc(rand,500)]:                         avg: 504ms, 	max: 634ms, 	Count: 1036
-[mc(ss,500)]:                           avg: 506ms, 	max: 657ms, 	Count: 1032
-[mc(3/ss/200,500)]:                     avg: 651ms, 	max: 1.36s, 	Count: 1092
-[mc(rand,1000)]:                        avg: 1.00s, 	max: 1.20s, 	Count: 1003
-[mc(ss,1000)]:                          avg: 1.02s, 	max: 1.23s, 	Count: 1003
-
-mc(ss,1000):      Rounds=1002, sims=209982757, sims/round=209563.62974051895
-mc(1/mf/-,500):   Rounds=1231, sims= 65950266, sims/round= 53574.545897644195
-mc(ss,500):       Rounds=1032, sims=105348050, sims/round=102081.44379844962
-mc(rand,1000):    Rounds=1003, sims=155762177, sims/round=155296.28813559323
-mc(rand,500):     Rounds=1036, sims= 60505260, sims/round= 58402.76061776062
-mc(3/ss/200,500): Rounds=1092, sims=   536943, sims/round=   491.70604395604397
-
- */
-val ranking = mapOf(
+val goodStrats = mapOf(
 	"4/ss/200" to treeSearchStrategy(4, sumSquarePosition, true, 200),
-//	"4/ss/-" to treeSearchStrategy(4, sumSquarePosition, false),
-	"1/mf/-" to treeSearchStrategy(1, mostForward, false),
-//	"3/ss/-" to treeSearchStrategy(3, sumSquarePosition, false),
-
-	"3/mc/95" to treeSearchStrategy(3, MonteCarlo(random(), 500, Int.MAX_VALUE, true).asStrategy(), true, 95, 5),
-	"4/mc/60" to treeSearchStrategy(4, MonteCarlo(random(), 500, Int.MAX_VALUE, true).asStrategy(), true, 60, 40),
-	"4/mc/95" to treeSearchStrategy(4, MonteCarlo(random(), 50, Int.MAX_VALUE, true).asStrategy(), true, 95, 5)
-
-
-//	"4/mc/95" to treeSearchStrategy(4, MonteCarlo(random(), 500, Int.MAX_VALUE, true).asStrategy(), true, 95, 5)
+	"1/mf/-" to treeSearchStrategy(1, mostForward, false)
 ).map { benchmarkStrategy(it.key, it.value) }
 
-val challengers = mapOf(
-	"5/ss/40" to treeSearchStrategy(5, sumSquarePosition, true, 40),
-	"4/(1/mf/-)/200" to treeSearchStrategy(4, treeSearchStrategy(1, mostForward, false), true, 200),
-	"5/(1/mf/-)/200" to treeSearchStrategy(5, treeSearchStrategy(1, mostForward, false), true, 200),
-	"6/(1/mf/-)/40" to treeSearchStrategy(5, treeSearchStrategy(1, mostForward, false), true, 40)
-	).map { benchmarkStrategy(it.key, it.value) }
-
-val monteCarlos = listOf(1000).flatMap { timeout ->
-	listOf(
-		"rand" to random(),
-		"1/mf/-" to treeSearchStrategy(1, mostForward, false),
-		"ss" to sumSquarePosition
-	).flatMap { (name, strat) ->
-		listOf(true, false).flatMap { caching ->
-			listOf(20, Int.MAX_VALUE).map { limit ->
-				"mc($name,$timeout,${if (limit == Int.MAX_VALUE) "-" else "$limit"},$caching)" to MonteCarlo(
-					strat,
-					timeout,
-					limit,
-					caching
-				)
-			}
-		}
-	}
-}.map { BenchmarkAI(it.first, it.second) }
+val goodMCs = mapOf(
+	"mc/ss/1000/20" to MonteCarlo(sumSquarePosition, 1000, 20, true, false),
+	"mc/ss/1000/-" to MonteCarlo(sumSquarePosition, 1000, Int.MAX_VALUE, true, false)
+).map { BenchmarkAI(it.key, it.value) }
 
 fun main() {
-//	val human = loadHuman()
+	val teams = goodStrats + goodMCs
 
-	league(ranking, timeout = true)
+	league(teams, timeout = true)
 
 	println()
-//	monteCarlos.forEach {
-//		println(it.name + ": " + (it.wrapped as MonteCarlo).stats())
-//	}
-}
-
-private fun loadHuman(): Benchmarked {
-	val file = File("player.save")
-	if (file.exists()) RecordedPlayer.load(file)
-
-	Runtime.getRuntime().addShutdownHook(thread(false) {
-		RecordedPlayer.save(file)
-	})
-
-	return RecordedPlayer.mockBenchmarked("player")
+	teams.forEach {
+		(it.wrapped as? MonteCarlo)?.let { mc ->
+			println(it.name + ": " + mc.stats())
+		}
+	}
 }
 
 private val rand = Random(1337)
@@ -135,12 +41,19 @@ fun generateRandomState(): State {
 	return game.state
 }
 
-fun league(strats: List<Benchmarked>, timeout: Boolean = true) {
-	val hasHuman = strats.any { it.ai == RecordedPlayer }
+fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
+	println("Starting league with: ")
+	strategies.forEach {
+		println("- ${it.name}")
+	}
+	val hasSingleThreaded = strategies.any {
+		it.ai == RecordedPlayer ||
+		((it.ai is BenchmarkAI) && ((it.ai as BenchmarkAI).wrapped is MonteCarlo))
+	}
 	val score = run(
-		strats,
-		if (hasHuman) 1 else 3,
-		if (hasHuman || !timeout) Long.MAX_VALUE else 30 * 1000L,
+		strategies,
+		if (hasSingleThreaded) 1 else 3,
+		if (hasSingleThreaded || !timeout) Long.MAX_VALUE else 30 * 1000L,
 		(1..5).map { generateRandomState() } + State.inital
 	)
 
@@ -151,7 +64,7 @@ fun league(strats: List<Benchmarked>, timeout: Boolean = true) {
 
 	println("\nStats:\n")
 
-	strats.sortedBy { it.avg() }.forEach {
+	strategies.sortedBy { it.avg() }.forEach {
 			println(it.stats())
 	}
 }

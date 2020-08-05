@@ -15,7 +15,7 @@ enum class ControllerTypes(
 	Medium(AI(treeSearchStrategy(3, sumSquarePosition, false))::withUIAwareness),
 	Hard(HumanPlusAI(treeSearchStrategy(4, sumSquarePosition, false))::withUIAwareness),
 
-	MC(MonteCarlo(random(), 2000, Int.MAX_VALUE, true)::withUIAwareness)
+	MC(MonteCarlo(random(), 3000, Int.MAX_VALUE, true, true)::withUIAwareness)
 
 }
 

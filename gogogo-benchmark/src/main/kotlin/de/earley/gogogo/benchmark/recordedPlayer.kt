@@ -6,6 +6,7 @@ import de.earley.gogogo.game.*
 import de.earley.gogogo.net.MoveNetFormat
 import de.earley.gogogo.net.StateNetFormat
 import java.io.File
+import kotlin.concurrent.thread
 
 object RecordedPlayer : PlayerController {
 	override val name: String = "Recorded Player"
@@ -64,4 +65,16 @@ object RecordedPlayer : PlayerController {
 			database[StateNetFormat.decode(state)] = MoveNetFormat.decode(move)
 		}
 	}
+}
+
+
+private fun loadHuman(): Benchmarked {
+	val file = File("player.save")
+	if (file.exists()) RecordedPlayer.load(file)
+
+	Runtime.getRuntime().addShutdownHook(thread(false) {
+		RecordedPlayer.save(file)
+	})
+
+	return RecordedPlayer.mockBenchmarked("player")
 }
