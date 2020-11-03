@@ -3,7 +3,7 @@ package de.earley.gogogo.ui
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLTableElement
-import kotlin.browser.document
+import kotlinx.browser.document
 
 class MenuUI {
 

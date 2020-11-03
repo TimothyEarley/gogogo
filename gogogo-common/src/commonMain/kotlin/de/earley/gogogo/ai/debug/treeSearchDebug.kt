@@ -58,7 +58,7 @@ private fun treeSearchDebug(
 			DebugInfo(MoveEvaluation(label, best, playerWhoMoved), list)
 		} else {
 			val list = moves.toList()
-			val best = list.map { it.v.evaluation }.max()!!
+			val best = list.map { it.v.evaluation }.maxOrNull()!!
 			DebugInfo(MoveEvaluation(label, best, playerWhoMoved), list)
 		}
 	} else {
@@ -68,7 +68,7 @@ private fun treeSearchDebug(
 		} else {
 			val list = moves.toList()
 			// it is the opponents turn, what is the worst they can do?
-			val worst = list.map { it.v.evaluation }.min()!!
+			val worst = list.map { it.v.evaluation }.minOrNull()!!
 			DebugInfo(MoveEvaluation(label, worst, playerWhoMoved), list)
 		}
 	}

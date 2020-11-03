@@ -51,14 +51,14 @@ private fun treeSearch(
 			// if we reach a good enough move, use that
 			moves.maxPruning(pruneLevelMax)
 		} else {
-			moves.max()!!
+			moves.maxOrNull()!!
 		}
 	} else {
 		// it is the opponents turn, what is the worst they can do?
 		if (pruning) {
 			moves.minPruning(pruneLevelMin)
 		} else {
-			moves.min()!!
+			moves.minOrNull()!!
 		}
 	}
 }

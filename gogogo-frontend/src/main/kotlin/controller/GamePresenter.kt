@@ -11,7 +11,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLElement
-import kotlin.dom.removeClass
+import kotlinx.dom.removeClass
 
 class GamePresenter(
 	private val gameUI: GameUI,

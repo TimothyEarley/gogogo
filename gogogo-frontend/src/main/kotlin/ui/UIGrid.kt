@@ -12,8 +12,8 @@ import kotlinx.html.tr
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLTableCellElement
 import org.w3c.dom.HTMLTableElement
-import kotlin.browser.document
-import kotlin.dom.removeClass
+import kotlinx.browser.document
+import kotlinx.dom.removeClass
 
 class UIGrid(
 	table: HTMLTableElement

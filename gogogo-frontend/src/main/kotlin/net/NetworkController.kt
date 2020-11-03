@@ -7,7 +7,7 @@ import de.earley.gogogo.game.PlayerController
 import de.earley.gogogo.game.Point
 import de.earley.gogogo.game.State
 import de.earley.gogogo.net.Connection
-import kotlin.browser.window
+import kotlinx.browser.window
 
 class NetworkController(
 	private val connection: Connection

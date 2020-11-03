@@ -10,7 +10,7 @@ import kotlin.time.measureTimedValue
 
 
 //TODO rewrite benchmark to be on PlayerController level
-@UseExperimental(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class)
 interface Benchmarked {
 	val name: String
 	val ai: PlayerController
@@ -18,7 +18,7 @@ interface Benchmarked {
 	fun stats(): String
 }
 
-@UseExperimental(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class)
 fun PlayerController.mockBenchmarked(name: String) = object : Benchmarked {
 	override val name: String = name
 	override val ai: PlayerController = this@mockBenchmarked
@@ -26,7 +26,7 @@ fun PlayerController.mockBenchmarked(name: String) = object : Benchmarked {
 	override fun stats(): String = "MOCKED"
 }
 
-@UseExperimental(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class)
 class BenchmarkAI(override val name: String, val wrapped: PlayerController): PlayerController, Benchmarked {
 
 	override val ai: PlayerController = this

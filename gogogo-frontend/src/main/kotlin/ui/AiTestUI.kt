@@ -10,8 +10,8 @@ import kotlinx.html.dom.create
 import kotlinx.html.js.ol
 import org.w3c.dom.HTMLButtonElement
 import org.w3c.dom.HTMLElement
-import kotlin.browser.document
-import kotlin.dom.clear
+import kotlinx.browser.document
+import kotlinx.dom.clear
 
 class AiTestUI(
 	private val menu: MenuUI
@@ -96,8 +96,8 @@ class AiTestUI(
 		val values = t.walk().map(MoveEvaluation::evaluation).toList()
 
 		val clamp = -1000..1000 // avoid problems with MAX_INT etc.
-		val min = values.min()!!.coerceIn(clamp)
-		val max = values.max()!!.coerceIn(clamp)
+		val min = values.minOrNull()!!.coerceIn(clamp)
+		val max = values.maxOrNull()!!.coerceIn(clamp)
 
 		tree.clear()
 		val ul = document.create.ul {

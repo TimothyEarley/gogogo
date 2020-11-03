@@ -16,14 +16,14 @@ fun Strategy.map(f: (Player, State, Int) -> Int): Strategy = { player, state ->
 data class MoveToState(val move: Move, val state: State)
 
 fun Strategy.bestMove(player: Player, state: State): MoveToState =
-	state.findAllMoves().maxBy {
-		this(player, it.state)
-	} ?: error("No valid moves for player $player with state=${state.debugString()}")
+	state.findAllMoves().maxByOrNull {
+        this(player, it.state)
+    } ?: error("No valid moves for player $player with state=${state.debugString()}")
 
 fun Strategy.debugBestMove(player: Player, state: State): MoveToState {
 	val best = state.findAllMoves().map {
-		this(player, it.state) to it
-	}.maxBy { it.first } ?: error("No valid moves for player $player with state=${state.debugString()}")
+        this(player, it.state) to it
+    }.maxByOrNull { it.first } ?: error("No valid moves for player $player with state=${state.debugString()}")
 
 	println("Player $player thinks the move is worth: ${best.first} points.")
 

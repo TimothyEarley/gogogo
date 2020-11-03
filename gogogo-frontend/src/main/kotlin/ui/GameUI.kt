@@ -14,10 +14,10 @@ import kotlinx.html.js.table
 import kotlinx.html.td
 import kotlinx.html.tr
 import org.w3c.dom.*
-import kotlin.browser.document
-import kotlin.browser.window
+import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlin.coroutines.CoroutineContext
-import kotlin.dom.clear
+import kotlinx.dom.clear
 
 fun Player.asClass(): String = toString().toLowerCase()
 

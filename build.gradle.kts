@@ -1,10 +1,11 @@
 plugins {
-	id("com.github.ben-manes.versions") version "0.22.0"
+	id("com.github.ben-manes.versions") version "0.34.0"
+	kotlin("jvm") version Versions.kotlin apply false
 }
 
 allprojects {
 	group = "de.earley.gogogo"
-	version = "0.1.1"
+	version = "0.1.2"
 
 	repositories {
 		jcenter()

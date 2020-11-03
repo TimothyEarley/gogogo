@@ -20,10 +20,10 @@ fun wackyCarlo(
 
 		return if (player == state.playersTurn) {
 			// get best move
-			next.max() ?: 0
+			next.maxOrNull() ?: 0
 		} else {
 			// get worst move
-			next.min() ?: 0
+			next.minOrNull() ?: 0
 		}
 	}
 

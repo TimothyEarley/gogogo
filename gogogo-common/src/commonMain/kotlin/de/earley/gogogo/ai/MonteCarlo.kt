@@ -5,7 +5,9 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.ln
 import kotlin.math.sqrt
-import kotlin.time.*
+import kotlin.time.ExperimentalTime
+import kotlin.time.TimeSource
+import kotlin.time.milliseconds
 
 //TODO expand children only when needed
 //TODO advanced feature: pondering (start thinking on opponents move, i.e. while human is moving), reuse trees, etc.
@@ -25,7 +27,7 @@ private data class Node(
 }
 
 // not thread safe !!!, i.e. can only play one game at a time
-@UseExperimental(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class)
 class MonteCarlo(
 	private val playoutStrategy: Strategy, //TODO use a caching playout strategy??
 	private val timeoutMs: Int,
@@ -59,7 +61,7 @@ class MonteCarlo(
 		}
 
 		val root = evaluateRootNode(state, state.playersTurn)
-		val chosen = root.children.maxBy { it.score() }
+		val chosen = root.children.maxByOrNull { it.score() }
 		if (caching) cachedChosen = chosen
 		// start pondering again
 		if (pondering) {
@@ -100,7 +102,7 @@ class MonteCarlo(
 		player: Player
 	): Node {
 		//TODO timeout relative to state depth?
-		val start = MonoClock.markNow().plus(timeoutMs.milliseconds)
+		val start = TimeSource.Monotonic.markNow().plus(timeoutMs.milliseconds)
 
 		val minSims = 2500
 		var sims = 0
@@ -166,7 +168,7 @@ class MonteCarlo(
 
 	private fun Node.chooseChildUCT(): Node? {
 		val parentVisit = visits
-		return children.maxBy { uct(it, parentVisit) }
+		return children.maxByOrNull { uct(it, parentVisit) }
 	}
 
 	private fun uct(node: Node, totalVisits: Int): Double =

@@ -5,7 +5,7 @@ import kotlinx.html.js.option
 import org.w3c.dom.*
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventListener
-import kotlin.browser.document
+import kotlinx.browser.document
 
 fun <T : Element> Document.get(id: String): T =
 	getElementById(id) as? T ?: throw NoSuchElementException("No element with id $id found")
