@@ -1,0 +1,26 @@
+name: website
+
+on:
+  push:
+    branches: 
+      - master
+
+
+jobs:
+  publish:
+    runs-on: ubuntu-20.04	
+    steps:
+      - name: Check out
+        uses: actions/checkout@v1
+      
+      - name: Build
+        run: './gradlew --no-daemon :gogogo-frontend:build' 
+      
+      - name: Publish to GH Pages
+        uses: peaceiris/actions-gh-pages@v3.7.3
+        with:
+          publish_dir: gogogo-frontend/build/distributions
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: ${{ github.event.head_commit.message }}
+    
+     
