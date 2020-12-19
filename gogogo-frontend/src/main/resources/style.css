@@ -14,23 +14,44 @@
 	--colour-red-darkest: #6c3a35;
 	--colour-red-darkest-alpha: rgba(108, 58, 53, 0.5);
 
-	--color-gray: rgb(128, 128, 128);
+	--colour-gray: rgb(128, 128, 128);
 
 	--colour-yellow: #fff191;
 
 	--colour-blue: #25a2a6;
-	--colour-blue: #25a2a6;
+
+	--dark-foreground: white;
+	--dark-background: #303540;
 }
 
 /* GENERAL */
 
 * {
-	font-family: 'Gruppo', 'sans-saerif';
+	font-family: 'Gruppo', 'sans-serif';
+}
+
+body.light-theme {
+	background-color: white;
+}
+
+body.dark-theme {
+	background-color: var(--dark-background);
+}
+
+body.dark-theme p, body.dark-theme li, body.dark-theme h1, body.dark-theme select {
+	color: var(--dark-foreground);
+}
+
+body.dark-theme select {
+	background-color: var(--dark-background);
+}
+body.light-theme select {
+	background-color: white;
 }
 
 html {
     font-size: 20px;
-		margin-bottom: 2rem;
+	/*margin-bottom: 2rem;*/
 }
 
 @media(max-width: 980px) {
@@ -166,6 +187,7 @@ h1 {
 }
 
 .token-red:after {
+	/*noinspection CssNoGenericFontName*/
 	font-family: "Font Awesome 5 Free";
 	content: "\f0c8";
 	/*content: "\f443";*/
@@ -176,6 +198,7 @@ h1 {
 }
 
 .token-blue:after {
+	/*noinspection CssNoGenericFontName*/
 	font-family: "Font Awesome 5 Free";
 	content: "\f0c8";
 	font-weight: 900;
@@ -199,8 +222,7 @@ h1 {
 #turn-indicator {
 	text-align: center;
 	font-size: 2rem;
-	margin: 0;
-	margin-bottom: 0.5rem;
+	margin: 0 0 0.5rem;
 	font-family: 'Gruppo', sans-serif;
 }
 
@@ -217,7 +239,6 @@ h1 {
 	font-size: 2rem;
 	border: 1px solid;
 	border-color: var(--colour-gray);
-	background-color: white;
 	text-align: center;
 	margin-left: 10px;
 	margin-right: 10px;
@@ -286,4 +307,16 @@ h1 {
 
 .tf-tree li {
 	padding: 0 0.1em !important;
+}
+
+/* Toggle */
+#dark-mode-div {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 40px;
+}
+
+body.dark-theme #dark-mode-label {
+	color: var(--dark-foreground);
 }
