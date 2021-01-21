@@ -12,7 +12,7 @@ private val database: Map<State, Move> by lazy {
 	}.toMap()
 }
 
-class HumanPlusAI(fallback: Strategy): PlayerController {
+class HumanPlusAI(fallback: Evaluation): PlayerController {
 	override val name: String = "Human+"
 
 	private val fallbackAI = AI(fallback)

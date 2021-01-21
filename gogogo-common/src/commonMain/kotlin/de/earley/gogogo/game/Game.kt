@@ -7,7 +7,7 @@ const val GAME_WIDTH = 6
 const val GAME_HEIGHT = 5
 
 data class Point(val x: Int, val y: Int) {
-	override fun toString(): String = "($x/$y)"
+	override fun toString(): String = toLetterName()
 
 	fun toLetterName() : String = "${(y + 'a'.toInt()).toChar()}${x + 1}"
 

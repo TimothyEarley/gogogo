@@ -5,15 +5,18 @@ import de.earley.gogogo.ai.Evaluations.mostForward
 import de.earley.gogogo.ai.Evaluations.sumSquarePosition
 import de.earley.gogogo.game.*
 import kotlin.random.Random
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 val goodStrats = mapOf(
 	"4/ss/200" to treeSearchStrategy(4, sumSquarePosition, true, 200),
 	"1/mf/-" to treeSearchStrategy(1, mostForward, false)
 ).map { benchmarkStrategy(it.key, it.value) }
 
+@OptIn(ExperimentalTime::class)
 val goodMCs = mapOf(
-	"mc/ss/1000/20" to MonteCarlo(sumSquarePosition, 1000, 20, true, false),
-	"mc/ss/1000/-" to MonteCarlo(sumSquarePosition, 1000, Int.MAX_VALUE, true, false)
+	"mc/ss/1000/20" to MonteCarlo(sumSquarePosition, 1.seconds, 20, true, false),
+	"mc/ss/1000/-" to MonteCarlo(sumSquarePosition, 1.seconds, Int.MAX_VALUE, true, false)
 ).map { BenchmarkAI(it.key, it.value) }
 
 fun main() {

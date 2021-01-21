@@ -14,6 +14,8 @@ sealed class MoveResult {
 		object CannotPush : Error("You cannot push more than one piece")
 		object RepeatedMove : Error("You cannot repeat a move made four moves ago")
 		object CannotMoveOfBoard : Error("You cannot repeat a move made four moves ago")
+
+		override fun toString() = msg
 	}
 }
 

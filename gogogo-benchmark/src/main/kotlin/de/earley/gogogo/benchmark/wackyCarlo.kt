@@ -1,14 +1,14 @@
 package de.earley.gogogo.benchmark
 
-import de.earley.gogogo.ai.Strategy
+import de.earley.gogogo.ai.Evaluation
 import de.earley.gogogo.ai.findAllMoves
 import de.earley.gogogo.game.State
 
 fun wackyCarlo(
-	level: Int,
-	base: Strategy,
-	lookAt: Int
-): Strategy = { player, state ->
+    level: Int,
+    base: Evaluation,
+    lookAt: Int
+): Evaluation = { player, state ->
 	fun recurse(state: State, level: Int): Int {
 		if (level == 0) return base(player, state)
 

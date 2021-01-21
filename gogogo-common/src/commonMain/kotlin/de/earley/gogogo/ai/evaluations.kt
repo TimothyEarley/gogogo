@@ -5,24 +5,25 @@ import de.earley.gogogo.game.Point
 import de.earley.gogogo.game.State
 import de.earley.gogogo.game.next
 
-typealias Evaluation = Strategy
+/**
+ * the higher the [Int] better this [State] is for the [Player]
+ */
+typealias Evaluation = (Player, State) -> Int
 
 object Evaluations {
 
 	//TODO check evaluation bias (tends to be negative) -> correct towards 0
 
 	// closer to end -> good
-	private const val progressMult = 1
-	// immobile -> bad
-	private const val pushedPenalty = 1
+	private const val progressMult = 3
 	// having more tokens -> better
-	private const val tokenBonus = 2
+	private const val tokenBonus = 3
 
 	val sumPosition: Evaluation = { ownPlayer, state ->
 		fun pointForPosition(p: Point, player: Player): Int {
-			val progress = progressMult * progress(p, state.grid.width, player)
-			val pushed = if (state.lastPushed == p) pushedPenalty else 0
-			return progress + tokenBonus - pushed
+			// TODO how to factor in pushed?
+			val progress = progressMult * (progress(p, state.grid.width, player) + 1)
+			return progress + tokenBonus
 		}
 
 		positionalSum(ownPlayer, state, ::pointForPosition)
@@ -60,12 +61,13 @@ object Evaluations {
 		mapMax { pointsForPosition(it, ownPlayer) }
 	}
 
+	//TODO normalise around 0
 	private inline fun positionalSum(
 		ownPlayer: Player,
 		state: State,
 		pointsForPosition: (Point, Player) -> Int
-	) = positionalPointSystem(ownPlayer, state) {
-		sumBy { pointsForPosition(it, ownPlayer) }
+	) = positionalPointSystem(ownPlayer, state) { player ->
+		sumBy { pointsForPosition(it, player) }
 	}
 
 	private inline fun positionalPointSystem(

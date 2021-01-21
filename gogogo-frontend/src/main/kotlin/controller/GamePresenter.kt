@@ -68,7 +68,7 @@ class GamePresenter(
 	override suspend fun onMove(move: Move, lines : List<Line>?) {
 		unselect()
 		gameUI.updateUI(game, selected)
-		gameUI.updateLines((lines ?: emptyList()).sortedByDescending { it.evaluation })
+		gameUI.updateLines(lines ?: emptyList())
 
 		// for some reason the UI is not properly updated unless we allow some yield time
 		delay(100)

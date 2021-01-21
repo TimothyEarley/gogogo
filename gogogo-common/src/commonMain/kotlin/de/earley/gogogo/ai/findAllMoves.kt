@@ -5,6 +5,8 @@ import de.earley.gogogo.game.MoveResult
 import de.earley.gogogo.game.Point
 import de.earley.gogogo.game.State
 
+data class MoveToState(val move: Move, val state: State)
+
 fun State.findAllMoves(): Sequence<MoveToState> = sequence {
 	fun tryMove(from: Point, to: Point): MoveToState? {
 		val next = move(from, to)

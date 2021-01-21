@@ -112,7 +112,7 @@ class AiTestUI(
 		tree.appendChild(ul)
 	}
 
-	private fun generateTree(label: String, state: State, maxDepth: Int, strategy: Strategy, player: Player): Tree<Pair<String, Int>> =
+	private fun generateTree(label: String, state: State, maxDepth: Int, strategy: Evaluation, player: Player): Tree<Pair<String, Int>> =
 		Tree(
 			label to strategy(player, state),
 			if (maxDepth == 0) emptyList()

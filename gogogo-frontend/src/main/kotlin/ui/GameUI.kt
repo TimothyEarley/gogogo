@@ -10,7 +10,9 @@ import de.earley.gogogo.game.Point
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.*
+import kotlinx.dom.addClass
 import kotlinx.dom.clear
+import kotlinx.dom.removeClass
 import kotlinx.html.dom.create
 import kotlinx.html.js.li
 import org.w3c.dom.*
@@ -52,6 +54,7 @@ class GameUI private constructor(
 	private val serverControls = document.get<HTMLDivElement>("server-controls")
 	private val ownPlayer = document.get<HTMLParagraphElement>("server-own-player")
 	private val spinner = document.get<HTMLDivElement>("connect-spinner")
+	private val sidebar = document.get<HTMLDivElement>("sidebar")
 	private val linesList = document.get<HTMLUListElement>("lines")
 
 
@@ -168,13 +171,19 @@ class GameUI private constructor(
 		lines.forEach {
 			linesList.appendChild(
 				document.create.li {
-					val moveString = it.moves.joinToString("${nbsp}― ") {
-						"${it.from.toLetterName()}${nbsp}➤${nbsp}${it.to.toLetterName()}"
+					val moveString = it.moves.joinToString(",  ") {
+						"${it.from.toLetterName()}${nbsp}⇢${nbsp}${it.to.toLetterName()}"
 					}
 					val text = "${it.evaluation}: $moveString"
 					+text
 				}
 			)
+		}
+
+		if (lines.isNotEmpty()) {
+			sidebar.removeClass("hidden")
+		} else {
+			sidebar.addClass("hidden")
 		}
 	}
 

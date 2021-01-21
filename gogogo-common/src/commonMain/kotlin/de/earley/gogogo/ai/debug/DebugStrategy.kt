@@ -1,7 +1,6 @@
 package de.earley.gogogo.ai.debug
 
 import de.earley.gogogo.ai.*
-import de.earley.gogogo.game.Move
 import de.earley.gogogo.game.Player
 import de.earley.gogogo.game.State
 
@@ -10,7 +9,7 @@ typealias DebugInfo = Tree<MoveEvaluation>
 fun DebugInfo.extractEvaluation() = v.evaluation
 typealias DebugStrategy = (Player, State, String) -> DebugInfo
 
-fun DebugStrategy.toRealStrategy(): Strategy = { player, state -> this(player, state, "root").extractEvaluation() }
+fun DebugStrategy.toRealStrategy(): Evaluation = { player, state -> this(player, state, "root").extractEvaluation() }
 
 data class Tree<T>(val v: T, val children: List<Tree<T>> = emptyList())
 fun <T> Tree<T>.walk(): Sequence<T> = sequence {

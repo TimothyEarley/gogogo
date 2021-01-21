@@ -2,7 +2,7 @@ package de.earley.gogogo.ai
 
 import de.earley.gogogo.game.next
 
-fun recurseOnce(baseStrategy: Strategy): Strategy = { ownPlayer, state ->
+fun recurseOnce(baseStrategy: Evaluation): Evaluation = { ownPlayer, state ->
 	if (state.victor == ownPlayer)
 		Int.MAX_VALUE
 	else

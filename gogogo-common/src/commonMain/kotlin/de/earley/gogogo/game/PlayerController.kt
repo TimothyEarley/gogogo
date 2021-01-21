@@ -7,7 +7,12 @@ data class Move(val from: Point, val to: Point) {
 data class Line(
 	val evaluation : Int,
 	val moves : List<Move>
-)
+) {
+	fun prepend(move : Move) = Line(
+		evaluation,
+		listOf(move) + moves // TODO is that efficient?
+	)
+}
 
 interface PlayerController {
 	val name: String // for debug

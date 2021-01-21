@@ -1,9 +1,8 @@
 package de.earley.gogogo.benchmark
 
 import de.earley.gogogo.ai.AI
-import de.earley.gogogo.ai.Strategy
+import de.earley.gogogo.ai.Evaluation
 import de.earley.gogogo.game.*
-import kotlin.system.measureTimeMillis
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
@@ -54,4 +53,4 @@ class BenchmarkAI(override val name: String, val wrapped: PlayerController): Pla
 	override fun stats(): String = "${"[${name}]: ".padEnd(40)}avg: ${avg()}, \tmax: ${max}, \tCount: $invokeCount"
 }
 
-fun benchmarkStrategy(name: String, strategy: Strategy) = BenchmarkAI(name, AI(strategy, false))
+fun benchmarkStrategy(name: String, strategy: Evaluation) = BenchmarkAI(name, AI(strategy))
