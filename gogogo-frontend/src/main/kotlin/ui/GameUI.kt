@@ -4,20 +4,18 @@ package de.earley.gogogo.ui
 import controller.GamePresenter
 import de.earley.gogogo.Log
 import de.earley.gogogo.game.Game
+import de.earley.gogogo.game.Line
 import de.earley.gogogo.game.Player
 import de.earley.gogogo.game.Point
-import de.earley.gogogo.game.grid.Grid
-import kotlinx.coroutines.*
-import kotlinx.html.dom.create
-import kotlinx.html.id
-import kotlinx.html.js.table
-import kotlinx.html.td
-import kotlinx.html.tr
-import org.w3c.dom.*
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.*
 import kotlinx.dom.clear
+import kotlinx.html.dom.create
+import kotlinx.html.js.li
+import org.w3c.dom.*
+import kotlin.coroutines.CoroutineContext
+import kotlin.text.Typography.nbsp
 
 fun Player.asClass(): String = toString().toLowerCase()
 
@@ -54,6 +52,7 @@ class GameUI private constructor(
 	private val serverControls = document.get<HTMLDivElement>("server-controls")
 	private val ownPlayer = document.get<HTMLParagraphElement>("server-own-player")
 	private val spinner = document.get<HTMLDivElement>("connect-spinner")
+	private val linesList = document.get<HTMLUListElement>("lines")
 
 
 	private val eventListeners = EventListenerCollection()
@@ -162,6 +161,21 @@ class GameUI private constructor(
 		Player.Red -> redController.value
 	}.also {
 		Log.debug { "Queried value for $player is $it" }
+	}
+
+	fun updateLines(lines: List<Line>) {
+		linesList.clear()
+		lines.forEach {
+			linesList.appendChild(
+				document.create.li {
+					val moveString = it.moves.joinToString("${nbsp}― ") {
+						"${it.from.toLetterName()}${nbsp}➤${nbsp}${it.to.toLetterName()}"
+					}
+					val text = "${it.evaluation}: $moveString"
+					+text
+				}
+			)
+		}
 	}
 
 }

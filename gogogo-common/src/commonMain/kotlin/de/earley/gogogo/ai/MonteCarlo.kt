@@ -52,7 +52,7 @@ class MonteCarlo(
 		lastMove: Move?,
 		state: State,
 		fromSelectCallback: (Point?) -> Unit
-	): Move {
+	): Pair<Move, List<Line>?> {
 
 		// stop pondering
 		if (pondering) {
@@ -69,7 +69,8 @@ class MonteCarlo(
 			ponder()
 		}
 
-		return chosen?.move ?: error("No moves. Did we timeout?") //TODO chose a random move if we have no children?
+		val move = chosen?.move ?: error("No moves. Did we timeout?") //TODO chose a random move if we have no children?
+		return  move to null
 	}
 
 	private fun ponder() {

@@ -12,18 +12,25 @@ private val database: Map<State, Move> by lazy {
 	}.toMap()
 }
 
-class HumanPlusAI(private val fallback: Strategy): PlayerController {
+class HumanPlusAI(fallback: Strategy): PlayerController {
 	override val name: String = "Human+"
+
+	private val fallbackAI = AI(fallback)
 
 	override suspend fun getMove(
 		lastMove: Move?,
 		state: State,
 		fromSelectCallback: (Point?) -> Unit
-	): Move = database.asSequence().find { (savedState, move) ->
-		state == savedState || ( state.isSimilar(savedState) && state.canMove(move) )
-	}?.let { it.value } ?: fallback.bestMove(state.playersTurn, state).move.also {
-		println("Had to check with AI")
+	): Pair<Move, List<Line>?> {
+		//TODO add detection for flipped states and extract the move that way
+		val dbMove = database.asSequence().find { (savedState, move) ->
+			state == savedState || (state.isSimilar(savedState) && state.canMove(move))
+		}
+		return if (dbMove != null) {
+			dbMove.value to null
+		} else {
+			fallbackAI.getMove(lastMove, state, fromSelectCallback)
+		}
 	}
 
-	//TODO add detection for flipped states and extract the move that way
 }

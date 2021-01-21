@@ -127,7 +127,7 @@ private suspend fun runBothSidesRepeated(
 private object NoOpUiHook : UIHook {
 	override fun onSelect(point: Point?) {}
 	override fun onGameEnd() {}
-	override suspend fun onMove(move: Move) {}
+	override suspend fun onMove(move: Move, lines : List<Line>?) {}
 }
 
 private suspend fun runGame(

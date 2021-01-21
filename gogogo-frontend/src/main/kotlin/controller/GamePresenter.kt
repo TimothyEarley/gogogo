@@ -10,8 +10,6 @@ import de.earley.gogogo.ui.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.w3c.dom.HTMLElement
-import kotlinx.dom.removeClass
 
 class GamePresenter(
 	private val gameUI: GameUI,
@@ -67,10 +65,12 @@ class GamePresenter(
 		unselect()
 	}
 
-	override suspend fun onMove(move: Move) {
+	override suspend fun onMove(move: Move, lines : List<Line>?) {
 		unselect()
 		gameUI.updateUI(game, selected)
-		// for some reason the UI is not properly updated unless we allow some yield tile
+		gameUI.updateLines((lines ?: emptyList()).sortedByDescending { it.evaluation })
+
+		// for some reason the UI is not properly updated unless we allow some yield time
 		delay(100)
 	}
 

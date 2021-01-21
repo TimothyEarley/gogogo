@@ -39,12 +39,12 @@ class AI(
 
 	override val name: String = "AI - $strategyName"
 
-	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Move {
+	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Pair<Move, List<Line>?> {
 
 		val (move, _)  =
 			if (debug) strategy.debugBestMove(state.playersTurn, state)
 			else strategy.bestMove(state.playersTurn, state)
 
-		return move
+		return move to null // TODO lines
 	}
 }

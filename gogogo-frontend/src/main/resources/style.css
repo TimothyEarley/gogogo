@@ -38,7 +38,7 @@ body.dark-theme {
 	background-color: var(--dark-background);
 }
 
-body.dark-theme p, body.dark-theme li, body.dark-theme h1, body.dark-theme select {
+body.dark-theme p, body.dark-theme li, body.dark-theme h1, body.dark-theme h3, body.dark-theme select {
 	color: var(--dark-foreground);
 }
 
@@ -159,6 +159,20 @@ h1 {
 	width: 100%;
 	position: relative;
 	display: inline-block;
+}
+
+#sidebar {
+	padding: 10px;
+	margin-left: 10vw;
+}
+
+@media only screen and (min-width: 1870px) {
+	#sidebar {
+		position: absolute;
+		top: 3rem;
+		right: 30px;
+		width: 500px;
+	}
 }
 
 #game-grid {
@@ -314,7 +328,7 @@ h1 {
 	position: absolute;
 	top: 0;
 	right: 0;
-	margin: 40px;
+	margin: 20px;
 }
 
 body.dark-theme #dark-mode-label {

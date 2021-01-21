@@ -9,6 +9,8 @@ const val GAME_HEIGHT = 5
 data class Point(val x: Int, val y: Int) {
 	override fun toString(): String = "($x/$y)"
 
+	fun toLetterName() : String = "${(y + 'a'.toInt()).toChar()}${x + 1}"
+
 	fun left(): Point = Point(x - 1, y)
 	fun right(): Point = Point(x + 1, y)
 	fun up(): Point = Point(x, y - 1)

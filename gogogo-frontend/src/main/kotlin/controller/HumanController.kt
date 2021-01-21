@@ -15,7 +15,7 @@ class HumanController : PlayerController {
 
 	private val commit: Channel<Move> = Channel(1)
 
-	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Move {
+	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Pair<Move, List<Line>?> {
 
 		selectCallback = fromSelectCallback
 		this.state = state
@@ -29,7 +29,7 @@ class HumanController : PlayerController {
 		selectCallback = null
 		this.state = null
 
-		return move
+		return move to null
 	}
 
 

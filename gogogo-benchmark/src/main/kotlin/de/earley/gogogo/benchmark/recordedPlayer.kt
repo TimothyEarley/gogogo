@@ -17,8 +17,8 @@ object RecordedPlayer : PlayerController {
 		lastMove: Move?,
 		state: State,
 		fromSelectCallback: (Point?) -> Unit
-	): Move {
-		return database.asSequence().filter { (savedState, move) ->
+	): Pair<Move, List<Line>?> {
+		return (database.asSequence().filter { (savedState, move) ->
 			when {
 				state == savedState -> true
 				savedState.isSimilar(state) -> // check the move can be done
@@ -27,7 +27,7 @@ object RecordedPlayer : PlayerController {
 			}
 		}.firstOrNull()?.value ?: askPlayer(state).also {
 			database[state] = it
-		}
+		}) to null
 	}
 
 	private fun askPlayer(state: State): Move {
