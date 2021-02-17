@@ -26,7 +26,7 @@ class AiTestUI(
 	private val tree = document.get<HTMLElement>("ai-tree")
 
 	//TODO split into presenter?
-	private var state: State = State.inital
+	private var state: State = State.initial
 	private var selected: Point? = null
 
 	init {

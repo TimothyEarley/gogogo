@@ -40,7 +40,7 @@ private fun treeSearch(
 		if (currentPositionEvaluation > pruneLevelMax) return currentPositionEvaluation
 	}
 
-	val moves = state.findAllMoves().map {
+	val moves = state.possibleMoves.asSequence().map {
 		treeSearch(player, it.state, level- 1, baseStrategy, pruning, pruneLevelMax, pruneLevelMin)
 	}
 
