@@ -6,12 +6,15 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 fun run(
 	strats: List<Benchmarked>,
 	concurrency: Int,
-	timeout: Long,
-	fromStates: List<State> = listOf(State.inital)
+	timeout: Duration,
+	fromStates: List<State> = listOf(State.initial)
 ): MutableMap<Benchmarked, Int> = runBlocking(Dispatchers.Default) {
 	require(concurrency >= 1)
 
@@ -59,11 +62,12 @@ private fun CoroutineScope.progresser(totalGames: Int) = actor<Unit>(capacity = 
 
 private typealias Task = Triple<Benchmarked, Benchmarked, State>
 private typealias Result = Pair<Benchmarked, Int>
+@OptIn(ExperimentalTime::class)
 private suspend fun runner(
 	scorer: SendChannel<Result>,
 	tasks: ReceiveChannel<Task>,
 	progresser: SendChannel<Unit>,
-	timeout: Long
+	timeout: Duration
 ) {
 	for ((a, b, startingState) in tasks) {
 		val (aScore, bScore) = benchmark(a, b, timeout, startingState)
@@ -81,10 +85,11 @@ private fun CoroutineScope.scorer(scores: MutableMap<Benchmarked, Int>) = actor<
 	}
 }
 
+@OptIn(ExperimentalTime::class)
 private suspend fun benchmark(
 	a: Benchmarked,
 	b: Benchmarked,
-	timeout: Long,
+	timeout: Duration,
 	startingState: State
 ): Pair<Int, Int> {
 	val result = runBothSidesRepeated(
@@ -101,12 +106,13 @@ private suspend fun benchmark(
 	return result.getOrDefault(a.name, 0) to result.getOrDefault(b.name, 0)
 }
 
+@OptIn(ExperimentalTime::class)
 private suspend fun runBothSidesRepeated(
 	nameA: String,
 	a: PlayerController,
 	nameB: String,
 	b: PlayerController,
-	timeout: Long,
+	timeout: Duration,
 	startingState: State
 ): Map<String, Int> {
 	fun Player?.mapKeyTo(red: String, blue: String): String = when (this) {
@@ -130,10 +136,11 @@ private object NoOpUiHook : UIHook {
 	override suspend fun onMove(move: Move) {}
 }
 
+@OptIn(ExperimentalTime::class)
 private suspend fun runGame(
 	red: PlayerController,
 	blue: PlayerController,
-	timeout: Long,
+	timeout: Duration,
 	startingState: State
 ): Player? =
 	withTimeoutOrNull(timeout) {

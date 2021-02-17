@@ -5,6 +5,9 @@ import de.earley.gogogo.ai.Evaluations.mostForward
 import de.earley.gogogo.ai.Evaluations.sumSquarePosition
 import de.earley.gogogo.game.*
 import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 val goodStrats = mapOf(
 	"4/ss/200" to treeSearchStrategy(4, sumSquarePosition, true, 200),
@@ -17,7 +20,7 @@ val goodMCs = mapOf(
 ).map { BenchmarkAI(it.key, it.value) }
 
 fun main() {
-	val teams = goodStrats + goodMCs
+	val teams = goodStrats // + goodMCs
 
 	league(teams, timeout = true)
 
@@ -41,6 +44,7 @@ fun generateRandomState(): State {
 	return game.state
 }
 
+@OptIn(ExperimentalTime::class)
 fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
 	println("Starting league with: ")
 	strategies.forEach {
@@ -53,8 +57,8 @@ fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
 	val score = run(
 		strategies,
 		if (hasSingleThreaded) 1 else 3,
-		if (hasSingleThreaded || !timeout) Long.MAX_VALUE else 30 * 1000L,
-		(1..5).map { generateRandomState() } + State.inital
+		if (!timeout) Duration.INFINITE else 30.seconds,
+		(1..5).map { generateRandomState() } + State.initial
 	)
 
 	println("\nScores:\n")
