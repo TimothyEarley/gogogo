@@ -1,11 +1,9 @@
 package de.earley.gogogo.ai
 
-import de.earley.gogogo.game.Player
-import de.earley.gogogo.game.Point
-import de.earley.gogogo.game.State
-import de.earley.gogogo.game.next
+import de.earley.gogogo.game.*
+import de.earley.gogogo.game.grid.Point
 
-typealias Evaluation = Strategy
+typealias Evaluation = (Player, State) -> Int
 
 object Evaluations {
 
@@ -20,7 +18,7 @@ object Evaluations {
 
 	val sumPosition: Evaluation = { ownPlayer, state ->
 		fun pointForPosition(p: Point, player: Player): Int {
-			val progress = progressMult * progress(p, state.grid.width, player)
+			val progress = progressMult * progress(p, GAME_WIDTH, player)
 			val pushed = if (state.lastPushed == p) pushedPenalty else 0
 			return progress + tokenBonus - pushed
 		}
@@ -31,7 +29,7 @@ object Evaluations {
 
 	val sumSquarePosition: Evaluation = { ownPlayer, state ->
 		positionalSum(ownPlayer, state) { p, player ->
-			progress(p, state.grid.width, player).let { it * it }
+			progress(p, GAME_WIDTH, player).let { it * it }
 		}
 	}
 
@@ -39,7 +37,7 @@ object Evaluations {
 		positionalMax(ownPlayer, state) { point, player ->
 			progress(
 				point,
-				state.grid.width,
+				GAME_WIDTH,
 				player
 			)
 		}
@@ -77,8 +75,8 @@ object Evaluations {
 		else {
 			val opponent = ownPlayer.next()
 
-			val ownPoints = state.grid.getAllFor(ownPlayer).positionalPoints(ownPlayer)
-			val opponentPoint = state.grid.getAllFor(opponent).positionalPoints(opponent)
+			val ownPoints = state.tokensFor(ownPlayer).positionalPoints(ownPlayer)
+			val opponentPoint = state.tokensFor(opponent).positionalPoints(opponent)
 
 			ownPoints - opponentPoint
 		}

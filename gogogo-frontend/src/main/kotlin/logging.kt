@@ -9,7 +9,7 @@ object Log {
 		Error(10), Info(5), Debug(0)
 	}
 
-	var level: Level = Level.Info
+	private var level: Level = Level.Debug
 
 	fun error(msg: () -> String) {
 		if (Level.Error.isEnabled()) println(msg())

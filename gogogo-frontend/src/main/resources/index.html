@@ -7,7 +7,6 @@
 	<link rel="stylesheet" href="style.css">
 
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-	<link href="https://unpkg.com/treeflex/dist/css/treeflex.css" rel="stylesheet">
 </head>
 <body>
 	<script type="text/javascript" src="gogogo-frontend.js"></script>
@@ -24,7 +23,6 @@
 			<li><button id="btn-play-local" class="btn">Play local</button></li>
 			<li><button id="btn-play-online" class="btn">Play online</button></li>
 			<li><button id="btn-rules" class="btn">Rules</button></li>
-			<li><button id="btn-test-ai" class="btn">Test AI</button></li>
 		</ul>
 
 		<div id="rules" class="hidden">
@@ -66,22 +64,6 @@
 			<p id="server-own-player"></p>
 		</div>
 
-	</div>
-
-	<div id="ai-test-ui" class="hidden">
-		<button id="btn-exit-ai-test" class="center btn btn-red btn-small">◀ Exit</button>
-
-		<table style="width: 100%">
-			<tr>
-				<td><table id="ai-game-grid"></table></td>
-			</tr>
-			<tr>
-				<td>
-					<ol id="ai-list"></ol>
-					<div id="ai-tree" class="tf-tree"></div>
-				</td>
-			</tr>
-		</table>
 	</div>
 </body>
 </html>

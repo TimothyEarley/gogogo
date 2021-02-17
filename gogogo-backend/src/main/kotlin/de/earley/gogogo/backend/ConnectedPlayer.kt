@@ -50,7 +50,7 @@ data class ConnectedPlayer(
 				val move = MoveNetFormat.decode(msg)
 				// 2. verify
 				//TODO what does throwing an exception here do? better feedback
-				require(s.game.move(move.from, move.to)) { "CHEATER!!!!" }
+				require(s.game.move(move) is MoveResult.Success) { "CHEATER!!!!" }
 				// 2. pass on to opponent
 				s.opponent.ws.send(MoveNetFormat.encodeNullable(move))
 			}

@@ -3,21 +3,16 @@ package de.earley.gogogo.ui
 
 import controller.GamePresenter
 import de.earley.gogogo.Log
+import de.earley.gogogo.controller.controllerTypesAsString
 import de.earley.gogogo.game.Game
 import de.earley.gogogo.game.Player
-import de.earley.gogogo.game.Point
-import de.earley.gogogo.game.grid.Grid
-import kotlinx.coroutines.*
-import kotlinx.html.dom.create
-import kotlinx.html.id
-import kotlinx.html.js.table
-import kotlinx.html.td
-import kotlinx.html.tr
-import org.w3c.dom.*
+import de.earley.gogogo.game.grid.Point
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.*
 import kotlinx.dom.clear
+import org.w3c.dom.*
+import kotlin.coroutines.CoroutineContext
 
 fun Player.asClass(): String = toString().toLowerCase()
 
@@ -28,15 +23,13 @@ enum class GameMode {
 private var name: String? = null
 
 class GameUI private constructor(
-	private val table: HTMLTableElement,
+	table: HTMLTableElement,
 	private val menu: MenuUI,
 	private val mode: GameMode
 ): CoroutineScope {
 
 	companion object {
 		fun open(rootDiv: HTMLTableElement, menu: MenuUI, mode: GameMode): GameUI {
-			//TODO not needed
-//			rootDiv.clear()
 			return GameUI(rootDiv, menu, mode)
 		}
 	}
@@ -80,7 +73,7 @@ class GameUI private constructor(
 			blueController.addOption(it)
 		}
 		blueController.selectedIndex = 0
-		redController.selectedIndex = 3
+		redController.selectedIndex = 0
 	}
 
 	fun updateUI(game: Game, selected: Point?) {

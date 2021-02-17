@@ -1,14 +1,14 @@
-package de.earley.gogogo.ui
+package de.earley.gogogo.controller
 
 import de.earley.gogogo.Log
 import de.earley.gogogo.game.*
+import de.earley.gogogo.game.grid.Point
 import kotlinx.coroutines.channels.Channel
 
 class HumanController : PlayerController {
 	override val name: String = "Human"
 
 	private var from: Point? = null
-	private var to: Point? = null
 
 	private var selectCallback: ((Point?) -> Unit)? = null
 	private var state: State? = null
@@ -25,7 +25,6 @@ class HumanController : PlayerController {
 
 		// reset variables
 		from = null
-		to = null
 		selectCallback = null
 		this.state = null
 
@@ -37,13 +36,11 @@ class HumanController : PlayerController {
 		Log.debug { "Human clicked $point. From: $from" }
 
 		val s = state
-//		require(s != null) { "Can't evaluate move since the state is unknown" }
 		//TODO figure out error
 		if (s == null) {
-			Log.error { "Can't evaluate move since the state is unknown" }
+			Log.error { "Not the players turn. (Or we missed the state.)" }
 			return
 		}
-
 
 		// is this the first click?
 		if (from == null) {
@@ -60,26 +57,9 @@ class HumanController : PlayerController {
 		}
 
 
-		val f = from
-		require(f != null) { "From is null" }
+		Log.debug { "Move $from to $point" }
 
-		// is this an invalid click?
-		val move = s.move(f, point)
-		if (move is MoveResult.Error) {
-			Log.info { "Illegal move, resetting: ${move.msg}"}
-			//TODO inform player
-			// illegal move -> unselect
-			from = null
-			selectCallback?.invoke(null)
-			return
-		}
-
-		//last option is the move is legal, so do the move
-		to = point
-
-		Log.debug { "Move $from to $to" }
-
-		require(commit.offer(Move(from!!, to!!))) { "Could not send commit" }
+		require(commit.offer(Move(from!!, point))) { "Could not send commit" }
 	}
 
 }

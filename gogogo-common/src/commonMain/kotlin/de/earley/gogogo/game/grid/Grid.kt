@@ -1,7 +1,5 @@
 package de.earley.gogogo.game.grid
 
-import de.earley.gogogo.game.Point
-
 interface Grid<T> {
 	val width: Int
 	val height: Int
@@ -27,13 +25,6 @@ interface Grid<T> {
 
 interface MutableGrid<T> : Grid<T> {
 	operator fun set(x: Int, y: Int, t: T?)
-}
-
-interface IndexableGrid<T> {
-	/**
-	 * Performant alternative to looping through all grid cells
-	 */
-	fun getAllFor(t: T): List<Point>
 }
 
 operator fun <T> Grid<T>.get(p: Point) = get(p.x, p.y)

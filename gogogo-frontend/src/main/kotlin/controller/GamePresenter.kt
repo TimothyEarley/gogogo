@@ -2,7 +2,10 @@ package controller
 
 import de.earley.gogogo.Log
 import de.earley.gogogo.ai.withUIAwareness
+import de.earley.gogogo.controller.HumanController
+import de.earley.gogogo.controller.toControllerType
 import de.earley.gogogo.game.*
+import de.earley.gogogo.game.grid.Point
 import de.earley.gogogo.net.MatchInfo
 import de.earley.gogogo.net.Matchmaking
 import de.earley.gogogo.net.PlayerInfo
@@ -10,8 +13,6 @@ import de.earley.gogogo.ui.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.w3c.dom.HTMLElement
-import kotlinx.dom.removeClass
 
 class GamePresenter(
 	private val gameUI: GameUI,

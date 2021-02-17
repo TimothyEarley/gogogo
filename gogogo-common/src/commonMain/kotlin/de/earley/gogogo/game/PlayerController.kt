@@ -1,8 +1,6 @@
 package de.earley.gogogo.game
 
-data class Move(val from: Point, val to: Point) {
-	override fun toString() = "($from -> $to)"
-}
+import de.earley.gogogo.game.grid.Point
 
 interface PlayerController {
 	val name: String // for debug
