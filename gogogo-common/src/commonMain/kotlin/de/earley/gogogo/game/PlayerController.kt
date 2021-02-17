@@ -5,7 +5,10 @@ import de.earley.gogogo.game.grid.Point
 data class Line(
 	val evaluation : Int,
 	val moves : List<Move>
-)
+) {
+	// TODO perf
+	fun prependAndInvert(move: Move): Line = Line(- evaluation, listOf(move) + moves)
+}
 
 interface PlayerController {
 	val name: String // for debug
