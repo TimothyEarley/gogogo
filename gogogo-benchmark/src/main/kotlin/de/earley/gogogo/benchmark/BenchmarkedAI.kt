@@ -31,7 +31,7 @@ class BenchmarkAI(override val name: String, private val wrapped: PlayerControll
 		lastMove: Move?,
 		state: State,
 		fromSelectCallback: (Point?) -> Unit
-	): Move {
+	): Pair<Move, List<Line>?> {
 		val (move, time) = measureTimedValue {
 			wrapped.getMove(lastMove, state, fromSelectCallback)
 		}

@@ -19,7 +19,7 @@ fun generateRandomState(): State {
 	val game = Game()
 	val turns = rand.nextInt(1, 10)
 	repeat(turns) {
-		val move = randAI.calculateMove(game.getState())
+		val (move, _) = randAI.calculateMove(game.getState())
 		game.move(move)
 	}
 	return game.getState()

@@ -21,26 +21,7 @@ class ControlledGame(
 			}
 
 	private suspend fun doMove(): Boolean {
-
-		var move: Move? = null
-
-		while (move == null) {
-
-			// reset selection
-			uiHook.onSelect(null)
-
-			// create job
-			val job = Job()
-			moveJob = job
-
-			try {
-				move = withContext(scope.coroutineContext + job) {
-					activeController.getMove(lastMove, state, uiHook::onSelect)
-				}
-			} catch(_: CancellationException) {
-				// seems like the controller was swapped/state reset, try again with new one
-			}
-		}
+		val (move, lines) = getMove()
 
 		return when (val result = move(move)) {
 			is MoveResult.Error -> {
@@ -50,12 +31,32 @@ class ControlledGame(
 			}
 			MoveResult.Success -> {
 				lastMove = move
-				uiHook.onMove(move)
+				uiHook.onMove(move, lines)
 
 				!isOver()
 			}
 		}
+	}
 
+	private suspend fun getMove() : Pair<Move, List<Line>?> {
+		// it might fail (player clicked an invalid square), so retry
+		while (true) {
+
+			// reset selection
+			uiHook.onSelect(null)
+
+			// create job
+			val job = Job()
+			moveJob = job
+
+			try {
+				return withContext(scope.coroutineContext + job) {
+					activeController.getMove(lastMove, state, uiHook::onSelect)
+				}
+			} catch(_: CancellationException) {
+				// seems like the controller was swapped/state reset, try again with new one
+			}
+		}
 	}
 
 	fun CoroutineScope.start(): Job {
@@ -98,5 +99,5 @@ interface UIHook {
 
 	fun onSelect(point: Point?)
 	fun onGameEnd()
-	suspend fun onMove(move: Move)
+	suspend fun onMove(move: Move, lines : List<Line>?)
 }

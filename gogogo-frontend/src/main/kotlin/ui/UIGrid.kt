@@ -7,15 +7,18 @@ import de.earley.gogogo.game.Game
 import de.earley.gogogo.game.grid.Grid
 import de.earley.gogogo.game.grid.Point
 import de.earley.gogogo.game.grid.forEach
+import de.earley.gogogo.game.grid.toLetterName
 import kotlinx.browser.document
 import kotlinx.dom.removeClass
 import kotlinx.html.dom.create
 import kotlinx.html.id
 import kotlinx.html.js.table
 import kotlinx.html.td
+import kotlinx.html.title
 import kotlinx.html.tr
 import org.w3c.dom.HTMLTableCellElement
 import org.w3c.dom.HTMLTableElement
+
 
 class UIGrid(
 	table: HTMLTableElement
@@ -32,6 +35,7 @@ class UIGrid(
 					(0 until width).forEach { x ->
 						td("game-cell") {
 							id = "game-cell-$x-$y"
+							title = Point(x, y).toLetterName()
 						}
 					}
 				}
