@@ -62,9 +62,7 @@ class ControlledGame(
 	fun CoroutineScope.start(): Job {
 		scope = this
 		return launch {
-			while (isActive && doMove()) {
-				println(state.possibleMoves)
-			}
+			while (isActive && doMove()) {}
 			uiHook.onGameEnd()
 		}
 	}
