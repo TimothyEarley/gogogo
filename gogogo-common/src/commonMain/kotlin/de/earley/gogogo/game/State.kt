@@ -13,6 +13,8 @@ sealed class MoveResult {
 
         // object RepeatedMove : Error("You cannot repeat a move made four moves ago")
         object CannotMoveOfBoard : Error("You cannot repeat a move made four moves ago")
+
+        override fun toString(): String = msg
     }
 }
 
@@ -62,8 +64,9 @@ private data class MutableState(
 
     private val history: ArrayDeque<Command> = ArrayDeque()
 
-    // store all current possible and illegal moves
-    override val possibleMoves: MutableList<Move> = mutableListOf()
+    override val possibleMoves: List<Move>
+        get() = _possibleMoves.toList() // copy the list
+    private val _possibleMoves: MutableList<Move> = mutableListOf()
 
     init {
         recalculatePossibleMoves()
@@ -79,12 +82,12 @@ private data class MutableState(
             }
             .filter { findMoveError(it) == null }
 
-        possibleMoves.clear()
-        possibleMoves.addAll(newMoves)
+        _possibleMoves.clear()
+        _possibleMoves.addAll(newMoves)
     }
 
     override fun move(move: Move): MoveResult {
-        if (move !in possibleMoves) {
+        if (move !in _possibleMoves) {
             return findMoveError(move)!! // if null we made a mistake in possible moves
         }
 
@@ -134,8 +137,8 @@ private data class MutableState(
         // - opponent has no legal moves
         // - reach the end of the board
 
-        // assume possibleMoves is up to date
-        if (possibleMoves.isEmpty()) {
+        // assume _possibleMoves is up to date
+        if (_possibleMoves.isEmpty()) {
             return playersTurn.next()
         }
 
@@ -149,6 +152,7 @@ private data class MutableState(
     override fun canUndo(): Boolean = history.isNotEmpty()
 
     override fun undo() {
+        require(canUndo()) { "Cannot undo!" }
         val last = history.removeLast()
         last.undo(this)
         recalculatePossibleMoves()

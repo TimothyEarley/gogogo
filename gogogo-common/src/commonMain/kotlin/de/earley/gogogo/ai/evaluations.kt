@@ -16,6 +16,10 @@ object Evaluations {
 	// having more tokens -> better
 	private const val tokenBonus = 2
 
+	val countTokens : Evaluation = { ownPlayer, state ->
+		state.tokensFor(ownPlayer).size - state.tokensFor(ownPlayer.next()).size
+	}
+
 	val sumPosition: Evaluation = { ownPlayer, state ->
 		fun pointForPosition(p: Point, player: Player): Int {
 			val progress = progressMult * progress(p, GAME_WIDTH, player)

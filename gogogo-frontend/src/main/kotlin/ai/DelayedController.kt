@@ -14,7 +14,7 @@ private class DelayedController(private val pc: PlayerController) : PlayerContro
 	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Pair<Move, List<Line>?> {
 		val move = pc.getMove(lastMove, state, fromSelectCallback)
 		fromSelectCallback(move.first.from)
-		delay(1000)
+		delay(300)
 		return move
 	}
 
