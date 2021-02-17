@@ -1,7 +1,6 @@
 package de.earley.gogogo.benchmark
 
 import de.earley.gogogo.ai.Strategy
-import de.earley.gogogo.ai.findAllMoves
 import de.earley.gogogo.game.State
 
 fun wackyCarlo(
@@ -12,8 +11,7 @@ fun wackyCarlo(
 	fun recurse(state: State, level: Int): Int {
 		if (level == 0) return base(player, state)
 
-		val next = state.findAllMoves()
-			.toList()
+		val next = state.possibleMoves
 			.shuffled()
 			.take(lookAt)
 			.map { recurse(it.state, level - 1) }

@@ -1,6 +1,5 @@
 package de.earley.gogogo.ai.debug
 
-import de.earley.gogogo.ai.findAllMoves
 import de.earley.gogogo.game.Player
 import de.earley.gogogo.game.State
 import de.earley.gogogo.game.next
@@ -45,7 +44,7 @@ private fun treeSearchDebug(
 		if (v > pruneLevelMax) return currentPositionEvaluation
 	}
 
-	val moves = state.findAllMoves().map {
+	val moves = state.possibleMoves.asSequence().map {
 		treeSearchDebug(player, it.state, level- 1, baseStrategy, pruning, pruneLevelMax, pruneLevelMin, it.move.toString())
 	}
 

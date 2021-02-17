@@ -181,7 +181,7 @@ class MonteCarlo(
 	private fun expand(node: Node) {
 		require(node.children.isEmpty())
 		node.children = node.state
-			.findAllMoves()
+			.possibleMoves
 			.map { Node(it.state, it.move, node, emptyList(), 0, 0) }
 			.toList()
 

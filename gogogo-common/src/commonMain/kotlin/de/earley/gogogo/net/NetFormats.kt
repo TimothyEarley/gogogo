@@ -1,10 +1,9 @@
 package de.earley.gogogo.net
 
-import de.earley.gogogo.game.Move
-import de.earley.gogogo.game.Player
-import de.earley.gogogo.game.Point
-import de.earley.gogogo.game.State
+import de.earley.gogogo.game.*
 import de.earley.gogogo.game.grid.GameGrid
+
+// TODO use kotlinx.serialisation or another library
 
 // wouldn't this be a nice type class?
 
@@ -42,7 +41,7 @@ object StateNetFormat : NetFormat<State> {
 	override fun encode(t: State): String = with(t) { with(PointNetFormat) { with(MoveNetFormat) { with(
 		GameGridNetFormat
 	) {
-		"$playersTurn;${encode(grid)};${encodeNullable(lastPushed)};${encodeNullable(lastMove)};${encodeNullable(prev)}"
+		"$playersTurn;${encode(grid)};${encodeNullable(lastPushed)};${encodeNullable(lastMove)}"
 	} } } }
 
 	override fun decode(s: String): State =
@@ -52,7 +51,7 @@ object StateNetFormat : NetFormat<State> {
 				grid = GameGridNetFormat.decode(grid),
 				lastPushed = PointNetFormat.decodeNullable(lastPushed),
 				lastMove = MoveNetFormat.decodeNullable(lastMove),
-				prev = decodeNullable(prev)
+				prev = emptyList() // TODO todo
 			)
 		}
 }

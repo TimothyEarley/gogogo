@@ -1,6 +1,6 @@
 package de.earley.gogogo.game
 
-import de.earley.gogogo.ai.findAllMoves
+import de.earley.gogogo.ai.MoveToState
 import de.earley.gogogo.game.grid.GameGrid
 import de.earley.gogogo.game.grid.*
 import kotlin.math.abs
@@ -17,29 +17,42 @@ sealed class MoveResult {
 	}
 }
 
+/**
+ * Core information of a state used in checking for repeated moves
+ */
+data class StateInformation(
+	val grid : GameGrid,
+	val lastPushed: Point?,
+	val lastMove : Move?
+)
+private const val KEEP_SIZE = 4
+
 data class State(
 	val playersTurn: Player,
 	val lastPushed: Point?,
 	val grid: GameGrid,
-	// memory
-	//TODO store previous moves instead, i.e. List<Move>? That should take less memory, but may be slower (Where? Only repeated moves checks it)
-	val prev: State?, // DO NOT INTRODUCE CYCLES
+	// keep truncated to last KEEP_SIZE
+	// index 0 is the last move, index 1 the one before that etc.
+	val prev : List<StateInformation>,
 	val lastMove: Move?
 	// possible performance improvement: keep track of tokens for each player.
 	) {
 
 	companion object {
-		val inital = State(
+		val initial = State(
 			playersTurn = Player.Blue,
 			lastPushed = null,
 			grid = standardStartGrid,
-			prev = null,
+			prev = emptyList(),
 			lastMove = null
 		)
 	}
 
 	val victor: Player? by lazy { isVictory() }
 
+	val possibleMoves : List<MoveToState> by lazy {
+		findAllMoves().toList()
+	}
 
 	fun move(from: Point, to: Point): MoveResult {
 		findMoveError(from, to)?.let {
@@ -63,11 +76,17 @@ data class State(
 			playersTurn = playersTurn.next(),
 			lastPushed = pushed,
 			grid = newGrid,
-			prev = this,
+			prev = if (this.prev.size >= KEEP_SIZE) this.prev.drop(1) else this.prev + this.asStateInformation(),
 			lastMove = Move(from, to)
 		))
 
 	}
+
+	private fun asStateInformation() = StateInformation(
+		grid = this.grid,
+		lastPushed = this.lastPushed,
+		lastMove = this.lastMove
+	)
 
 	//HOTSPOT - SLOW
 	private fun findMoveError(from: Point, to: Point): MoveResult.Error? = when {
@@ -91,19 +110,20 @@ data class State(
 	}
 
 	private fun isRepeatedMove(from: Point, to: Point): Boolean {
-		// rule: if in the same situation the same move was done, it is illegal
+		// rule: if in the same situation four moves ago the same move was done, it is illegal
+		require(KEEP_SIZE == 4)
+		// TODO find a rule that prevents a longer sequence of repetition that performs well
+
+		if (prev.size < 4) return false
 
 		// check if the same move was made four moves ago
-//		val threeMovesAgo = applyN(3, State::prev) ?: return false
-		val threeMovesAgo = prev?.prev?.prev ?: return false
+		val threeMovesAgo = prev[2]
 		if (threeMovesAgo.lastMove != Move(from, to)) return false
 
 		// check the state four moves ago
 
-//		val fourMovesAgo = applyN(4, State::prev) ?: return false
-		val fourMovesAgo = threeMovesAgo.prev ?: return false
+		val fourMovesAgo = prev[3]
 
-		// we do a sort of equals here, but only on the relevant parts
 		if (fourMovesAgo.lastPushed != lastPushed) return false
 		if (fourMovesAgo.grid != grid) return false
 		// playersTurn is equals because "4" moves ago
@@ -132,22 +152,13 @@ data class State(
 		}
 
 		// check if we can move
+		// TODO a fast way to compute if there are any legal moves
 		if (! findAllMoves().iterator().hasNext()) {
 			return lastPlayer
 		}
 
-		//pushed or moved last piece off board
-//		if (countActiveTokens() <= 0) {
-//			// we cannot move, and so lose
-//			return lastPlayer
-//		}
-
 		return null
 	}
-
-	private fun countActiveTokens(): Int = grid
-		.getAllFor(playersTurn)
-		.count(this@State::isEligibleToMove)
 
 	fun isSimilar(other: State): Boolean =
 		playersTurn == other.playersTurn &&  lastPushed == other.lastPushed && grid == other.grid
@@ -159,17 +170,10 @@ private fun nextOver(from: Point, to: Point) = Point(
 	y = from.y + 2 * (to.y - from.y)
 )
 
-
 private fun isAdjacent(from: Point, to: Point): Boolean {
 	val dx = abs(from.x - to.x)
 	val dy = abs(from.y - to.y)
 	return (dx == 1 && dy == 0) || (dx == 0 && dy == 1)
-}
-
-//HOTSPOT
-private tailrec fun <T> T.applyN(n: Int, next: (T) -> T?): T? = when(n) {
-	0 -> this
-	else -> next(this)?.applyN(n - 1, next)
 }
 
 
@@ -207,4 +211,24 @@ fun State.canMove(move: Move) = move(move) is MoveResult.Success
 
 private fun StringBuilder.appendln(s: String = "") {
 	append(s).append("\n")
+}
+
+//TODO check if we can speed this up
+private fun State.findAllMoves(): Sequence<MoveToState> = sequence {
+	fun tryMove(from: Point, to: Point): MoveToState? {
+		val next = move(from, to)
+		return if (next is MoveResult.Success)
+			MoveToState(Move(from, to), next.state)
+		else
+			null
+	}
+
+	grid.getAllFor(playersTurn)
+		.filter { isEligibleToMove(it) }
+		.forEach { from ->
+			tryMove(from, from.left())?.let { yield(it) }
+			tryMove(from, from.right())?.let { yield(it) }
+			tryMove(from, from.up())?.let { yield(it) }
+			tryMove(from, from.down())?.let { yield(it) }
+		}
 }

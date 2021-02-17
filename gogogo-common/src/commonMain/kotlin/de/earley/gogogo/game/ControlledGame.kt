@@ -1,13 +1,12 @@
 package de.earley.gogogo.game
 
 import kotlinx.coroutines.*
-import kotlin.coroutines.coroutineContext
 
 class ControlledGame(
 	private var redController: PlayerController,
 	private var blueController: PlayerController,
 	private val uiHook: UIHook,
-	state: State = State.inital
+	state: State = State.initial
 ) : Game(state) {
 
 	private lateinit var scope: CoroutineScope

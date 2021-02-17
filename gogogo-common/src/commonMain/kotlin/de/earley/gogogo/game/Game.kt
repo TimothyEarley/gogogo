@@ -16,7 +16,7 @@ data class Point(val x: Int, val y: Int) {
 }
 
 open class Game(
-	initialState: State = State.inital
+	initialState: State = State.initial
 ) {
 
 	private val states: MutableList<State> = mutableListOf(initialState)
