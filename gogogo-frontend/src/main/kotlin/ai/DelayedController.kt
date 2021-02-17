@@ -2,8 +2,8 @@ package de.earley.gogogo.ai
 
 import de.earley.gogogo.game.Move
 import de.earley.gogogo.game.PlayerController
-import de.earley.gogogo.game.Point
 import de.earley.gogogo.game.State
+import de.earley.gogogo.game.grid.Point
 import kotlinx.coroutines.delay
 
 // add a delay before the selection

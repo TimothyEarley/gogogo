@@ -1,47 +1,28 @@
 package de.earley.gogogo.benchmark
 
-import de.earley.gogogo.ai.*
-import de.earley.gogogo.ai.Evaluations.mostForward
-import de.earley.gogogo.ai.Evaluations.sumSquarePosition
-import de.earley.gogogo.game.*
+import de.earley.gogogo.ai.RandomAI
+import de.earley.gogogo.game.Game
+import de.earley.gogogo.game.State
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
-val goodStrats = mapOf(
-	"4/ss/200" to treeSearchStrategy(4, sumSquarePosition, true, 200),
-	"1/mf/-" to treeSearchStrategy(1, mostForward, false)
-).map { benchmarkStrategy(it.key, it.value) }
-
-val goodMCs = mapOf(
-	"mc/ss/1000/20" to MonteCarlo(sumSquarePosition, 1000, 20, true, false),
-	"mc/ss/1000/-" to MonteCarlo(sumSquarePosition, 1000, Int.MAX_VALUE, true, false)
-).map { BenchmarkAI(it.key, it.value) }
-
 fun main() {
-	val teams = goodStrats // + goodMCs
-
+	val teams : List<Benchmarked> = emptyList()
 	league(teams, timeout = true)
-
-	println()
-	teams.forEach {
-		(it.wrapped as? MonteCarlo)?.let { mc ->
-			println(it.name + ": " + mc.stats())
-		}
-	}
 }
 
 private val rand = Random(1337)
-private val randStrat = random(rand)
 fun generateRandomState(): State {
+	val randAI = RandomAI(rand)
 	val game = Game()
 	val turns = rand.nextInt(1, 10)
 	repeat(turns) {
-		val move = randStrat.bestMove(game.player, game.state).move
-		game.move(move.from, move.to)
+		val move = randAI.calculateMove(game.getState())
+		game.move(move)
 	}
-	return game.state
+	return game.getState()
 }
 
 @OptIn(ExperimentalTime::class)
@@ -50,15 +31,12 @@ fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
 	strategies.forEach {
 		println("- ${it.name}")
 	}
-	val hasSingleThreaded = strategies.any {
-		it.ai == RecordedPlayer ||
-		((it.ai is BenchmarkAI) && ((it.ai as BenchmarkAI).wrapped is MonteCarlo))
-	}
+	val hasSingleThreaded = false
 	val score = run(
 		strategies,
 		if (hasSingleThreaded) 1 else 3,
 		if (!timeout) Duration.INFINITE else 30.seconds,
-		(1..5).map { generateRandomState() } + State.initial
+		(1..5).map { generateRandomState() } + State.initial()
 	)
 
 	println("\nScores:\n")

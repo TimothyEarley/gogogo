@@ -1,9 +1,9 @@
 package de.earley.gogogo.benchmark
 
-import de.earley.gogogo.ai.AI
-import de.earley.gogogo.ai.Strategy
-import de.earley.gogogo.game.*
-import kotlin.system.measureTimeMillis
+import de.earley.gogogo.game.Move
+import de.earley.gogogo.game.PlayerController
+import de.earley.gogogo.game.State
+import de.earley.gogogo.game.grid.Point
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
@@ -19,15 +19,7 @@ interface Benchmarked {
 }
 
 @OptIn(ExperimentalTime::class)
-fun PlayerController.mockBenchmarked(name: String) = object : Benchmarked {
-	override val name: String = name
-	override val ai: PlayerController = this@mockBenchmarked
-	override fun avg(): Duration = Duration.ZERO
-	override fun stats(): String = "MOCKED"
-}
-
-@OptIn(ExperimentalTime::class)
-class BenchmarkAI(override val name: String, val wrapped: PlayerController): PlayerController, Benchmarked {
+class BenchmarkAI(override val name: String, private val wrapped: PlayerController): PlayerController, Benchmarked {
 
 	override val ai: PlayerController = this
 
@@ -53,5 +45,3 @@ class BenchmarkAI(override val name: String, val wrapped: PlayerController): Pla
 	override fun avg() = totalTime / invokeCount.toDouble()
 	override fun stats(): String = "${"[${name}]: ".padEnd(40)}avg: ${avg()}, \tmax: ${max}, \tCount: $invokeCount"
 }
-
-fun benchmarkStrategy(name: String, strategy: Strategy) = BenchmarkAI(name, AI(strategy, false))

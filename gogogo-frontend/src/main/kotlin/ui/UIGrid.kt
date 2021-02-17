@@ -1,19 +1,21 @@
 package de.earley.gogogo.ui
 
 import de.earley.gogogo.Log
-import de.earley.gogogo.game.*
+import de.earley.gogogo.game.GAME_HEIGHT
+import de.earley.gogogo.game.GAME_WIDTH
+import de.earley.gogogo.game.Game
 import de.earley.gogogo.game.grid.Grid
+import de.earley.gogogo.game.grid.Point
 import de.earley.gogogo.game.grid.forEach
+import kotlinx.browser.document
+import kotlinx.dom.removeClass
 import kotlinx.html.dom.create
 import kotlinx.html.id
 import kotlinx.html.js.table
 import kotlinx.html.td
 import kotlinx.html.tr
-import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLTableCellElement
 import org.w3c.dom.HTMLTableElement
-import kotlinx.browser.document
-import kotlinx.dom.removeClass
 
 class UIGrid(
 	table: HTMLTableElement
@@ -39,7 +41,7 @@ class UIGrid(
 		table.replaceWith(ui)
 
 		return Grid.create(width, height) { x, y ->
-			document.get<HTMLTableCellElement>("game-cell-$x-$y")
+			document.get("game-cell-$x-$y")
 		}
 	}
 
@@ -61,7 +63,7 @@ class UIGrid(
 		cells.forEach { x, y, element ->
 			with(element!!) {
 				removeClass("token-blue", "token-red", "clickable", "can-move", "selected")
-				game.grid[x, y]?.let { token ->
+				game.tokenAt(Point(x, y))?.let { token ->
 					classList.add("token-${token.asClass()}", "clickable")
 				}
 

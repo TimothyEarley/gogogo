@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
 	kotlin("jvm")
 	application
@@ -19,10 +17,6 @@ application {
 
 tasks.withType<JavaExec> {
 	standardInput = System.`in`
-}
-
-tasks.withType<KotlinCompile>().all {
-	kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
 }
 
 repositories {

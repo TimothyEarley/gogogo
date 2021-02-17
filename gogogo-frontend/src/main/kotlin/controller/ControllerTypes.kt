@@ -1,23 +1,16 @@
 @file:Suppress("unused")
 
-package de.earley.gogogo.ui
+package de.earley.gogogo.controller
 
-import de.earley.gogogo.ai.*
-import de.earley.gogogo.ai.Evaluations.mostForward
-import de.earley.gogogo.ai.Evaluations.sumSquarePosition
+import de.earley.gogogo.ai.RandomAI
+import de.earley.gogogo.ai.withUIAwareness
 import de.earley.gogogo.game.PlayerController
 
 enum class ControllerTypes(
 	val build: () -> PlayerController
 ) {
 	Human(::HumanController),
-	Easy(AI(treeSearchStrategy(1, mostForward, false))::withUIAwareness),
-	Medium(AI(treeSearchStrategy(3, sumSquarePosition, false))::withUIAwareness),
-	Hard(HumanPlusAI(treeSearchStrategy(4, sumSquarePosition, false))::withUIAwareness),
-
-	// blocks the UI, not yet ready!
-	// MC(MonteCarlo(random(), 3000, Int.MAX_VALUE, true, true)::withUIAwareness)
-
+	Random(RandomAI()::withUIAwareness)
 }
 
 fun controllerTypesAsString(): List<String> = ControllerTypes.values().map(ControllerTypes::toString)

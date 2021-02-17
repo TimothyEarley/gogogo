@@ -1,12 +1,13 @@
 package de.earley.gogogo.game
 
+import de.earley.gogogo.game.grid.Point
 import kotlinx.coroutines.*
 
 class ControlledGame(
 	private var redController: PlayerController,
 	private var blueController: PlayerController,
 	private val uiHook: UIHook,
-	state: State = State.initial
+	state: State = State.initial()
 ) : Game(state) {
 
 	private lateinit var scope: CoroutineScope
@@ -41,20 +42,28 @@ class ControlledGame(
 			}
 		}
 
-		val moved = move(move.from, move.to)
+		return when (val result = move(move)) {
+			is MoveResult.Error -> {
+				println("Move result: ${result.msg}")
+				// continue with game (nothing has changed)
+				true
+			}
+			MoveResult.Success -> {
+				lastMove = move
+				uiHook.onMove(move)
 
-		if (!moved) throw IllegalStateException("move was not valid")
+				!isOver()
+			}
+		}
 
-		lastMove = move
-		uiHook.onMove(move)
-
-		return !isOver()
 	}
 
 	fun CoroutineScope.start(): Job {
 		scope = this
 		return launch {
-			while (isActive && doMove()) {}
+			while (isActive && doMove()) {
+				println(state.possibleMoves)
+			}
 			uiHook.onGameEnd()
 		}
 	}
