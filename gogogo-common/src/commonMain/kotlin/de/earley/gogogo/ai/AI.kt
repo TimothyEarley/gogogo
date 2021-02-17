@@ -11,9 +11,9 @@ abstract class AI(
 
 	override val name: String = "AI - $aiName"
 
-	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Move {
-		return calculateMove(state)
+	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Pair<Move, List<Line>?> {
+        return calculateMove(state)
 	}
 
-	abstract fun calculateMove(state: State): Move
+	abstract fun calculateMove(state: State): Pair<Move, List<Line>?>
 }
