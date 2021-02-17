@@ -1,6 +1,7 @@
 package de.earley.gogogo.benchmark
 
 import de.earley.gogogo.game.*
+import de.earley.gogogo.game.grid.Point
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -14,7 +15,7 @@ fun run(
 	strats: List<Benchmarked>,
 	concurrency: Int,
 	timeout: Duration,
-	fromStates: List<State> = listOf(State.initial)
+	fromStates: List<State> = listOf(State.initial())
 ): MutableMap<Benchmarked, Int> = runBlocking(Dispatchers.Default) {
 	require(concurrency >= 1)
 

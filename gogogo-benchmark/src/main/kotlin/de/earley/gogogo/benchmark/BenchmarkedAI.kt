@@ -1,5 +1,6 @@
 package de.earley.gogogo.benchmark
 
+import de.earley.gogogo.game.Line
 import de.earley.gogogo.game.Move
 import de.earley.gogogo.game.PlayerController
 import de.earley.gogogo.game.State
