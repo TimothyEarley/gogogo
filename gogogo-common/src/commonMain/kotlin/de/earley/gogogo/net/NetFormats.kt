@@ -1,7 +1,6 @@
 package de.earley.gogogo.net
 
-import de.earley.gogogo.game.*
-import de.earley.gogogo.game.grid.GameGrid
+import de.earley.gogogo.game.Move
 import de.earley.gogogo.game.grid.Point
 
 // TODO use kotlinx.serialisation or another library

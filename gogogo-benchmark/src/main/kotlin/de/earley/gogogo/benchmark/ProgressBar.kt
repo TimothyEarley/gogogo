@@ -2,7 +2,6 @@ package de.earley.gogogo.benchmark
 
 import java.time.Duration
 import java.time.Instant
-import java.util.*
 
 class ProgressBar(private val total: Int) {
 

@@ -82,6 +82,6 @@ class UIGrid(
         }
     }
 
-    operator fun get(p: Point): HTMLTableCellElement? = cells[p.x + p.y * width]
+    operator fun get(p: Point): HTMLTableCellElement = cells[p.x + p.y * width]
 
 }
