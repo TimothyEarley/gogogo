@@ -12,16 +12,12 @@ kotlin {
 	sourceSets {
 		commonMain {
 			dependencies {
-				implementation(Depends.Coroutines.core)
+				implementation(KotlinX.coroutines.core)
 			}
 		}
-	}
 
-//	targets.all {
-//		compilations.all {
-//			kotlinOptions.freeCompilerArgs = listOf(
-//				"-Xno-param-assertions" // much better performance
-//			)
-//		}
-//	}
+		all {
+			languageSettings.optIn("kotlin.RequiresOptIn")
+		}
+	}
 }

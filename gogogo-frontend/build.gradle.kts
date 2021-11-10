@@ -11,7 +11,7 @@ kotlin {
 dependencies {
     implementation(project(":gogogo-common"))
 
-    implementation(Depends.Stdlib.js)
-    implementation(Depends.Coroutines.js)
-    implementation(Depends.JS.html)
+    implementation(Kotlin.stdlib.js)
+    implementation(KotlinX.coroutines.coreJs)
+    implementation(KotlinX.html)
 }

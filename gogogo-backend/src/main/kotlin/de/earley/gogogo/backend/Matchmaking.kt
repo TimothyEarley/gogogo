@@ -1,13 +1,8 @@
 package de.earley.gogogo.backend
 
-import de.earley.gogogo.game.Player
-import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.readText
-import io.ktor.routing.Routing
-import io.ktor.websocket.webSocket
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.channels.map
-import kotlinx.coroutines.channels.mapNotNull
+import io.ktor.http.cio.websocket.*
+import io.ktor.routing.*
+import io.ktor.websocket.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.*
@@ -22,7 +17,9 @@ fun Routing.matchmaking() {
 
 		val p = ConnectedPlayer(this, matchmaker)
 
-		incoming.mapNotNull { it as? Frame.Text }.map { it.readText() }.consumeEach { msg ->
+		for (frame in incoming) {
+			if (frame !is  Frame.Text) continue
+			val msg = frame.readText()
 			println("MSG=$msg")
 			p.handleMessage(msg)
 		}

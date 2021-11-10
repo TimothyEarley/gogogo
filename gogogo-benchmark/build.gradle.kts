@@ -5,10 +5,12 @@ plugins {
 
 dependencies {
 	implementation(project(":gogogo-common"))
-	implementation(Depends.Stdlib.jvm)
-	implementation(Depends.Coroutines.jvm)
+	implementation(Kotlin.stdlib)
+	implementation(KotlinX.coroutines.core)
+}
 
-	implementation(kotlin("stdlib-jdk8"))
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+	kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
 }
 
 application {
@@ -17,8 +19,4 @@ application {
 
 tasks.withType<JavaExec> {
 	standardInput = System.`in`
-}
-
-repositories {
-	mavenCentral()
 }
