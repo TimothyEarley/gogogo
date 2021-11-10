@@ -226,18 +226,3 @@ private fun isAdjacent(from: Point, to: Point): Boolean {
     val dy = abs(from.y - to.y)
     return (dx == 1 && dy == 0) || (dx == 0 && dy == 1)
 }
-
-
-//TODO remove
-fun State.deepEquals(other : State) : Boolean {
-    require(this is MutableState)
-    require(other is MutableState)
-
-    return this.playersTurn == other.playersTurn &&
-            this.lastPushed == other.lastPushed &&
-            (0..GAME_WIDTH).all { x ->
-                (0..GAME_HEIGHT).all { y ->
-                    this.tokenAt(Point(x, y)) == other.tokenAt(Point(x, y))
-                }
-            }
-}

@@ -1,15 +1,13 @@
 plugins {
-	id("com.github.ben-manes.versions") version "0.34.0"
-	kotlin("jvm") version Versions.kotlin apply false
+	kotlin("jvm") apply false
 }
 
 allprojects {
 	group = "de.earley.gogogo"
-	version = "0.1.2"
+	version = "0.1.3"
 
 	repositories {
-		jcenter()
-		maven("https://kotlin.bintray.com/kotlinx")
+		mavenCentral()
 	}
 }
 

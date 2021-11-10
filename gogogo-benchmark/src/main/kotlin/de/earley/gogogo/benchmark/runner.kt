@@ -12,7 +12,7 @@ import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
 fun run(
-	strats: List<Benchmarked>,
+	strategies: List<Benchmarked>,
 	concurrency: Int,
 	timeout: Duration,
 	fromStates: List<State> = listOf(State.initial())
@@ -22,20 +22,20 @@ fun run(
 	val scores: MutableMap<Benchmarked, Int> = mutableMapOf()
 	val scorer = scorer(scores)
 	val tasks = Channel<Task>()
-	val totalGames = (2..strats.size).sum() * fromStates.size
-	val progresser = progresser(totalGames)
+	val totalGames = (2..strategies.size).sum() * fromStates.size
+	val progressActor = progressActor(totalGames)
 
 	coroutineScope {
 		repeat(concurrency) {
 			launch {
-				runner(scorer, tasks, progresser, timeout)
+				runner(scorer, tasks, progressActor, timeout)
 			}
 		}
 
-		for (first in strats.indices) {
-			for (second in first + 1 until strats.size) {
-				val a = strats[first]
-				val b = strats[second]
+		for (first in strategies.indices) {
+			for (second in first + 1 until strategies.size) {
+				val a = strategies[first]
+				val b = strategies[second]
 				for (state in fromStates) {
 					// copy the state since it is mutable
 					tasks.send(Task(a, b, state.deepCopy()))
@@ -45,13 +45,14 @@ fun run(
 		tasks.close()
 
 	}
-	progresser.close()
+	progressActor.close()
 	scorer.close()
 
 	scores
 }
 
-private fun CoroutineScope.progresser(totalGames: Int) = actor<Unit>(capacity = 10) {
+@OptIn(ObsoleteCoroutinesApi::class)
+private fun CoroutineScope.progressActor(totalGames: Int) = actor<Unit>(capacity = 10) {
 	val progressBar = ProgressBar(totalGames).also {
 		it.start()
 		it.show()
@@ -68,17 +69,18 @@ private typealias Result = Pair<Benchmarked, Int>
 private suspend fun runner(
 	scorer: SendChannel<Result>,
 	tasks: ReceiveChannel<Task>,
-	progresser: SendChannel<Unit>,
+	progressChannel: SendChannel<Unit>,
 	timeout: Duration
 ) {
 	for ((a, b, startingState) in tasks) {
 		val (aScore, bScore) = benchmark(a, b, timeout, startingState)
 		scorer.send(a to aScore)
 		scorer.send(b to bScore)
-		progresser.send(Unit)
+		progressChannel.send(Unit)
 	}
 }
 
+@OptIn(ObsoleteCoroutinesApi::class)
 private fun CoroutineScope.scorer(scores: MutableMap<Benchmarked, Int>) = actor<Result>(
 	capacity = 10
 ) {

@@ -21,7 +21,7 @@ import org.w3c.dom.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.text.Typography.nbsp
 
-fun Player.asClass(): String = toString().toLowerCase()
+fun Player.asClass(): String = toString().lowercase()
 
 enum class GameMode {
 	Local, Online

@@ -11,27 +11,9 @@ object Evaluations {
 
 	val none: Evaluation = Evaluation("none") { _, _ -> 0 }
 
-	// closer to end -> good
-	private const val progressMult = 1
-	// immobile -> bad
-	private const val pushedPenalty = 1
-	// having more tokens -> better
-	private const val tokenBonus = 2
-
 	val countTokens = Evaluation("countTokens") { ownPlayer, state ->
 		state.tokensFor(ownPlayer).size - state.tokensFor(ownPlayer.next()).size
 	}
-
-	val sumPosition = Evaluation("sumPosition") { ownPlayer, state ->
-		fun pointForPosition(p: Point, player: Player): Int {
-			val progress = progressMult * progress(p, GAME_WIDTH, player)
-			val pushed = if (state.lastPushed == p) pushedPenalty else 0
-			return progress + tokenBonus - pushed
-		}
-
-		positionalSum(ownPlayer, state, ::pointForPosition)
-	}
-
 
 	val sumSquarePosition = Evaluation("sumSquarePos") { ownPlayer, state ->
 		positionalSum(ownPlayer, state) { p, player ->
@@ -69,7 +51,7 @@ object Evaluations {
 		state: State,
 		pointsForPosition: (Point, Player) -> Int
 	) = positionalPointSystem(ownPlayer, state) {
-		sumBy { pointsForPosition(it, ownPlayer) }
+		sumOf { pointsForPosition(it, ownPlayer) }
 	}
 
 	private inline fun positionalPointSystem(

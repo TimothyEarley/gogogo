@@ -59,7 +59,7 @@ class HumanController : PlayerController {
 
 		Log.debug { "Move $from to $point" }
 
-		require(commit.offer(Move(from!!, point))) { "Could not send commit" }
+		require(commit.trySend(Move(from!!, point)).isSuccess) { "Could not send commit" }
 	}
 
 }

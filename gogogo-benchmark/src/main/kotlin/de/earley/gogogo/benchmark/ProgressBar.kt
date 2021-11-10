@@ -2,6 +2,7 @@ package de.earley.gogogo.benchmark
 
 import java.time.Duration
 import java.time.Instant
+import java.util.*
 
 class ProgressBar(private val total: Int) {
 
@@ -41,7 +42,7 @@ class ProgressBar(private val total: Int) {
 	private fun format(d: Duration) = d.toString()
 		.substring(2)
 		.replace("(\\d[HMS])(?!$)".toRegex(), "$1 ")
-		.toLowerCase()
+		.lowercase()
 
 
 }

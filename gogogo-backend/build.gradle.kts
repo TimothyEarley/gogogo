@@ -2,15 +2,15 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
 	kotlin("jvm")
-	id("com.github.johnrengelman.shadow") version Versions.shadow
+	id("com.github.johnrengelman.shadow")
 	application
 }
 
 dependencies {
 
-	implementation(Depends.Ktor.netty)
-	implementation(Depends.Ktor.websockets)
-	implementation(Depends.logback)
+	implementation(Ktor.Server.netty)
+	implementation("io.ktor:ktor-websockets:_")
+	implementation("ch.qos.logback:logback-classic:_")
 
 	implementation(project(":gogogo-common"))
 }

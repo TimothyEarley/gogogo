@@ -5,8 +5,6 @@ package de.earley.gogogo.controller
 import de.earley.gogogo.ai.*
 import de.earley.gogogo.game.PlayerController
 
-// TODO lazy init the AI
-
 private val controllerTypes: List<Pair<String, () -> PlayerController>> = listOf(
         "Human" to ::HumanController,
         "Random" to RandomAI()::withUIAwareness,
