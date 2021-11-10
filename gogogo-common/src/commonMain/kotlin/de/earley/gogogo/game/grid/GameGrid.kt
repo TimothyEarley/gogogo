@@ -6,7 +6,7 @@ import de.earley.gogogo.game.Player
 import kotlin.random.Random
 
 // grid index, player, value
-private val zobrist : Array<Map<Player, Int>> = Array(GAME_WIDTH * GAME_HEIGHT) { _ ->
+private val zobrist : Array<Map<Player, Int>> = Array(GAME_WIDTH * GAME_HEIGHT) {
 	mapOf(
 			Player.Blue to Random.nextInt(),
 			Player.Red to Random.nextInt()
@@ -21,11 +21,8 @@ class GameGrid private constructor(
 	private val blueTokens: MutableList<Point>,
 ) {
 
-	private fun updateHash(h : Int, p : Point, player: Player) : Int = h xor zobrist[p.x + p.y * GAME_WIDTH][player]!!
-
 	private var hash : Int = reHash()
-	override fun hashCode(): Int = hash
-
+	private fun updateHash(h : Int, p : Point, player: Player) : Int = h xor zobrist[p.x + p.y * GAME_WIDTH][player]!!
 	private fun reHash(): Int {
 		var h = 0
 		redTokens.forEach { p ->
@@ -35,6 +32,19 @@ class GameGrid private constructor(
 			h = updateHash(h, p, Player.Blue)
 		}
 		return h
+	}
+
+	override fun hashCode(): Int = hash
+
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (other == null || this::class != other::class) return false
+
+		other as GameGrid
+
+		if (!elems.contentEquals(other.elems)) return false
+
+		return true
 	}
 
 	companion object {

@@ -209,6 +209,19 @@ private data class MutableState(
                 .times(31).plus(playersTurn.hashCode())
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as MutableState
+
+        if (playersTurn != other.playersTurn) return false
+        if (lastPushed != other.lastPushed) return false
+        if (grid != other.grid) return false
+
+        return true
+    }
+
 }
 
 private data class Command(

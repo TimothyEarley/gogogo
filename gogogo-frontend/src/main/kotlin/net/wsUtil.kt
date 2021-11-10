@@ -3,7 +3,6 @@ package de.earley.gogogo.net
 import de.earley.gogogo.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.WebSocket
 import kotlin.coroutines.CoroutineContext

@@ -1,11 +1,13 @@
 package de.earley.gogogo.ui
 
+import kotlinx.browser.document
 import kotlinx.html.dom.create
 import kotlinx.html.js.option
-import org.w3c.dom.*
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.events.Event
-import org.w3c.dom.events.EventListener
-import kotlinx.browser.document
 
 fun <T : Element> Document.get(id: String): T =
 	getElementById(id) as? T ?: throw NoSuchElementException("No element with id $id found")
