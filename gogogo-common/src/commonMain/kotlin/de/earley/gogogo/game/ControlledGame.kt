@@ -3,6 +3,10 @@ package de.earley.gogogo.game
 import de.earley.gogogo.game.grid.Point
 import kotlinx.coroutines.*
 
+/**
+ * A game with two [PlayerController] playing it.
+ * Handles getting the input and passing it to [Game]
+ */
 class ControlledGame(
 	private var redController: PlayerController,
 	private var blueController: PlayerController,
@@ -20,25 +24,22 @@ class ControlledGame(
 				Player.Red -> redController
 			}
 
-	private suspend fun doMove(): Boolean {
+	private suspend fun doMove() {
 		val (move, lines) = getMove()
 
-		return when (val result = move(move)) {
+		when (val result = move(move)) {
 			is MoveResult.Error -> {
 				println("Move result: ${result.msg}")
 				// continue with game (nothing has changed)
-				true
 			}
 			MoveResult.Success -> {
 				lastMove = move
 				uiHook.onMove(move, lines)
-
-				!isOver()
 			}
 		}
 	}
 
-	private suspend fun getMove() : Pair<Move, List<Line>?> {
+	private suspend fun getMove() : MoveResponse {
 		// it might fail (player clicked an invalid square), so retry
 		while (true) {
 
@@ -62,7 +63,9 @@ class ControlledGame(
 	fun CoroutineScope.start(): Job {
 		scope = this
 		return launch {
-			while (isActive && doMove()) {}
+			while (isActive && !isOver()) {
+				doMove()
+			}
 			uiHook.onGameEnd()
 		}
 	}
@@ -89,6 +92,10 @@ class ControlledGame(
 		super.undo()
 		// after the undo we need to reset the controller
 		resetMoveAwait()
+	}
+
+	fun stop() {
+		scope.cancel()
 	}
 
 }

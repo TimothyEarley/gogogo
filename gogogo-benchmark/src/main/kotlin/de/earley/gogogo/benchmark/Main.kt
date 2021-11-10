@@ -1,6 +1,8 @@
 package de.earley.gogogo.benchmark
 
+import de.earley.gogogo.ai.Evaluations
 import de.earley.gogogo.ai.RandomAI
+import de.earley.gogogo.ai.Search
 import de.earley.gogogo.game.Game
 import de.earley.gogogo.game.State
 import kotlin.random.Random
@@ -9,7 +11,12 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
 
 fun main() {
-	val teams : List<Benchmarked> = emptyList()
+	val teams: List<Benchmarked> = listOf(
+		RandomAI(),
+		Search(depth = 3, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
+		Search(depth = 4, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
+		Search(depth = 4, evaluation = Evaluations.sumSquarePosition, pruning = true, useMemory = true),
+	).map(::BenchmarkAI)
 	league(teams, timeout = true)
 }
 
@@ -21,6 +28,10 @@ fun generateRandomState(): State {
 	repeat(turns) {
 		val (move, _) = randAI.calculateMove(game.getState())
 		game.move(move)
+		// if the game is over we can't test the AI
+		if (game.isOver()) {
+			game.undo()
+		}
 	}
 	return game.getState()
 }
@@ -31,10 +42,9 @@ fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
 	strategies.forEach {
 		println("- ${it.name}")
 	}
-	val hasSingleThreaded = false
 	val score = run(
 		strategies,
-		if (hasSingleThreaded) 1 else 3,
+		3,
 		if (!timeout) Duration.INFINITE else 30.seconds,
 		(1..5).map { generateRandomState() } + State.initial()
 	)
@@ -47,6 +57,6 @@ fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
 	println("\nStats:\n")
 
 	strategies.sortedBy { it.avg() }.forEach {
-			println(it.stats())
+		println(it.stats())
 	}
 }

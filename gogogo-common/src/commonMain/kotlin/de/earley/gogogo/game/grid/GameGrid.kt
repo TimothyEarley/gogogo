@@ -1,43 +1,115 @@
 package de.earley.gogogo.game.grid
 
+import de.earley.gogogo.game.GAME_HEIGHT
+import de.earley.gogogo.game.GAME_WIDTH
 import de.earley.gogogo.game.Player
+import kotlin.random.Random
+
+// grid index, player, value
+private val zobrist : Array<Map<Player, Int>> = Array(GAME_WIDTH * GAME_HEIGHT) { _ ->
+	mapOf(
+			Player.Blue to Random.nextInt(),
+			Player.Red to Random.nextInt()
+	)
+}
 
 class GameGrid private constructor(
-    private val width: Int,
-    private val height: Int,
-    // TODO maybe store as bitmask
-    private val elems: Array<Player?>
-    // TODO enable optimisation
-    // private val tokenIndexes: MutableMap<Player, MutableList<Point>>
+	// TODO maybe store as bitmask
+	private val elems: Array<Player?>,
+	// TODO enable optimisation
+	private val redTokens: MutableList<Point>,
+	private val blueTokens: MutableList<Point>,
 ) {
 
-    companion object {
-        fun create(width: Int, height: Int, build: (x: Int, y: Int) -> Player?): GameGrid =
-            GameGrid(width, height, Array(width * height) { i ->
-                val x = i % width
-                val y = i / width
-                build(x, y)
-            })
-    }
+	private fun updateHash(h : Int, p : Point, player: Player) : Int = h xor zobrist[p.x + p.y * GAME_WIDTH][player]!!
 
-    operator fun get(x: Int, y: Int): Player? = elems[x + y * width]
-    operator fun get(p: Point): Player? = get(p.x, p.y)
-    operator fun set(x: Int, y: Int, value: Player?) {
-        elems[x + y * width] = value
-    }
+	private var hash : Int = reHash()
+	override fun hashCode(): Int = hash
 
-    operator fun set(p: Point, value: Player?) = set(p.x, p.y, value)
-    fun isInGrid(x: Int, y: Int): Boolean = x in 0 until width && y in 0 until  height
+	private fun reHash(): Int {
+		var h = 0
+		redTokens.forEach { p ->
+			h = updateHash(h, p, Player.Red)
+		}
+		blueTokens.forEach { p ->
+			h = updateHash(h, p, Player.Blue)
+		}
+		return h
+	}
 
-    @OptIn(ExperimentalStdlibApi::class)
-    fun tokensFor(player: Player): List<Point> = buildList {
-        // TODO add helper structure to make this fast
-        for (x in 0 until width) {
-            for (y in 0 until height) {
-                if (this@GameGrid[x, y] == player) {
-                    add(Point(x, y))
-                }
-            }
-        }
-    }
+	companion object {
+		fun create(build: (x: Int, y: Int) -> Player?): GameGrid {
+			val grid = Array(GAME_WIDTH * GAME_HEIGHT) { i ->
+				val x = i % GAME_WIDTH
+				val y = i / GAME_WIDTH
+				build(x, y)
+			}
+			return GameGrid(
+				grid,
+				createTokensFor(Player.Red, grid),
+				createTokensFor(Player.Blue, grid)
+			)
+		}
+
+		private fun createTokensFor(
+			player: Player,
+			grid: Array<Player?>
+		): MutableList<Point> = mutableListOf<Point>().apply {
+			// TODO add helper structure to make this fast
+			for (x in 0 until GAME_WIDTH) {
+				for (y in 0 until GAME_HEIGHT) {
+					if (grid[x + y * GAME_WIDTH] == player) {
+						add(Point(x, y))
+					}
+				}
+			}
+		}
+	}
+
+	operator fun get(x: Int, y: Int): Player? = elems[x + y * GAME_WIDTH]
+	operator fun get(p: Point): Player? = get(p.x, p.y)
+
+	/**
+	 * Sets the value at point [p] to [value]
+	 * Also keeps track of the helper structures for indices and the hash
+	 */
+	operator fun set(p : Point, value: Player?) {
+		val i = p.x + p.y * GAME_WIDTH
+		val old = elems[i]
+		if (old == value) return
+		when (old) {
+			Player.Red -> {
+				redTokens.remove(p)
+				hash = updateHash(hash, p, Player.Red)
+			}
+			Player.Blue -> {
+				blueTokens.remove(p)
+				hash = updateHash(hash, p, Player.Blue)
+			}
+			null -> {}
+		}
+		elems[i] = value
+		when (value) {
+			Player.Red -> {
+				redTokens.add(p)
+				hash = updateHash(hash, p, Player.Red)
+			}
+			Player.Blue -> {
+				blueTokens.add(p)
+				hash = updateHash(hash, p, Player.Blue)
+			}
+			null -> {}
+		}
+	}
+
+	fun isInGrid(x: Int, y: Int): Boolean = x in 0 until GAME_WIDTH && y in 0 until GAME_HEIGHT
+
+	fun tokensFor(player: Player): List<Point> = when (player) {
+		Player.Red -> redTokens
+		Player.Blue -> blueTokens
+	}
+
+	fun deepCopy(): GameGrid = create { x, y ->
+		this[x, y]
+	}
 }

@@ -3,7 +3,7 @@ package controller
 import de.earley.gogogo.Log
 import de.earley.gogogo.ai.withUIAwareness
 import de.earley.gogogo.controller.HumanController
-import de.earley.gogogo.controller.toControllerType
+import de.earley.gogogo.controller.toController
 import de.earley.gogogo.game.*
 import de.earley.gogogo.game.grid.Point
 import de.earley.gogogo.net.MatchInfo
@@ -20,7 +20,7 @@ class GamePresenter(
 ) : UIHook {
 
 	private var selected: Point? = null
-	private lateinit var game: ControlledGame
+	private var game: ControlledGame? = null
 
 	// multi player
 	private var matchmaking: Matchmaking? = null
@@ -30,21 +30,26 @@ class GamePresenter(
 		restart()
 	}
 
-	fun turnText(): String = if (game.isOver()) {
-		"${game.victor} has won!"
-	} else {
-		"${game.player}'s turn"
+	fun turnText(): String = when {
+		game == null -> "No Game"
+		game!!.isOver() -> {
+			"${game!!.victor} has won!"
+		}
+		else -> {
+			"${game!!.player}'s turn"
+		}
 	}
 
 	suspend fun restart() {
+		game?.stop()
 		game = createGame()
-		gameUI.updateUI(game, selected)
+		gameUI.updateUI(game!!, selected)
 	}
 
 	fun handleClick(x: Int, y: Int) {
-		if (game.isOver()) return
+		if (game == null || game!!.isOver()) return
 
-		val c = game.activeController
+		val c = game!!.activeController
 		if (c is HumanController) {
 			c.supplyClick(Point(x, y))
 		}
@@ -61,16 +66,16 @@ class GamePresenter(
 
 	override fun onGameEnd() {
 		// inform other player in multiplayer scenario (but only if we won)
-		if (mode == GameMode.Online && game.victor == matchinfo?.player) {
+		if (mode == GameMode.Online && game?.victor == matchinfo?.player) {
 			Log.debug { "Sending victory to opponent" }
-			matchmaking?.opponent?.sendVictory(game.lastMove!!)
+			matchmaking?.opponent?.sendVictory(game!!.lastMove!!)
 		}
 		unselect()
 	}
 
 	override suspend fun onMove(move: Move, lines : List<Line>?) {
 		unselect()
-		gameUI.updateUI(game, selected)
+		gameUI.updateUI(game!!, selected)
 		gameUI.updateLines((lines ?: emptyList()).sortedByDescending { it.evaluation })
 
 		// for some reason the UI is not properly updated unless we allow some yield time
@@ -121,27 +126,28 @@ class GamePresenter(
 	}
 
 	fun undo() {
+		if (game == null) return
 		require(mode == GameMode.Local) { "Only allowed in local play!" }
-		game.undo()
+		game!!.undo()
 		unselect()
-		gameUI.updateUI(game, selected)
+		gameUI.updateUI(game!!, selected)
 	}
 
 	//TODO multiplayer
-	fun canUndo(): Boolean = game.canUndo()
+	fun canUndo(): Boolean = game?.canUndo() ?: false
 
 	fun changeRedController() {
 		require(mode == GameMode.Local) { "Only allowed in local play!" }
-		game.switchRed(getLocalController(Player.Red))
+		game?.switchRed(getLocalController(Player.Red))
 	}
 
 	fun changeBlueController() {
 		require(mode == GameMode.Local) { "Only allowed in local play!" }
-		game.switchBlue(getLocalController(Player.Blue))
+		game?.switchBlue(getLocalController(Player.Blue))
 	}
 
 	private fun getLocalController(player: Player): PlayerController =
-		gameUI.getController(player).toControllerType().build()
+		gameUI.getController(player).toController()
 
 	fun exitGame() {
 		matchmaking?.disconnect()
