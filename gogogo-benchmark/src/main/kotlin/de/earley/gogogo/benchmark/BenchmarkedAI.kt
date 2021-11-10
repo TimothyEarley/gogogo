@@ -1,9 +1,6 @@
 package de.earley.gogogo.benchmark
 
-import de.earley.gogogo.game.Line
-import de.earley.gogogo.game.Move
-import de.earley.gogogo.game.PlayerController
-import de.earley.gogogo.game.State
+import de.earley.gogogo.game.*
 import de.earley.gogogo.game.grid.Point
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
@@ -20,7 +17,9 @@ interface Benchmarked {
 }
 
 @OptIn(ExperimentalTime::class)
-class BenchmarkAI(override val name: String, private val wrapped: PlayerController): PlayerController, Benchmarked {
+class BenchmarkAI(private val wrapped: PlayerController): PlayerController, Benchmarked {
+
+	override val name: String = wrapped.name
 
 	override val ai: PlayerController = this
 
@@ -29,10 +28,10 @@ class BenchmarkAI(override val name: String, private val wrapped: PlayerControll
 	private var max: Duration = Duration.ZERO
 
 	override suspend fun getMove(
-		lastMove: Move?,
-		state: State,
-		fromSelectCallback: (Point?) -> Unit
-	): Pair<Move, List<Line>?> {
+        lastMove: Move?,
+        state: State,
+        fromSelectCallback: (Point?) -> Unit
+	): MoveResponse {
 		val (move, time) = measureTimedValue {
 			wrapped.getMove(lastMove, state, fromSelectCallback)
 		}

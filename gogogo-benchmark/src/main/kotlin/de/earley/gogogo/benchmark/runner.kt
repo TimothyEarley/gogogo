@@ -37,7 +37,8 @@ fun run(
 				val a = strats[first]
 				val b = strats[second]
 				for (state in fromStates) {
-					tasks.send(Task(a, b, state))
+					// copy the state since it is mutable
+					tasks.send(Task(a, b, state.deepCopy()))
 				}
 			}
 		}

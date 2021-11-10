@@ -3,7 +3,7 @@ package de.earley.gogogo.ui
 
 import controller.GamePresenter
 import de.earley.gogogo.Log
-import de.earley.gogogo.controller.controllerTypesAsString
+import de.earley.gogogo.controller.controllerAsString
 import de.earley.gogogo.game.Game
 import de.earley.gogogo.game.Line
 import de.earley.gogogo.game.Player
@@ -77,7 +77,7 @@ class GameUI private constructor(
 	private fun setupSelects() {
 		redController.clear()
 		blueController.clear()
-		controllerTypesAsString().forEach {
+		controllerAsString().forEach {
 			redController.addOption(it)
 			blueController.addOption(it)
 		}
@@ -174,8 +174,16 @@ class GameUI private constructor(
 					val moveString = it.moves.joinToString(",  ") {
 						"${it.from.toLetterName()}${nbsp}⇢${nbsp}${it.to.toLetterName()}"
 					}
-					val text = "${it.evaluation}: $moveString"
-					+text
+					val evalText = if (it.movesToWin != null) {
+						"${it.evaluation}#${it.movesToWin} - ${it.winner}"
+					} else {
+						val sign = when {
+							it.evaluation > 0 -> "+"
+							else -> "" // negative numbers already have a minus
+						}
+						"$sign${it.evaluation}"
+					}
+					+"$evalText: $moveString"
 				}
 			)
 		}

@@ -1,19 +1,16 @@
 package de.earley.gogogo.ai
 
-import de.earley.gogogo.game.Line
-import de.earley.gogogo.game.Move
-import de.earley.gogogo.game.PlayerController
-import de.earley.gogogo.game.State
+import de.earley.gogogo.game.*
 import de.earley.gogogo.game.grid.Point
 import kotlinx.coroutines.delay
 
 // add a delay before the selection
 private class DelayedController(private val pc: PlayerController) : PlayerController {
-	override val name: String = "UI AI"
+	override val name: String = "UI: ${pc.name}"
 
-	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): Pair<Move, List<Line>?> {
+	override suspend fun getMove(lastMove: Move?, state: State, fromSelectCallback: (Point?) -> Unit): MoveResponse {
 		val move = pc.getMove(lastMove, state, fromSelectCallback)
-		fromSelectCallback(move.first.from)
+		fromSelectCallback(move.move.from)
 		delay(300)
 		return move
 	}

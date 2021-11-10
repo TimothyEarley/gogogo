@@ -3,11 +3,13 @@ package de.earley.gogogo.ai
 import de.earley.gogogo.game.*
 import de.earley.gogogo.game.grid.Point
 
-typealias Evaluation = (Player, State) -> Int
+data class Evaluation(val name : String, val eval : (Player, State) -> Int)
 
 object Evaluations {
 
 	//TODO check evaluation bias (tends to be negative) -> correct towards 0
+
+	val none: Evaluation = Evaluation("none") { _, _ -> 0 }
 
 	// closer to end -> good
 	private const val progressMult = 1
@@ -16,11 +18,11 @@ object Evaluations {
 	// having more tokens -> better
 	private const val tokenBonus = 2
 
-	val countTokens : Evaluation = { ownPlayer, state ->
+	val countTokens = Evaluation("countTokens") { ownPlayer, state ->
 		state.tokensFor(ownPlayer).size - state.tokensFor(ownPlayer.next()).size
 	}
 
-	val sumPosition: Evaluation = { ownPlayer, state ->
+	val sumPosition = Evaluation("sumPosition") { ownPlayer, state ->
 		fun pointForPosition(p: Point, player: Player): Int {
 			val progress = progressMult * progress(p, GAME_WIDTH, player)
 			val pushed = if (state.lastPushed == p) pushedPenalty else 0
@@ -31,13 +33,13 @@ object Evaluations {
 	}
 
 
-	val sumSquarePosition: Evaluation = { ownPlayer, state ->
+	val sumSquarePosition = Evaluation("sumSquarePos") { ownPlayer, state ->
 		positionalSum(ownPlayer, state) { p, player ->
 			progress(p, GAME_WIDTH, player).let { it * it }
 		}
 	}
 
-	val mostForward: Evaluation = { ownPlayer, state ->
+	val mostForward = Evaluation("mostForward") { ownPlayer, state ->
 		positionalMax(ownPlayer, state) { point, player ->
 			progress(
 				point,
@@ -74,16 +76,14 @@ object Evaluations {
 		ownPlayer: Player,
 		state: State,
 		positionalPoints: List<Point>.(Player) -> Int
-	): Int =
-		if (state.victor == ownPlayer) Int.MAX_VALUE
-		else {
-			val opponent = ownPlayer.next()
+	): Int {
+		val opponent = ownPlayer.next()
 
-			val ownPoints = state.tokensFor(ownPlayer).positionalPoints(ownPlayer)
-			val opponentPoint = state.tokensFor(opponent).positionalPoints(opponent)
+		val ownPoints = state.tokensFor(ownPlayer).positionalPoints(ownPlayer)
+		val opponentPoint = state.tokensFor(opponent).positionalPoints(opponent)
 
-			ownPoints - opponentPoint
-		}
+		return ownPoints - opponentPoint
+	}
 
 
 	private inline fun <T> List<T>.mapMax(f: (T) -> Int): Int {

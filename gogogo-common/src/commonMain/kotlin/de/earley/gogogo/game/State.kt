@@ -33,16 +33,20 @@ interface State {
     fun isEligibleToMove(from: Point): Boolean
     val possibleMoves: List<Move>
 
+    // can be slow
+    fun deepCopy(): State
+
+
     // mutators
     fun move(move: Move): MoveResult
     fun undo()
     fun canUndo(): Boolean
 
-    companion object {
+	companion object {
         fun initial(): State = MutableState(
             playersTurn = Player.Blue,
             lastPushed = null,
-            grid = GameGrid.create(GAME_WIDTH, GAME_HEIGHT) { x, _ ->
+            grid = GameGrid.create { x, _ ->
                 when (x) {
                     0 -> Player.Blue
                     GAME_WIDTH - 1 -> Player.Red
@@ -123,13 +127,17 @@ private data class MutableState(
         command.apply(this)
         history.addLast(command)
 
+        updateAfterMove()
+
+        // create next state
+        return MoveResult.Success
+    }
+
+    private fun updateAfterMove() {
         //TODO maybe instead just figure out which moves should be deleted and which added
         // for this we would need to store all possible moves by both players
         recalculatePossibleMoves()
         victor = isVictory()
-
-        // create next state
-        return MoveResult.Success
     }
 
     private fun isVictory(): Player? {
@@ -155,8 +163,7 @@ private data class MutableState(
         require(canUndo()) { "Cannot undo!" }
         val last = history.removeLast()
         last.undo(this)
-        recalculatePossibleMoves()
-        victor = isVictory()
+        updateAfterMove()
     }
 
     //HOTSPOT - SLOW
@@ -187,6 +194,21 @@ private data class MutableState(
     }
 
     override fun tokenAt(p: Point): Player? = grid[p]
+
+    override fun deepCopy(): State = MutableState(
+        playersTurn = playersTurn,
+        lastPushed = lastPushed,
+        grid = grid.deepCopy()
+    )
+
+
+    override fun hashCode(): Int {
+        // -1 because otherwise (0, 0) and null have the same hashcode
+        return grid.hashCode()
+                .times(31).plus(lastPushed?.hashCode() ?: -1)
+                .times(31).plus(playersTurn.hashCode())
+    }
+
 }
 
 private data class Command(
@@ -203,4 +225,19 @@ private fun isAdjacent(from: Point, to: Point): Boolean {
     val dx = abs(from.x - to.x)
     val dy = abs(from.y - to.y)
     return (dx == 1 && dy == 0) || (dx == 0 && dy == 1)
+}
+
+
+//TODO remove
+fun State.deepEquals(other : State) : Boolean {
+    require(this is MutableState)
+    require(other is MutableState)
+
+    return this.playersTurn == other.playersTurn &&
+            this.lastPushed == other.lastPushed &&
+            (0..GAME_WIDTH).all { x ->
+                (0..GAME_HEIGHT).all { y ->
+                    this.tokenAt(Point(x, y)) == other.tokenAt(Point(x, y))
+                }
+            }
 }

@@ -3,7 +3,7 @@ package de.earley.gogogo.game.grid
 import de.earley.gogogo.game.Move
 
 data class Point(val x: Int, val y: Int) {
-    override fun toString(): String = "($x/$y)"
+    override fun toString(): String = toLetterName()
 }
 
 fun Point.left()  : Move = Move(this, Point(x - 1, y + 0))
