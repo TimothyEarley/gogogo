@@ -10,7 +10,6 @@ import kotlinx.coroutines.channels.actor
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 fun run(
 	strategies: List<Benchmarked>,
 	concurrency: Int,
@@ -51,7 +50,7 @@ fun run(
 	scores
 }
 
-@OptIn(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class) // actor
 private fun CoroutineScope.progressActor(totalGames: Int) = actor<Unit>(capacity = 10) {
 	val progressBar = ProgressBar(totalGames).also {
 		it.start()
@@ -65,7 +64,6 @@ private fun CoroutineScope.progressActor(totalGames: Int) = actor<Unit>(capacity
 
 private typealias Task = Triple<Benchmarked, Benchmarked, State>
 private typealias Result = Pair<Benchmarked, Int>
-@OptIn(ExperimentalTime::class)
 private suspend fun runner(
 	scorer: SendChannel<Result>,
 	tasks: ReceiveChannel<Task>,
@@ -82,7 +80,7 @@ private suspend fun runner(
 	}
 }
 
-@OptIn(ObsoleteCoroutinesApi::class)
+@OptIn(ObsoleteCoroutinesApi::class) // actors
 private fun CoroutineScope.scorer(scores: MutableMap<Benchmarked, Int>) = actor<Result>(
 	capacity = 10
 ) {
@@ -91,7 +89,6 @@ private fun CoroutineScope.scorer(scores: MutableMap<Benchmarked, Int>) = actor<
 	}
 }
 
-@OptIn(ExperimentalTime::class)
 private suspend fun runBothSides(
 	a: PlayerController,
 	b: PlayerController,
@@ -104,10 +101,12 @@ private suspend fun runBothSides(
 	when (runGame(a, b, timeout, startingState)) {
 		Player.Red -> winsA++
 		Player.Blue -> winsB++
+		null -> {}
 	}
 	when (runGame(b, a, timeout, startingState)) {
 		Player.Red -> winsB++
 		Player.Blue -> winsA++
+		null -> {}
 	}
 
 	return winsA to winsB
@@ -119,7 +118,6 @@ private object NoOpUiHook : UIHook {
 	override suspend fun onMove(move: Move, lines : List<Line>?) {}
 }
 
-@OptIn(ExperimentalTime::class)
 private suspend fun runGame(
 	red: PlayerController,
 	blue: PlayerController,

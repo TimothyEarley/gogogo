@@ -1,16 +1,6 @@
-pluginManagement {
-	resolutionStrategy {
-		eachPlugin {
-			if (requested.id.id == "kotlin2js") {
-				useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
-			}
-		}
-	}
-}
-
 plugins {
 	// See https://jmfayard.github.io/refreshVersions
-	id 'de.fayard.refreshVersions' version '0.23.0'
+	id 'de.fayard.refreshVersions' version '0.40.1'
 }
 
 rootProject.name = 'gogogo'

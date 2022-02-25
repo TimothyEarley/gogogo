@@ -9,6 +9,7 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.events.Event
 
+@Suppress("UNCHECKED_CAST")
 fun <T : Element> Document.get(id: String): T =
 	getElementById(id) as? T ?: throw NoSuchElementException("No element with id $id found")
 

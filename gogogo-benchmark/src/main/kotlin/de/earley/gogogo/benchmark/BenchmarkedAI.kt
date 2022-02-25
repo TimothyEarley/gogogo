@@ -6,9 +6,6 @@ import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
 
-
-//TODO rewrite benchmark to be on PlayerController level
-@OptIn(ExperimentalTime::class)
 interface Benchmarked {
 	val name: String
 	val ai: PlayerController
@@ -16,7 +13,6 @@ interface Benchmarked {
 	fun stats(): String
 }
 
-@OptIn(ExperimentalTime::class)
 class BenchmarkAI(private val wrapped: PlayerController): PlayerController, Benchmarked {
 
 	override val name: String = wrapped.name
@@ -27,6 +23,7 @@ class BenchmarkAI(private val wrapped: PlayerController): PlayerController, Benc
 	private var invokeCount: Int = 0
 	private var max: Duration = Duration.ZERO
 
+	@OptIn(ExperimentalTime::class) // measureTimedValue
 	override suspend fun getMove(
         lastMove: Move?,
         state: State,
