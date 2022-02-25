@@ -13,6 +13,7 @@ kotlin {
 		commonMain {
 			dependencies {
 				implementation(KotlinX.coroutines.core)
+				implementation("io.github.reactivecircus.cache4k:cache4k:_")
 			}
 		}
 

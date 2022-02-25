@@ -60,7 +60,7 @@ class GamePresenter(
 			unselect()
 		} else {
 			selected = point
-			gameUI.uiGrid[point]!!.classList.add("game-cell-selected")
+			gameUI.uiGrid[point].classList.add("game-cell-selected")
 		}
 	}
 
@@ -120,7 +120,7 @@ class GamePresenter(
 
 	private fun unselect() {
 		selected?.let { sel ->
-			gameUI.uiGrid[sel]!!.classList.remove("game-cell-selected")
+			gameUI.uiGrid[sel].classList.remove("game-cell-selected")
 		}
 		selected = null
 	}

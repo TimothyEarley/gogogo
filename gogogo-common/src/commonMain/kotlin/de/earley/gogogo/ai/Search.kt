@@ -124,7 +124,7 @@ class Search(
                         line.winner == playersTurn.next() &&
                                 (line.movesToWin ?: Int.MAX_VALUE) > (best.movesToWin ?: Int.MAX_VALUE)
 
-                if (betterValue || betterMate || worseOpponentMate) {
+                if (betterValue ||betterMate || worseOpponentMate) {
                     best = line
                 }
             }
@@ -136,12 +136,6 @@ class Search(
 
         if (useMemory) {
             memory[hash] = StoredLine(best, depth, playersTurn)
-        }
-
-        if (best.winner != null) {
-            require(best.movesToWin != null && (best.evaluation == GOOD || best.evaluation == BAD)) {
-                "We found a checkmate, but the eval is off: $best"
-            }
         }
 
         return best

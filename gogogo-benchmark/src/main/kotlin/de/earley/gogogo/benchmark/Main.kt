@@ -12,9 +12,11 @@ import kotlin.time.ExperimentalTime
 fun main() {
 	val teams: List<Benchmarked> = listOf(
 		RandomAI(),
-		Search(depth = 3, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
-		Search(depth = 4, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
-		Search(depth = 4, evaluation = Evaluations.sumSquarePosition, pruning = true, useMemory = true),
+		RandomAI(),
+		RandomAI(),
+		Search(depth = 6, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
+//		Search(depth = 4, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
+//		Search(depth = 4, evaluation = Evaluations.sumSquarePosition, pruning = true, useMemory = true),
 	).map(::BenchmarkAI)
 	league(teams, timeout = true)
 }

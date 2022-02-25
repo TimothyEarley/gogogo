@@ -8,14 +8,12 @@ import de.earley.gogogo.game.PlayerController
 private val controllerTypes: List<Pair<String, () -> PlayerController>> = listOf(
         "Human" to ::HumanController,
         "Random" to RandomAI()::withUIAwareness,
-        "AI none" to Search(
+        "AI 4 none" to Search(
                 depth = 4,
                 evaluation = Evaluations.none,
                 pruning = true,
                 debug = true,
         )::withUIAwareness,
-        "FORWARD" to Search(depth = 6, evaluation = Evaluations.mostForward, pruning = true, debug = true)::withUIAwareness
-
 ) + (1..6).map {
     "AI ct $it" to Search(
             depth = it,

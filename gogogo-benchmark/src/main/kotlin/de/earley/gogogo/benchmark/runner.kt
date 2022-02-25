@@ -73,7 +73,9 @@ private suspend fun runner(
 	timeout: Duration
 ) {
 	for ((a, b, startingState) in tasks) {
-		val (aScore, bScore) = benchmark(a, b, timeout, startingState)
+		val (aScore, bScore) = runBothSides(
+			a.ai, b.ai, timeout, startingState
+		)
 		scorer.send(a to aScore)
 		scorer.send(b to bScore)
 		progressChannel.send(Unit)
@@ -90,48 +92,25 @@ private fun CoroutineScope.scorer(scores: MutableMap<Benchmarked, Int>) = actor<
 }
 
 @OptIn(ExperimentalTime::class)
-private suspend fun benchmark(
-	a: Benchmarked,
-	b: Benchmarked,
-	timeout: Duration,
-	startingState: State
-): Pair<Int, Int> {
-	val result = runBothSidesRepeated(
-		a.name, a.ai,
-		b.name, b.ai,
-		timeout,
-		startingState
-	)
-
-	if (result.containsKey("Draw")) {
-		System.err.println("Timeout! for ${a.name} vs ${b.name}")
-	}
-
-	return result.getOrDefault(a.name, 0) to result.getOrDefault(b.name, 0)
-}
-
-@OptIn(ExperimentalTime::class)
-private suspend fun runBothSidesRepeated(
-	nameA: String,
+private suspend fun runBothSides(
 	a: PlayerController,
-	nameB: String,
 	b: PlayerController,
 	timeout: Duration,
 	startingState: State
-): Map<String, Int> {
-	fun Player?.mapKeyTo(red: String, blue: String): String = when (this) {
-		Player.Red -> red
-		Player.Blue -> blue
-		else -> "Draw"
+): Pair<Int, Int> /* score a, score b */ {
+	var winsA = 0
+	var winsB = 0
+
+	when (runGame(a, b, timeout, startingState)) {
+		Player.Red -> winsA++
+		Player.Blue -> winsB++
+	}
+	when (runGame(b, a, timeout, startingState)) {
+		Player.Red -> winsB++
+		Player.Blue -> winsA++
 	}
 
-
-	val wins = mutableMapOf<String, Int>()
-
-	wins.merge(runGame(a, b, timeout, startingState).mapKeyTo(nameA, nameB), 1, Int::plus)
-	wins.merge(runGame(b, a, timeout, startingState).mapKeyTo(nameB, nameA), 1, Int::plus)
-
-	return wins
+	return winsA to winsB
 }
 
 private object NoOpUiHook : UIHook {
