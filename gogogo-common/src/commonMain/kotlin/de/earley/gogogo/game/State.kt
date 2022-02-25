@@ -1,6 +1,7 @@
 package de.earley.gogogo.game
 
 import de.earley.gogogo.game.grid.*
+import io.github.reactivecircus.cache4k.Cache
 import kotlin.math.abs
 
 sealed class MoveResult {
@@ -42,7 +43,7 @@ interface State {
     fun undo()
     fun canUndo(): Boolean
 
-	companion object {
+    companion object {
         fun initial(): State = MutableState(
             playersTurn = Player.Blue,
             lastPushed = null,
@@ -57,6 +58,19 @@ interface State {
     }
 }
 
+private val possibleMovesCache = Cache.Builder()
+    .maximumCacheSize(1000)
+    .build<Int, List<Move>>()
+
+private fun <Key : Any, Value : Any> Cache<Key, Value>.getOrPut(key: Key, defaultValue: () -> Value): Value {
+    return get(key) ?: defaultValue.invoke().also {
+        put(key, it)
+    }
+}
+
+
+// : MutableMap<Int, List<Move>> = mutableMapOf()
+
 // a mutable implementation of State
 private data class MutableState(
     override var playersTurn: Player,
@@ -69,29 +83,22 @@ private data class MutableState(
     private val history: ArrayDeque<Command> = ArrayDeque()
 
     override val possibleMoves: List<Move>
-        get() = _possibleMoves.toList() // copy the list
-    private val _possibleMoves: MutableList<Move> = mutableListOf()
+        get() = possibleMovesCache.getOrPut(hashCode()) {
+            calculatePossibleMoves().toList()
+        }
 
-    init {
-        recalculatePossibleMoves()
-    }
-
-
-    private fun recalculatePossibleMoves() {
-        val newMoves = grid.tokensFor(playersTurn)
+    private fun calculatePossibleMoves(): Sequence<Move> {
+        return grid.tokensFor(playersTurn)
             .asSequence()
             .filter { isEligibleToMove(it) }
             .flatMap {
                 sequenceOf(it.left(), it.right(), it.up(), it.down())
             }
             .filter { findMoveError(it) == null }
-
-        _possibleMoves.clear()
-        _possibleMoves.addAll(newMoves)
     }
 
     override fun move(move: Move): MoveResult {
-        if (move !in _possibleMoves) {
+        if (move !in possibleMoves) {
             return findMoveError(move)!! // if null we made a mistake in possible moves
         }
 
@@ -134,9 +141,6 @@ private data class MutableState(
     }
 
     private fun updateAfterMove() {
-        //TODO maybe instead just figure out which moves should be deleted and which added
-        // for this we would need to store all possible moves by both players
-        recalculatePossibleMoves()
         victor = isVictory()
     }
 
@@ -145,8 +149,8 @@ private data class MutableState(
         // - opponent has no legal moves
         // - reach the end of the board
 
-        // assume _possibleMoves is up to date
-        if (_possibleMoves.isEmpty()) {
+        // assume possibleMoves is up-to-date
+        if (possibleMoves.isEmpty()) {
             return playersTurn.next()
         }
 
@@ -205,8 +209,8 @@ private data class MutableState(
     override fun hashCode(): Int {
         // -1 because otherwise (0, 0) and null have the same hashcode
         return grid.hashCode()
-                .times(31).plus(lastPushed?.hashCode() ?: -1)
-                .times(31).plus(playersTurn.hashCode())
+            .times(31).plus(lastPushed?.hashCode() ?: -1)
+            .times(31).plus(playersTurn.hashCode())
     }
 
     override fun equals(other: Any?): Boolean {
