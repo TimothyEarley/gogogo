@@ -41,9 +41,8 @@ class GameUI private constructor(
 		}
 	}
 
-	//TODO cancel on exit
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.Default + Job()
+	private val job = Job()
+	override val coroutineContext: CoroutineContext = Dispatchers.Default + job
 
 	private val blueController: HTMLSelectElement = document.get("blue-controller")
 	private val redController: HTMLSelectElement = document.get("red-controller")
@@ -138,9 +137,10 @@ class GameUI private constructor(
 
 		presenter.exitGame()
 
+		job.cancel()
+
 		// return to menu
 		menu.closeGame()
-
 	}
 
 	fun showOwnPlayer(player: Player, opponent: String) {

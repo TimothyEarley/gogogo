@@ -9,8 +9,8 @@ import de.earley.gogogo.game.grid.Point
 import de.earley.gogogo.net.MatchInfo
 import de.earley.gogogo.net.Matchmaking
 import de.earley.gogogo.net.PlayerInfo
-import de.earley.gogogo.ui.*
-import kotlinx.coroutines.GlobalScope
+import de.earley.gogogo.ui.GameMode
+import de.earley.gogogo.ui.GameUI
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -112,8 +112,8 @@ class GamePresenter(
 	}
 
 	private fun startGame(game: ControlledGame) = with(game) {
-		// add job to cancel
-		GlobalScope.launch {
+		// launch in the scope of the game screen
+		gameUI.launch {
 			start()
 		}
 	}

@@ -3,7 +3,6 @@ package de.earley.gogogo.net
 import de.earley.gogogo.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import org.w3c.dom.MessageEvent
 import org.w3c.dom.WebSocket
 import kotlin.coroutines.CoroutineContext
 
@@ -52,7 +51,7 @@ class WebsocketConnectionImpl(
 		}
 
 		ws.onmessage = {evt ->
-			if (evt is MessageEvent) launch {
+			launch {
 				Log.debug { "Received ${evt.data}" }
 				messages.send(evt.data.toString())
 			}

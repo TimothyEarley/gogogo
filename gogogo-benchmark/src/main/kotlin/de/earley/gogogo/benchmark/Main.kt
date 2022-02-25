@@ -7,6 +7,7 @@ import de.earley.gogogo.game.Game
 import de.earley.gogogo.game.State
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 fun main() {
@@ -37,7 +38,6 @@ fun generateRandomState(): State {
 	return game.getState()
 }
 
-@OptIn(ExperimentalTime::class)
 fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
 	println("Starting league with: ")
 	strategies.forEach {
@@ -46,7 +46,7 @@ fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
 	val score = run(
 		strategies,
 		3,
-		if (!timeout) Duration.INFINITE else Duration.seconds(30),
+		if (!timeout) Duration.INFINITE else 30.seconds,
 		(1..5).map { generateRandomState() } + State.initial()
 	)
 

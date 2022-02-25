@@ -26,7 +26,7 @@ data class ConnectedPlayer(
 			val opponent: ConnectedPlayer,
 			val player: Player,
 			val game: Game
-		) : ConnectedPlayer.State()
+		) : State()
 	}
 
 	private var state: State =
