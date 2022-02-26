@@ -31,7 +31,8 @@ fun main() {
 	// better victory checking: 10.2, 10s
 	// no token tracking and changed calculatePossibleMoves: 6.4s, 6.1s
 	// with token tracking and changed calculatePossibleMoves: 10.9s
-	println(measureTimedValue { findNumberOfVariations(9) })
+
+	println(measureTimedValue { State.initial().findNumberOfVariations(8) })
 
 	// league(teams, timeout = true)
 }
@@ -77,11 +78,10 @@ fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
 }
 
 
-fun findNumberOfVariations(depth: Int): Int {
+fun State.findNumberOfVariations(depth: Int): Int {
 	if (depth == 0) return 1
-	val state = State.initial()
-	return state.possibleMoves.sumOf {
-		state.withMove(it) {
+	return possibleMoves.sumOf {
+		withMove(it) {
 			findNumberOfVariations(depth - 1)
 		}
 	}

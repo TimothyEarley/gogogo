@@ -68,12 +68,12 @@ https://github.com/ReactiveCircus/cache4k/issues/9
 //    .build<Int, List<Move>>()
 //
 
-private val possibleMovesCache = object : Cache<Int, List<Move>> {
-    private val cache: MutableMap<Int, List<Move>> = HashMap()
+private val possibleMovesCache = object : Cache<Long, List<Move>> {
+    private val cache: MutableMap<Long, List<Move>> = HashMap()
 
-    override fun asMap(): Map<in Int, List<Move>> = cache
-    override fun get(key: Int): List<Move>? = cache[key]
-    override suspend fun get(key: Int, loader: suspend () -> List<Move>): List<Move> {
+    override fun asMap(): Map<in Long, List<Move>> = cache
+    override fun get(key: Long): List<Move>? = cache[key]
+    override suspend fun get(key: Long, loader: suspend () -> List<Move>): List<Move> {
         val value = cache[key]
         return if (value == null) {
             val answer = loader()
@@ -84,7 +84,7 @@ private val possibleMovesCache = object : Cache<Int, List<Move>> {
         }
     }
 
-    override fun invalidate(key: Int) {
+    override fun invalidate(key: Long) {
         cache.remove(key)
     }
 
@@ -92,7 +92,7 @@ private val possibleMovesCache = object : Cache<Int, List<Move>> {
         cache.clear()
     }
 
-    override fun put(key: Int, value: List<Move>) {
+    override fun put(key: Long, value: List<Move>) {
         cache[key] = value
     }
 }
@@ -121,7 +121,7 @@ private data class MutableState(
     private var currentPossibleMoves: List<Move>? = null
 
     override val possibleMoves: List<Move>
-        get() = currentPossibleMoves ?: possibleMovesCache.getOrPut(hashCode()) {
+        get() = currentPossibleMoves ?: possibleMovesCache.getOrPut(longHashCode()) {
             calculatePossibleMoves().toList()
         }.also {
             currentPossibleMoves = it
@@ -138,6 +138,8 @@ private data class MutableState(
         }
     }
 
+    private val coliisionChecks: MutableMap<Int, MutableState> = HashMap()
+
     override fun move(move: Move): MoveResult {
         if (move !in possibleMoves) {
             return findMoveError(move)!! // if null we made a mistake in possible moves
@@ -152,6 +154,19 @@ private data class MutableState(
         history.addLast(command)
 
         updateAfterMove()
+
+//        val old = coliisionChecks.put(hashCode(), this.deepCopy() as MutableState)
+//        require (old == null || old == this) {
+//            """
+//                Hash collision
+//                old: $old, ${old.hashCode()}
+//                this: $this, ${this.hashCode()}
+//                with long hash:
+//                old: ${old?.longHashCode()}
+//                this: ${this.longHashCode()}
+//                }
+//            """.trimIndent()
+//        }
 
         return MoveResult.Success
     }
@@ -219,11 +234,25 @@ private data class MutableState(
         grid = grid.deepCopy()
     )
 
+    /*
+     Has to unique since it is used as an identifier (Zobrist hash)
+     */
+    @Deprecated("This seems to have many collisions, so use longHashCode",
+        ReplaceWith("longHashCode()"))
     override fun hashCode(): Int {
-        // -1 because otherwise (0, 0) and null have the same hashcode
-        return grid.hashCode()
-            .times(31).plus(lastPushed?.hashCode() ?: -1)
-            .times(31).plus(playersTurn.hashCode())
+        return longHashCode().hashCode()
+    }
+
+    /**
+     * Separate the grid hash and our data to avoid collisions.
+     * The assumption is that the grid zobrist hash is good.
+     */
+    fun longHashCode(): Long {
+        // the default value cannot be 0 because otherwise (0, 0) and null have the same hashcode
+        // and it cannot be negative or we have too many bits set to 1
+        val myDataHash =
+             ((lastPushed?.hashCode() ?: -1) shl 3).or(playersTurn.ordinal)
+        return (grid.hashCode().toLong() shl 32).or(myDataHash.toLong().and(0xffffffffL))
     }
 
     override fun equals(other: Any?): Boolean {
@@ -239,7 +268,7 @@ private data class MutableState(
         return true
     }
 
-    private class MoveCommand(
+    private data class MoveCommand(
         private val pushing : Boolean,
         private val move: Move,
         private val next: Point,

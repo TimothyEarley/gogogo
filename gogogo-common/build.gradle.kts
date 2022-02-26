@@ -17,6 +17,12 @@ kotlin {
 			}
 		}
 
+		commonTest {
+			dependencies {
+				implementation(Kotlin.test)
+			}
+		}
+
 		all {
 			languageSettings.optIn("kotlin.RequiresOptIn")
 		}
