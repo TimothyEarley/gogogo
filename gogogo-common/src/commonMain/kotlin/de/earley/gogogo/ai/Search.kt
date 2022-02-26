@@ -78,6 +78,7 @@ class Search(
             else Line(BAD, 0, playersTurn.next(), emptyList())
         }
 
+        // TODO long hash
         val hash = hashCode()
         if (useMemory) {
             val stored = memory[hash]
@@ -98,7 +99,7 @@ class Search(
 
         var best: Line? = null
 
-        for (move in possibleMoves.sortedBy(moveOrdering(playersTurn))) {
+        for (move in possibleMoves.sortedByDescending(moveOrdering(playersTurn))) {
             val line = withMove(move) {
                 search(stats, depth - 1, -beta, -(best?.evaluation ?: alpha)).prependAndInvert(move)
             }

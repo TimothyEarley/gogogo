@@ -57,6 +57,8 @@ interface State {
                 }
             }
         )
+
+        fun create(playersTurn: Player, lastPushed: Point?, grid: GameGrid): State = MutableState(playersTurn, lastPushed, grid)
     }
 }
 
@@ -121,11 +123,12 @@ private data class MutableState(
     private var currentPossibleMoves: List<Move>? = null
 
     override val possibleMoves: List<Move>
-        get() = currentPossibleMoves ?: possibleMovesCache.getOrPut(longHashCode()) {
-            calculatePossibleMoves().toList()
-        }.also {
-            currentPossibleMoves = it
-        }
+        get() = currentPossibleMoves ?:  calculatePossibleMoves()
+//        possibleMovesCache.getOrPut(longHashCode()) {
+//            calculatePossibleMoves().toList()
+//        }.also {
+//            currentPossibleMoves = it
+//        }
 
     private fun calculatePossibleMoves(): List<Move> = buildList {
         grid.onEach { p, player ->
@@ -270,7 +273,7 @@ private data class MutableState(
 
     private data class MoveCommand(
         private val pushing : Boolean,
-        private val move: Move,
+        val move: Move,
         private val next: Point,
         private val oldPushed: Point?,
         private val oldTo: Player?

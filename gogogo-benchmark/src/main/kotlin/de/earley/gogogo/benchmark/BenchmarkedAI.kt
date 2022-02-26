@@ -39,6 +39,10 @@ class BenchmarkAI(private val wrapped: PlayerController): PlayerController, Benc
 		return move
 	}
 
-	override fun avg() = totalTime / invokeCount.toDouble()
+	override fun avg() =
+		if (invokeCount != 0)
+			totalTime / invokeCount.toDouble()
+		else
+			Duration.INFINITE
 	override fun stats(): String = "${"[${name}]: ".padEnd(40)}avg: ${avg()}, \tmax: ${max}, \tCount: $invokeCount"
 }
