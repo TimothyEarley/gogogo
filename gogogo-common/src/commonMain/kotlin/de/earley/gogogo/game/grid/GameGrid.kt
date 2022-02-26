@@ -115,3 +115,17 @@ class GameGrid private constructor(
 		this[x, y]
 	}
 }
+
+fun GameGrid.renderText() : String = buildString {
+	appendLine()
+	for (y in 0 until GAME_HEIGHT) {
+		for (x in 0 until GAME_WIDTH) {
+			append(when (get(x, y)) {
+				Player.Red -> "R"
+				Player.Blue -> "B"
+				null -> "·"
+			})
+		}
+		appendLine()
+	}
+}

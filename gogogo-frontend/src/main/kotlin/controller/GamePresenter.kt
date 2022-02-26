@@ -73,7 +73,7 @@ class GamePresenter(
 		unselect()
 	}
 
-	override suspend fun onMove(move: Move, lines : List<Line>?) {
+	override suspend fun onMove(move: Move, lines: List<Line>?) {
 		unselect()
 		gameUI.updateUI(game!!, selected)
 		gameUI.updateLines((lines ?: emptyList()).sortedByDescending { it.evaluation })

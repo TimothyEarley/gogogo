@@ -101,8 +101,7 @@ class ControlledGame(
 }
 
 interface UIHook {
-
 	fun onSelect(point: Point?)
 	fun onGameEnd()
-	suspend fun onMove(move: Move, lines : List<Line>?)
+	suspend fun onMove(move: Move, lines: List<Line>?)
 }
