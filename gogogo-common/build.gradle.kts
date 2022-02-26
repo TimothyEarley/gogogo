@@ -21,4 +21,13 @@ kotlin {
 			languageSettings.optIn("kotlin.RequiresOptIn")
 		}
 	}
+
+	targets.all {
+		compilations.all {
+			kotlinOptions {
+				// for Cache4K workaround
+				freeCompilerArgs = listOf("-Xjvm-default=enable")
+			}
+		}
+	}
 }

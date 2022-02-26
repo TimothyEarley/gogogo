@@ -11,6 +11,13 @@ object Evaluations {
 
 	val none: Evaluation = Evaluation("none") { _, _ -> 0 }
 
+	// TODO check performance (was removed in Grid for performance)
+	private fun State.tokensFor(ownPlayer: Player): List<Point> = buildList {
+		grid.onEach { point, player ->
+			if (player == ownPlayer) add(point)
+		}
+	}
+
 	val countTokens = Evaluation("countTokens") { ownPlayer, state ->
 		state.tokensFor(ownPlayer).size - state.tokensFor(ownPlayer.next()).size
 	}
