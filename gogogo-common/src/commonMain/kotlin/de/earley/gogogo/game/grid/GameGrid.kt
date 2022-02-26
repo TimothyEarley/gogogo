@@ -6,30 +6,26 @@ import de.earley.gogogo.game.Player
 import kotlin.random.Random
 
 // grid index, player, value
-private val zobrist : Array<Map<Player, Int>> = Array(GAME_WIDTH * GAME_HEIGHT) {
-	mapOf(
-			Player.Blue to Random.nextInt(),
-			Player.Red to Random.nextInt()
-	)
+private val zobrist : Array<Int> = Array(GAME_WIDTH * GAME_HEIGHT * 2) {
+	Random.nextInt()
 }
 
+/*
+Token tracking has been removed for now since it can reduce performance
+ */
+
 class GameGrid private constructor(
-	// TODO maybe store as bitmask
-	private val elems: Array<Player?>,
-	// TODO enable optimisation
-	private val redTokens: MutableList<Point>,
-	private val blueTokens: MutableList<Point>,
+	private val elems: Array<Player?>
 ) {
 
 	private var hash : Int = reHash()
-	private fun updateHash(h : Int, p : Point, player: Player) : Int = h xor zobrist[p.x + p.y * GAME_WIDTH][player]!!
+	private fun updateHash(h : Int, p : Point, player: Player) : Int = h xor zobrist[p.x + p.y * GAME_WIDTH + (player.ordinal) * GAME_HEIGHT * GAME_WIDTH]
 	private fun reHash(): Int {
 		var h = 0
-		redTokens.forEach { p ->
-			h = updateHash(h, p, Player.Red)
-		}
-		blueTokens.forEach { p ->
-			h = updateHash(h, p, Player.Blue)
+		onEach { point, player ->
+			if (player != null) {
+				h = updateHash(h, point, player)
+			}
 		}
 		return h
 	}
@@ -55,9 +51,7 @@ class GameGrid private constructor(
 				build(x, y)
 			}
 			return GameGrid(
-				grid,
-				createTokensFor(Player.Red, grid),
-				createTokensFor(Player.Blue, grid)
+				grid
 			)
 		}
 
@@ -65,13 +59,20 @@ class GameGrid private constructor(
 			player: Player,
 			grid: Array<Player?>
 		): MutableList<Point> = mutableListOf<Point>().apply {
-			// TODO add helper structure to make this fast
 			for (x in 0 until GAME_WIDTH) {
 				for (y in 0 until GAME_HEIGHT) {
 					if (grid[x + y * GAME_WIDTH] == player) {
 						add(Point(x, y))
 					}
 				}
+			}
+		}
+	}
+
+	inline fun onEach(f : (Point, Player?) -> Unit) {
+		for (x in 0 until GAME_WIDTH) {
+			for (y in 0 until GAME_HEIGHT) {
+				f(Point(x, y), get(x, y))
 			}
 		}
 	}
@@ -89,11 +90,9 @@ class GameGrid private constructor(
 		if (old == value) return
 		when (old) {
 			Player.Red -> {
-				redTokens.remove(p)
 				hash = updateHash(hash, p, Player.Red)
 			}
 			Player.Blue -> {
-				blueTokens.remove(p)
 				hash = updateHash(hash, p, Player.Blue)
 			}
 			null -> {}
@@ -101,11 +100,9 @@ class GameGrid private constructor(
 		elems[i] = value
 		when (value) {
 			Player.Red -> {
-				redTokens.add(p)
 				hash = updateHash(hash, p, Player.Red)
 			}
 			Player.Blue -> {
-				blueTokens.add(p)
 				hash = updateHash(hash, p, Player.Blue)
 			}
 			null -> {}
@@ -113,11 +110,6 @@ class GameGrid private constructor(
 	}
 
 	fun isInGrid(x: Int, y: Int): Boolean = x in 0 until GAME_WIDTH && y in 0 until GAME_HEIGHT
-
-	fun tokensFor(player: Player): List<Point> = when (player) {
-		Player.Red -> redTokens
-		Player.Blue -> blueTokens
-	}
 
 	fun deepCopy(): GameGrid = create { x, y ->
 		this[x, y]

@@ -5,11 +5,14 @@ import de.earley.gogogo.ai.RandomAI
 import de.earley.gogogo.ai.Search
 import de.earley.gogogo.game.Game
 import de.earley.gogogo.game.State
+import de.earley.gogogo.game.withMove
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
+import kotlin.time.measureTimedValue
 
+@OptIn(ExperimentalTime::class)
 fun main() {
 	val teams: List<Benchmarked> = listOf(
 		RandomAI(),
@@ -19,7 +22,18 @@ fun main() {
 //		Search(depth = 4, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
 //		Search(depth = 4, evaluation = Evaluations.sumSquarePosition, pruning = true, useMemory = true),
 	).map(::BenchmarkAI)
-	league(teams, timeout = true)
+
+	// 9 -> 40353607
+	// 9 -> 13.5s
+	// without grid cache: 11.7s
+	// better grid cache: 11.7s, 12.2s
+	// no victory checking: 9.6s, 9s
+	// better victory checking: 10.2, 10s
+	// no token tracking and changed calculatePossibleMoves: 6.4s, 6.1s
+	// with token tracking and changed calculatePossibleMoves: 10.9s
+	println(measureTimedValue { findNumberOfVariations(9) })
+
+	// league(teams, timeout = true)
 }
 
 private val rand = Random(1337)
@@ -59,5 +73,16 @@ fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
 
 	strategies.sortedBy { it.avg() }.forEach {
 		println(it.stats())
+	}
+}
+
+
+fun findNumberOfVariations(depth: Int): Int {
+	if (depth == 0) return 1
+	val state = State.initial()
+	return state.possibleMoves.sumOf {
+		state.withMove(it) {
+			findNumberOfVariations(depth - 1)
+		}
 	}
 }

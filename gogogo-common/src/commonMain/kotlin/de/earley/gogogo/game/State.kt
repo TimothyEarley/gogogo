@@ -2,6 +2,9 @@ package de.earley.gogogo.game
 
 import de.earley.gogogo.game.grid.*
 import io.github.reactivecircus.cache4k.Cache
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.math.abs
 
 sealed class MoveResult {
@@ -29,10 +32,9 @@ interface State {
     val lastPushed: Point?
 
     // helpers
-
-    fun tokensFor(player: Player): List<Point>
     fun isEligibleToMove(from: Point): Boolean
     val possibleMoves: List<Move>
+    val grid: GameGrid // should only be used for reading!
 
     // can be slow
     fun deepCopy(): State
@@ -58,10 +60,44 @@ interface State {
     }
 }
 
-private val possibleMovesCache = Cache.Builder()
-    .maximumCacheSize(1000)
-    .build<Int, List<Move>>()
+/* TODO Cache4K uses a thread which blocks a clean exit, so either find a different library or use a workaround
+https://github.com/ReactiveCircus/cache4k/issues/9
+*/
+//private val possibleMovesCache = Cache.Builder()
+//    .maximumCacheSize(1000)
+//    .build<Int, List<Move>>()
+//
 
+private val possibleMovesCache = object : Cache<Int, List<Move>> {
+    private val cache: MutableMap<Int, List<Move>> = HashMap()
+
+    override fun asMap(): Map<in Int, List<Move>> = cache
+    override fun get(key: Int): List<Move>? = cache[key]
+    override suspend fun get(key: Int, loader: suspend () -> List<Move>): List<Move> {
+        val value = cache[key]
+        return if (value == null) {
+            val answer = loader()
+            cache[key] = answer
+            answer
+        } else {
+            value
+        }
+    }
+
+    override fun invalidate(key: Int) {
+        cache.remove(key)
+    }
+
+    override fun invalidateAll() {
+        cache.clear()
+    }
+
+    override fun put(key: Int, value: List<Move>) {
+        cache[key] = value
+    }
+}
+
+// the normal get and put is only suspend
 private fun <Key : Any, Value : Any> Cache<Key, Value>.getOrPut(key: Key, defaultValue: () -> Value): Value {
     return get(key) ?: defaultValue.invoke().also {
         put(key, it)
@@ -75,26 +111,31 @@ private fun <Key : Any, Value : Any> Cache<Key, Value>.getOrPut(key: Key, defaul
 private data class MutableState(
     override var playersTurn: Player,
     override var lastPushed: Point?,
-    private val grid: GameGrid,
+    override val grid: GameGrid,
 ) : State {
 
     override var victor: Player? = null
 
     private val history: ArrayDeque<Command> = ArrayDeque()
 
+    private var currentPossibleMoves: List<Move>? = null
+
     override val possibleMoves: List<Move>
-        get() = possibleMovesCache.getOrPut(hashCode()) {
+        get() = currentPossibleMoves ?: possibleMovesCache.getOrPut(hashCode()) {
             calculatePossibleMoves().toList()
+        }.also {
+            currentPossibleMoves = it
         }
 
-    private fun calculatePossibleMoves(): Sequence<Move> {
-        return grid.tokensFor(playersTurn)
-            .asSequence()
-            .filter { isEligibleToMove(it) }
-            .flatMap {
-                sequenceOf(it.left(), it.right(), it.up(), it.down())
+    private fun calculatePossibleMoves(): List<Move> = buildList {
+        grid.onEach { p, player ->
+            if (player == playersTurn && isEligibleToMove(p)) {
+                p.left().takeIf { findMoveError(it) == null }?.let { add(it) }
+                p.right().takeIf { findMoveError(it) == null }?.let { add(it) }
+                p.up().takeIf { findMoveError(it) == null }?.let { add(it) }
+                p.down().takeIf { findMoveError(it) == null }?.let { add(it) }
             }
-            .filter { findMoveError(it) == null }
+        }
     }
 
     override fun move(move: Move): MoveResult {
@@ -105,42 +146,18 @@ private data class MutableState(
         val next = nextOver(move.from, move.to)
         val pushing = grid[move.to] != null && grid.isInGrid(next.x, next.y)
 
-        val oldTo = grid[move.to]
-        val oldPushed = lastPushed
+        val command = MoveCommand(pushing, move, next, lastPushed, grid[move.to])
 
-        val command = Command(
-            {
-                if (pushing) {
-                    grid[next] = grid[move.to]
-                    lastPushed = next
-                } else {
-                    lastPushed = null
-                }
-                grid[move.to] = grid[move.from]
-                grid[move.from] = null
-                playersTurn = playersTurn.next()
-            },
-            {
-                if (pushing) {
-                    grid[next] = null // can only push one, so that must have been empty
-                }
-                lastPushed = oldPushed
-                grid[move.from] = grid[move.to]
-                grid[move.to] = oldTo
-                playersTurn = playersTurn.next()
-            }
-        )
-
-        command.apply(this)
+        command.executeCommand(this)
         history.addLast(command)
 
         updateAfterMove()
 
-        // create next state
         return MoveResult.Success
     }
 
     private fun updateAfterMove() {
+        currentPossibleMoves = null // reset possible moves
         victor = isVictory()
     }
 
@@ -155,8 +172,10 @@ private data class MutableState(
         }
 
         // we need to check for both players, since one could push an opponent into the goal
-        if (grid.tokensFor(Player.Red).any { it.x == 0 }) return Player.Red
-        if (grid.tokensFor(Player.Blue).any { it.x == GAME_WIDTH - 1 }) return Player.Blue
+        for (y in 0 until GAME_HEIGHT) {
+            if (grid[0, y] == Player.Red) return Player.Red
+            if (grid[GAME_WIDTH - 1, y] == Player.Blue) return Player.Blue
+        }
 
         return null
     }
@@ -166,7 +185,7 @@ private data class MutableState(
     override fun undo() {
         require(canUndo()) { "Cannot undo!" }
         val last = history.removeLast()
-        last.undo(this)
+        last.undoCommand(this)
         updateAfterMove()
     }
 
@@ -187,14 +206,9 @@ private data class MutableState(
         return lastPushed != from && playersTurn == grid[from]
     }
 
-
     private fun canPush(from: Point, to: Point): Boolean {
         val next = nextOver(from, to)
         return grid[to] == null || !grid.isInGrid(next.x, next.y) || grid[next] == null
-    }
-
-    override fun tokensFor(player: Player): List<Point> {
-        return grid.tokensFor(player)
     }
 
     override fun tokenAt(p: Point): Player? = grid[p]
@@ -204,7 +218,6 @@ private data class MutableState(
         lastPushed = lastPushed,
         grid = grid.deepCopy()
     )
-
 
     override fun hashCode(): Int {
         // -1 because otherwise (0, 0) and null have the same hashcode
@@ -226,12 +239,41 @@ private data class MutableState(
         return true
     }
 
+    private class MoveCommand(
+        private val pushing : Boolean,
+        private val move: Move,
+        private val next: Point,
+        private val oldPushed: Point?,
+        private val oldTo: Player?
+    ) : Command {
+        override fun executeCommand(state: MutableState) = with(state) {
+            if (pushing) {
+                grid[next] = grid[move.to]
+                lastPushed = next
+            } else {
+                lastPushed = null
+            }
+            grid[move.to] = grid[move.from]
+            grid[move.from] = null
+            playersTurn = playersTurn.next()
+        }
+
+        override fun undoCommand(state: MutableState) = with(state) {
+            if (pushing) {
+                grid[next] = null // can only push one, so that must have been empty
+            }
+            lastPushed = oldPushed
+            grid[move.from] = grid[move.to]
+            grid[move.to] = oldTo
+            playersTurn = playersTurn.next()
+        }
+    }
 }
 
-private data class Command(
-    val apply: MutableState.() -> Unit,
-    val undo: MutableState.() -> Unit
-)
+private interface Command {
+    fun executeCommand(state: MutableState)
+    fun undoCommand(state: MutableState)
+}
 
 private fun nextOver(from: Point, to: Point) = Point(
     x = from.x + 2 * (to.x - from.x), // works, but only because dx==1, dy==1
@@ -242,4 +284,18 @@ private fun isAdjacent(from: Point, to: Point): Boolean {
     val dx = abs(from.x - to.x)
     val dy = abs(from.y - to.y)
     return (dx == 1 && dy == 0) || (dx == 0 && dy == 1)
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun <T> State.withMove(move: Move, block: () -> T): T {
+    contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+    val result = move(move)
+    require(result is MoveResult.Success) {
+        "Tried to perform an illegal move. Got: $result"
+    }
+    try {
+        return block()
+    } finally {
+        undo()
+    }
 }

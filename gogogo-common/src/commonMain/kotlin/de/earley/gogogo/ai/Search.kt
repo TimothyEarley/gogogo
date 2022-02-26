@@ -142,17 +142,3 @@ class Search(
     }
 
 }
-
-@OptIn(ExperimentalContracts::class)
-private inline fun <T> State.withMove(move: Move, block: () -> T): T {
-    contract { callsInPlace(block, kotlin.contracts.InvocationKind.EXACTLY_ONCE) }
-    val result = move(move)
-    require(result is MoveResult.Success) {
-        "Tried to perform an illegal move. Got: $result"
-    }
-    try {
-        return block()
-    } finally {
-        undo()
-    }
-}
