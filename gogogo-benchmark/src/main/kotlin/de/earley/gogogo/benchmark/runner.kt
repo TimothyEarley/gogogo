@@ -164,4 +164,8 @@ private suspend fun runGame(
 			start().join()
 		}
 		game.victor
+	}.also {
+		if (it == null) {
+			println("WARNING: ${blue.name} vs ${red.name} timed out!")
+		}
 	}

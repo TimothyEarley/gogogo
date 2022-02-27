@@ -5,6 +5,14 @@ import de.earley.gogogo.game.grid.Point
 
 data class Evaluation(val name : String, val eval : (Player, State) -> Int)
 
+class EvaluationAI(private val evaluation: Evaluation): AI("Eval - ${evaluation.name}") {
+	override suspend fun calculateMove(state: State): MoveResponse = with(state) {
+		val moves = possibleMoves.map { it to withMove(it) { -evaluation.eval(playersTurn, state) } }
+		val bestMove = moves.maxByOrNull { it.second }?.first!!
+		return MoveResponse(bestMove, moves.map { Line.fromMove(it.first, it.second) })
+	}
+}
+
 object Evaluations {
 
 	//TODO check evaluation bias (tends to be negative) -> correct towards 0
@@ -38,7 +46,28 @@ object Evaluations {
 		}
 	}
 
+	private val pMap = intArrayOf(
+		1, 2, 3, 4, 10, 100,
+		1, 2, 4, 5, 10, 100,
+		1, 2, 4, 5, 10, 100,
+		1, 2, 4, 5, 10, 100,
+		1, 2, 3, 4, 10, 100,
+	)
+	val positionMap = Evaluation("positionMap") { ownPlayer, state ->
+		positionalSum(ownPlayer, state) { point, player ->
+			when (player) {
+				Player.Red -> pMap[(GAME_WIDTH - 1 - point.x) + point.y * GAME_WIDTH]
+				Player.Blue -> pMap[point.x + point.y * GAME_WIDTH]
+
+			}
+		}
+	}
+
 	// HELPERS
+
+    fun combine(a: Evaluation, weightA : Int, b: Evaluation, weightB: Int) = Evaluation("$weightA x ${a.name} + $weightB x ${b.name}") { ownPlayer, state ->
+		a.eval(ownPlayer, state) * weightA + b.eval(ownPlayer, state) * weightB
+	}
 
 	private fun progress(p: Point, width: Int, player: Player): Int = when (player) {
 		Player.Red -> width - p.x - 1
@@ -49,16 +78,16 @@ object Evaluations {
 		ownPlayer: Player,
 		state: State,
 		pointsForPosition: (Point, Player) -> Int
-	) = positionalPointSystem(ownPlayer, state) {
-		mapMax { pointsForPosition(it, ownPlayer) }
+	) = positionalPointSystem(ownPlayer, state) { player ->
+		mapMax { pointsForPosition(it, player) }
 	}
 
 	private inline fun positionalSum(
 		ownPlayer: Player,
 		state: State,
 		pointsForPosition: (Point, Player) -> Int
-	) = positionalPointSystem(ownPlayer, state) {
-		sumOf { pointsForPosition(it, ownPlayer) }
+	) = positionalPointSystem(ownPlayer, state) { player ->
+		sumOf { pointsForPosition(it, player) }
 	}
 
 	private inline fun positionalPointSystem(

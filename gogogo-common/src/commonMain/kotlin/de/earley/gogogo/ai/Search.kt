@@ -1,21 +1,9 @@
 package de.earley.gogogo.ai
 
 import de.earley.gogogo.game.*
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 private const val GOOD = 1_000_000
 private const val BAD = -1_000_000
-
-private class Stats {
-    var iterations: Int = 0
-    var finished: Int = 0
-    var pruned: Int = 0
-    var hashFound: Int = 0
-    var hashUsed: Int = 0
-
-    override fun toString(): String = "iterations=$iterations, game overs=$finished, pruned=$pruned, hashFound=$hashFound, hashUsed=$hashUsed"
-}
 
 private typealias Hash = Int
 
@@ -35,7 +23,7 @@ class Search(
 
     private val memory: MutableMap<Hash, StoredLine> = mutableMapOf()
 
-    override fun calculateMove(state: State): MoveResponse {
+    override suspend fun calculateMove(state: State): MoveResponse {
 
         // TODO don't clear the cache
         memory.clear()
@@ -85,7 +73,7 @@ class Search(
             if (stored != null) {
                 stats.hashFound++
                 if (stored.atDepth >= depth && stored.forPlayer == playersTurn) {
-                    stats.hashUsed++
+                    stats.transpositions++
 
                     return stored.line
                 }

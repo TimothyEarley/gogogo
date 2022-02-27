@@ -15,5 +15,5 @@ abstract class AI(
         return calculateMove(state)
 	}
 
-	abstract fun calculateMove(state: State): MoveResponse
+	abstract suspend fun calculateMove(state: State): MoveResponse
 }
