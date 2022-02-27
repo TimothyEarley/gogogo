@@ -35,6 +35,7 @@ interface State {
     fun isEligibleToMove(from: Point): Boolean
     val possibleMoves: List<Move>
     val grid: GameGrid // should only be used for reading!
+    fun longHashCode(): Long
 
     // can be slow
     fun deepCopy(): State
@@ -141,11 +142,22 @@ private data class MutableState(
         }
     }
 
-    private val coliisionChecks: MutableMap<Int, MutableState> = HashMap()
-
     override fun move(move: Move): MoveResult {
         if (move !in possibleMoves) {
-            return findMoveError(move)!! // if null we made a mistake in possible moves
+            return findMoveError(move) ?: run {
+                // if null we made a mistake in possible moves
+                throw Exception(
+                    """
+The move is valid, but not in possible moves. This is bad!
+Move: $move
+Possible Moves: $possibleMoves
+Players turn: $playersTurn
+Last pushed: $lastPushed
+Grid:
+${grid.renderText()}
+"""
+                )
+            }
         }
 
         val next = nextOver(move.from, move.to)
@@ -250,7 +262,7 @@ private data class MutableState(
      * Separate the grid hash and our data to avoid collisions.
      * The assumption is that the grid zobrist hash is good.
      */
-    fun longHashCode(): Long {
+    override fun longHashCode(): Long {
         // the default value cannot be 0 because otherwise (0, 0) and null have the same hashcode
         // and it cannot be negative or we have too many bits set to 1
         val myDataHash =

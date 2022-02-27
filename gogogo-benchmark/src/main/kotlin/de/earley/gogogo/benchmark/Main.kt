@@ -3,50 +3,40 @@ package de.earley.gogogo.benchmark
 import com.jakewharton.picnic.TextAlignment
 import com.jakewharton.picnic.renderText
 import com.jakewharton.picnic.table
-import de.earley.gogogo.ai.*
-import de.earley.gogogo.game.*
+import de.earley.gogogo.ai.Evaluations
+import de.earley.gogogo.ai.Lague
+import de.earley.gogogo.ai.RandomAI
+import de.earley.gogogo.ai.Search
+import de.earley.gogogo.game.Game
+import de.earley.gogogo.game.Player
+import de.earley.gogogo.game.State
 import de.earley.gogogo.game.grid.GameGrid
 import de.earley.gogogo.game.grid.Point
+import de.earley.gogogo.game.withMove
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.ExperimentalTime
-import kotlin.time.measureTimedValue
 
-@OptIn(ExperimentalTime::class)
+private val rand = Random(1337)
+
 fun main() {
 	val teams: List<Benchmarked> = listOf(
-		RandomAI(),
-		RandomAI(),
 		Search(depth = 6, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
-		Search(depth = 3, evaluation = Evaluations.countTokens, pruning = false, useMemory = false),
-//		LastAI(),
-//		Search(depth = 4, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
-//		Search(depth = 4, evaluation = Evaluations.sumSquarePosition, pruning = true, useMemory = true),
+		Lague(depth = 0, useForwardFinish = false, useIterativeDeepening = true, timeout = 300.milliseconds, evaluation = Evaluations.countTokens),
+		Lague(depth = 0, useForwardFinish = false, useIterativeDeepening = true, timeout = 300.milliseconds, evaluation = Evaluations.positionMap),
 	).map(::BenchmarkAI)
 
-	// 9 -> 40353607
-	// 9 -> 13.5s
-	// without grid cache: 11.7s
-	// better grid cache: 11.7s, 12.2s
-	// no victory checking: 9.6s, 9s
-	// better victory checking: 10.2, 10s
-	// no token tracking and changed calculatePossibleMoves: 6.4s, 6.1s
-	// with token tracking and changed calculatePossibleMoves: 10.9s
-
-	// println(measureTimedValue { State.initial().findNumberOfVariations(7) })
-
-	league(teams, timeout = false)
+	league(teams, timeout = true)
 }
 
 
-private val rand = Random(1337)
 fun generateRandomState(): State {
 	val randAI = RandomAI(rand)
 	val game = Game()
 	val turns = rand.nextInt(1, 10)
 	repeat(turns) {
-		val (move, _) = randAI.calculateMove(game.getState())
+		val (move, _) = randAI.calculateMoveSync(game.getState())
 		game.move(move)
 		// if the game is over we can't test the AI
 		if (game.isOver()) {
@@ -71,8 +61,8 @@ fun league(strategies: List<Benchmarked>, timeout: Boolean = true) {
 	}
 	val score = run(
 		strategies,
-		3,
-		if (!timeout) Duration.INFINITE else 5.seconds,
+		1,
+		if (!timeout) Duration.INFINITE else 20.seconds,
 		(1..4).map { generateRandomState() } + State.initial() + winningState
 	)
 

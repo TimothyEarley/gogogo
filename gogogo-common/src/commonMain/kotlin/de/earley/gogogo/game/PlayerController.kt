@@ -14,6 +14,10 @@ data class Line(
 	fun prependAndInvert(move: Move): Line = Line(- evaluation, movesToWin?.let { it + 1 }, winner, listOf(move) + moves)
 
 	override fun compareTo(other: Line): Int = lineComparator.compare(this, other)
+
+	companion object {
+		fun fromMove(move: Move, evaluation: Int) = Line(evaluation, null, null, listOf(move))
+	}
 }
 
 data class MoveResponse(
