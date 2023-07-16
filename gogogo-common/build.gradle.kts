@@ -5,7 +5,7 @@ plugins {
 kotlin {
 
 	jvm()
-	js().browser {
+	js(IR).browser {
 
 	}
 
@@ -25,15 +25,6 @@ kotlin {
 
 		all {
 			languageSettings.optIn("kotlin.RequiresOptIn")
-		}
-	}
-
-	targets.all {
-		compilations.all {
-			kotlinOptions {
-				// for Cache4K workaround
-//				freeCompilerArgs = listOf("-Xjvm-default=enable")
-			}
 		}
 	}
 }

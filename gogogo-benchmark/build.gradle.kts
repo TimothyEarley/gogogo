@@ -10,11 +10,6 @@ dependencies {
 	implementation(JakeWharton.picnic)
 }
 
-//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-//	kotlinOptions.jvmTarget = "11"
-//	kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
-//}
-
 tasks.withType<JavaExec> {
 	standardInput = System.`in`
 }
