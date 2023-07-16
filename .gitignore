@@ -5,3 +5,6 @@ build
 # IntelliJ
 .idea
 out
+
+# yarn lock since I could'nt figure out how to disable the ~/.npmrc and don't want those settings
+kotlin-js-store
