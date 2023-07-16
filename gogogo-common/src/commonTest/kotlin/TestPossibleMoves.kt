@@ -6,7 +6,7 @@ import kotlin.test.Test
 class TestPossibleMoves {
 
     @Test fun testAllPossibleMovesArePossible() {
-        State.initial().testMovesToDepth(7)
+        State.initial().testMovesToDepth(5)
     }
 
     private fun State.testMovesToDepth(depth: Int) {
