@@ -8,7 +8,7 @@ on:
 
 jobs:
   publish:
-    runs-on: ubuntu-20.04	
+    runs-on: ubuntu-22.04	
     steps:
       - name: Check out
         uses: actions/checkout@v1
@@ -17,9 +17,9 @@ jobs:
         run: './gradlew --no-daemon :gogogo-frontend:build' 
       
       - name: Publish to GH Pages
-        uses: peaceiris/actions-gh-pages@v3.7.3
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          publish_dir: gogogo-frontend/build/distributions
+          publish_dir: gogogo-frontend/build/dist/js/productionExecutable
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: ${{ github.event.head_commit.message }}
     
