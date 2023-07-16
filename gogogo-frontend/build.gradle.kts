@@ -1,17 +1,24 @@
 plugins {
-    kotlin("js")
+    kotlin("multiplatform")
 }
 
 kotlin {
-    js {
-      browser {}
+    js(IR) {
+        binaries.executable()
+        browser {}
     }
-}
 
-dependencies {
-    implementation(project(":gogogo-common"))
+    sourceSets {
 
-    implementation(Kotlin.stdlib.js)
-    implementation(KotlinX.coroutines.core)
-    implementation(KotlinX.html)
+        val jsMain by getting {
+            dependencies {
+                implementation(project(":gogogo-common"))
+
+                implementation(Kotlin.stdlib.js)
+                implementation(KotlinX.coroutines.core)
+                implementation(KotlinX.html)
+            }
+        }
+
+    }
 }

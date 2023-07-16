@@ -4,8 +4,7 @@ import de.earley.gogogo.game.*
 import de.earley.gogogo.net.Messages
 import de.earley.gogogo.net.MoveNetFormat
 import de.earley.gogogo.net.PlayerInfo
-import io.ktor.http.cio.websocket.WebSocketSession
-import io.ktor.http.cio.websocket.send
+import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import java.lang.IllegalArgumentException
 import kotlin.coroutines.CoroutineContext

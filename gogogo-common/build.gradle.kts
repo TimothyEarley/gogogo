@@ -32,7 +32,7 @@ kotlin {
 		compilations.all {
 			kotlinOptions {
 				// for Cache4K workaround
-				freeCompilerArgs = listOf("-Xjvm-default=enable")
+//				freeCompilerArgs = listOf("-Xjvm-default=enable")
 			}
 		}
 	}

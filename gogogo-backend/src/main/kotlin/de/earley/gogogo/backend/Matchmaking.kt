@@ -1,7 +1,7 @@
 package de.earley.gogogo.backend
 
-import io.ktor.http.cio.websocket.*
-import io.ktor.routing.*
+import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

@@ -1,8 +1,8 @@
 package de.earley.gogogo.ui
 
 
-import controller.GamePresenter
 import de.earley.gogogo.Log
+import de.earley.gogogo.controller.GamePresenter
 import de.earley.gogogo.controller.controllerAsString
 import de.earley.gogogo.game.Game
 import de.earley.gogogo.game.Line

@@ -1,4 +1,4 @@
-package controller
+package de.earley.gogogo.controller
 
 import de.earley.gogogo.Log
 import de.earley.gogogo.ai.withUIAwareness

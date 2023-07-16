@@ -9,15 +9,14 @@ plugins {
 dependencies {
 
 	implementation(Ktor.Server.netty)
-	implementation("io.ktor:ktor-websockets:_")
+	implementation(Ktor.server.websockets)
 	implementation("ch.qos.logback:logback-classic:_")
 
 	implementation(project(":gogogo-common"))
 }
 
 application {
-	@Suppress("DEPRECATION") // needed by shadow
-	mainClassName = "de.earley.gogogo.backend.MainKt"
+	mainClass = "de.earley.gogogo.backend.MainKt"
 }
 
 tasks {
