@@ -1,12 +1,11 @@
 package de.earley.gogogo.backend
 
-import io.ktor.application.Application
-import io.ktor.application.install
-import io.ktor.http.cio.websocket.*
-import io.ktor.routing.routing
+import io.ktor.server.application.install
+import io.ktor.server.routing.routing
+import io.ktor.server.application.*
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import io.ktor.websocket.WebSockets
+import io.ktor.server.websocket.*
 import java.time.Duration
 
 fun Application.main() {
