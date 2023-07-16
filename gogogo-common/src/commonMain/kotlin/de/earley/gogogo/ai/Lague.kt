@@ -3,8 +3,7 @@
 package de.earley.gogogo.ai
 
 import de.earley.gogogo.game.*
-import de.earley.gogogo.game.grid.renderText
-import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
@@ -14,7 +13,6 @@ import kotlin.time.TimeSource
 private const val MIN = -1000
 private const val MAX = 1000
 
-@OptIn(ExperimentalTime::class)
 class Lague(
     private val debug: Boolean = false,
     private val evaluation: Evaluation,
@@ -30,14 +28,16 @@ class Lague(
     /**
      * for iterative deepening
      */
-    private val timeout: Duration = 1.seconds
+    private val timeout: Duration = 1.seconds,
+    comment: String = "",
+    private val stateTransform : (State) -> State = { it }
 ) : AI(
     "Lague@$depth${
         listOfNotNull(
             "ff".takeIf { useForwardFinish },
             "tt".takeIf { useTranspositionTable },
             "it".takeIf { useIterativeDeepening })
-    }+${evaluation.name}"
+    }+${evaluation.name} $comment"
 ) {
 
     private class Context(
@@ -54,12 +54,13 @@ class Lague(
     private fun Line.isMateLine(): Boolean = evaluation >= MAX || evaluation <= MIN
 
     override suspend fun calculateMove(state: State): MoveResponse {
+        val myState = stateTransform(state)
         val ctx = Context(endTime = timeSource.markNow() + timeout)
         if (useIterativeDeepening) {
             var bestLine: Line? = null
             for (searchDepth in 1 until Int.MAX_VALUE) {
                 ctx.bestLine = null // reset for next iteration
-                state.evaluateSearch(ctx, 0, searchDepth, MIN, MAX, null)
+                myState.evaluateSearch(ctx, 0, searchDepth, MIN, MAX, null)
                 if (ctx.abort) break
                 bestLine = ctx.bestLine
                 // yield does not work, we need to delay for some time
@@ -71,13 +72,13 @@ class Lague(
             }
             ctx.bestLine = bestLine
         } else {
-            state.evaluateSearch(ctx, 0, depth, MIN, MAX, null)
+            myState.evaluateSearch(ctx, 0, depth, MIN, MAX, null)
             ctx.stats.depthReached = depth
         }
 
-        val line = ctx.bestLine ?: Line.fromMove(state.possibleMoves.random(), -1).also {
-            println("WARNING: no move found for ${state.playersTurn} in")
-            println(state.grid.renderText())
+        val line = ctx.bestLine ?: Line.fromMove(myState.possibleMoves.random(), -1).also {
+            println("WARNING: no move found for ${myState.playersTurn} in")
+            println(myState.renderText())
         }
 
         if (debug) {
@@ -90,16 +91,16 @@ class Lague(
 
             // recreate some lines from memory
             fun recreateLine(depth: Int): Line {
-                val entry = transpositionTable.lookupEvaluation(ctx.stats, state, 0, MIN, MAX) ?:
+                val entry = transpositionTable.lookupEvaluation(ctx.stats, myState, 0, MIN, MAX) ?:
                     return Line(0, null, null, emptyList())
                 if (depth == 0) return Line.fromMove(entry.move, entry.value)
-                return state.withMove(entry.move) { recreateLine(depth - 1) }.let {
+                return myState.withMove(entry.move) { recreateLine(depth - 1) }.let {
                     Line(entry.value, it.movesToWin, it.winner, listOf(entry.move) + it.moves)
                 }
             }
 
-            val lines = state.possibleMoves.map {
-                state.withMove(it) { recreateLine(5) }.prependAndInvert(it)
+            val lines = myState.possibleMoves.map {
+                myState.withMove(it) { recreateLine(5) }.prependAndInvert(it)
             }
             return MoveResponse(line.moves.first(), lines)
         }
@@ -238,7 +239,7 @@ class Lague(
             }
 
             // push piece
-            if (grid[it.to] == playersTurn.next()) {
+            if (tokenAt(it.to) == playersTurn.next()) {
                 score += 10
             }
 

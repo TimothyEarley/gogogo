@@ -1,5 +1,7 @@
 package de.earley.gogogo.game.grid
 
+import de.earley.gogogo.game.GAME_HEIGHT
+import de.earley.gogogo.game.GAME_WIDTH
 import de.earley.gogogo.game.Move
 
 data class Point(val x: Int, val y: Int) {
@@ -12,3 +14,6 @@ fun Point.up()    : Move = Move(this, Point(x + 0, y - 1))
 fun Point.down()  : Move = Move(this, Point(x + 0, y + 1))
 
 fun Point.toLetterName() : String = "${(y + 'a'.code).toChar()}${x + 1}"
+
+fun Point.isInBounds(): Boolean =
+    x in 0 until GAME_WIDTH && y in 0 until GAME_HEIGHT

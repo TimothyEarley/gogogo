@@ -13,13 +13,19 @@ kotlin {
 		commonMain {
 			dependencies {
 				implementation(KotlinX.coroutines.core)
-				implementation("io.github.reactivecircus.cache4k:cache4k:_")
 			}
 		}
 
 		commonTest {
 			dependencies {
-				implementation(Kotlin.test)
+				implementation("io.kotest:kotest-framework-engine:_")
+				implementation(Testing.Kotest.assertions.core)
+			}
+		}
+
+		val jvmTest by getting {
+			dependencies {
+				implementation(Testing.Kotest.runner.junit5)
 			}
 		}
 
@@ -27,4 +33,8 @@ kotlin {
 			languageSettings.optIn("kotlin.RequiresOptIn")
 		}
 	}
+}
+
+tasks.withType<Test>().configureEach {
+	useJUnitPlatform()
 }

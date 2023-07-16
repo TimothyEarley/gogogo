@@ -21,7 +21,7 @@ object Evaluations {
 
 	// TODO check performance (was removed in Grid for performance)
 	private fun State.tokensFor(ownPlayer: Player): List<Point> = buildList {
-		grid.onEach { point, player ->
+		onEach { point, player ->
 			if (player == ownPlayer) add(point)
 		}
 	}

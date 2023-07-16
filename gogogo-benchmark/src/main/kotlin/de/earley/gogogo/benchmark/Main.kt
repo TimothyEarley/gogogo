@@ -7,12 +7,9 @@ import de.earley.gogogo.ai.Evaluations
 import de.earley.gogogo.ai.Lague
 import de.earley.gogogo.ai.RandomAI
 import de.earley.gogogo.ai.Search
-import de.earley.gogogo.game.Game
-import de.earley.gogogo.game.Player
-import de.earley.gogogo.game.State
+import de.earley.gogogo.game.*
 import de.earley.gogogo.game.grid.GameGrid
 import de.earley.gogogo.game.grid.Point
-import de.earley.gogogo.game.withMove
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -22,9 +19,10 @@ private val rand = Random(1337)
 
 fun main() {
 	val teams: List<Benchmarked> = listOf(
-		Search(depth = 6, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
-		Lague(depth = 0, useForwardFinish = false, useIterativeDeepening = true, timeout = 300.milliseconds, evaluation = Evaluations.countTokens),
+//		Search(depth = 6, evaluation = Evaluations.countTokens, pruning = true, useMemory = true),
+//		Lague(depth = 0, useForwardFinish = false, useIterativeDeepening = true, timeout = 300.milliseconds, evaluation = Evaluations.countTokens),
 		Lague(depth = 0, useForwardFinish = false, useIterativeDeepening = true, timeout = 300.milliseconds, evaluation = Evaluations.positionMap),
+		Lague(depth = 0, useForwardFinish = false, useIterativeDeepening = true, timeout = 300.milliseconds, evaluation = Evaluations.positionMap, stateTransform = BitState::fromState, comment = "BitState"),
 	).map(::BenchmarkAI)
 
 	league(teams, timeout = true)

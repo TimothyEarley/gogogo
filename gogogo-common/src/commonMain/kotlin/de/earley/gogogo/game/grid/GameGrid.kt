@@ -69,10 +69,13 @@ class GameGrid private constructor(
 		}
 	}
 
-	inline fun onEach(f : (Point, Player?) -> Unit) {
+	inline fun onEach(f : (Point, Player) -> Unit) {
 		for (x in 0 until GAME_WIDTH) {
 			for (y in 0 until GAME_HEIGHT) {
-				f(Point(x, y), get(x, y))
+				val player = get(x, y)
+				if (player != null) {
+					f(Point(x, y), player)
+				}
 			}
 		}
 	}

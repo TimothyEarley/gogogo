@@ -1,7 +1,6 @@
 package de.earley.gogogo.game
 
 import de.earley.gogogo.game.grid.*
-import io.github.reactivecircus.cache4k.Cache
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -34,8 +33,10 @@ interface State {
     // helpers
     fun isEligibleToMove(from: Point): Boolean
     val possibleMoves: List<Move>
-    val grid: GameGrid // should only be used for reading!
+//    val grid: GameGrid // should only be used for reading!
     fun longHashCode(): Long
+
+    fun onEach(f : (Point, Player) -> Unit): Unit
 
     // can be slow
     fun deepCopy(): State
@@ -45,6 +46,8 @@ interface State {
     fun move(move: Move): MoveResult
     fun undo()
     fun canUndo(): Boolean
+
+    fun renderText(): String
 
     companion object {
         fun initial(): State = MutableState(
@@ -63,58 +66,13 @@ interface State {
     }
 }
 
-/* TODO Cache4K uses a thread which blocks a clean exit, so either find a different library or use a workaround
-https://github.com/ReactiveCircus/cache4k/issues/9
-*/
-//private val possibleMovesCache = Cache.Builder()
-//    .maximumCacheSize(1000)
-//    .build<Int, List<Move>>()
-//
-
-private val possibleMovesCache = object : Cache<Long, List<Move>> {
-    private val cache: MutableMap<Long, List<Move>> = HashMap()
-
-    override fun asMap(): Map<in Long, List<Move>> = cache
-    override fun get(key: Long): List<Move>? = cache[key]
-    override suspend fun get(key: Long, loader: suspend () -> List<Move>): List<Move> {
-        val value = cache[key]
-        return if (value == null) {
-            val answer = loader()
-            cache[key] = answer
-            answer
-        } else {
-            value
-        }
-    }
-
-    override fun invalidate(key: Long) {
-        cache.remove(key)
-    }
-
-    override fun invalidateAll() {
-        cache.clear()
-    }
-
-    override fun put(key: Long, value: List<Move>) {
-        cache[key] = value
-    }
-}
-
-// the normal get and put is only suspend
-private fun <Key : Any, Value : Any> Cache<Key, Value>.getOrPut(key: Key, defaultValue: () -> Value): Value {
-    return get(key) ?: defaultValue.invoke().also {
-        put(key, it)
-    }
-}
-
-
 // : MutableMap<Int, List<Move>> = mutableMapOf()
 
 // a mutable implementation of State
-private data class MutableState(
+data class MutableState(
     override var playersTurn: Player,
     override var lastPushed: Point?,
-    override val grid: GameGrid,
+    val grid: GameGrid,
 ) : State {
 
     override var victor: Player? = null
@@ -161,7 +119,7 @@ ${grid.renderText()}
         }
 
         val next = nextOver(move.from, move.to)
-        val pushing = grid[move.to] != null && grid.isInGrid(next.x, next.y)
+        val pushing = grid[move.to] != null && next.isInBounds()
 
         val command = MoveCommand(pushing, move, next, lastPushed, grid[move.to])
 
@@ -211,6 +169,7 @@ ${grid.renderText()}
     }
 
     override fun canUndo(): Boolean = history.isNotEmpty()
+    override fun renderText(): String = grid.renderText()
 
     override fun undo() {
         require(canUndo()) { "Cannot undo!" }
@@ -219,26 +178,9 @@ ${grid.renderText()}
         updateAfterMove()
     }
 
-    //HOTSPOT - SLOW
-    private fun findMoveError(m: Move): MoveResult.Error? = when {
-        playersTurn != grid[m.from] -> MoveResult.Error.NotPlayersPiece
-        lastPushed == m.from -> MoveResult.Error.WasPushed
-        !grid.isInGrid(m.to.x, m.to.y) -> MoveResult.Error.CannotMoveOfBoard
-        !isAdjacent(m.from, m.to) -> MoveResult.Error.NotAdjacent
-        /* SLOW */ !canPush(m.from, m.to) -> MoveResult.Error.CannotPush
-        // TODO detect repeats
-        // /* SLOW */ isRepeatedMove(m.from, m.to) -> MoveResult.Error.RepeatedMove
-        else -> null
-    }
-
     //HOTSPOT
     override fun isEligibleToMove(from: Point): Boolean {
         return lastPushed != from && playersTurn == grid[from]
-    }
-
-    private fun canPush(from: Point, to: Point): Boolean {
-        val next = nextOver(from, to)
-        return grid[to] == null || !grid.isInGrid(next.x, next.y) || grid[next] == null
     }
 
     override fun tokenAt(p: Point): Player? = grid[p]
@@ -269,6 +211,8 @@ ${grid.renderText()}
              ((lastPushed?.hashCode() ?: -1) shl 3).or(playersTurn.ordinal)
         return (grid.hashCode().toLong() shl 32).or(myDataHash.toLong().and(0xffffffffL))
     }
+
+    override fun onEach(f: (Point, Player) -> Unit) = grid.onEach(f)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -314,12 +258,31 @@ ${grid.renderText()}
     }
 }
 
+//HOTSPOT - SLOW
+fun State.findMoveError(m: Move): MoveResult.Error? = when {
+    playersTurn != tokenAt(m.from) -> MoveResult.Error.NotPlayersPiece
+    lastPushed == m.from -> MoveResult.Error.WasPushed
+    !m.to.isInBounds() -> MoveResult.Error.CannotMoveOfBoard
+    !isAdjacent(m.from, m.to) -> MoveResult.Error.NotAdjacent
+    /* SLOW */ !canPush(m.from, m.to) -> MoveResult.Error.CannotPush
+    // TODO detect repeats
+    // /* SLOW */ isRepeatedMove(m.from, m.to) -> MoveResult.Error.RepeatedMove
+    else -> null
+}
+
+private fun State.canPush(from: Point, to: Point): Boolean {
+    val next = nextOver(from, to)
+    return tokenAt(to) == null ||
+            !next.isInBounds()
+            || tokenAt(next) == null
+}
+
 private interface Command {
     fun executeCommand(state: MutableState)
     fun undoCommand(state: MutableState)
 }
 
-private fun nextOver(from: Point, to: Point) = Point(
+fun nextOver(from: Point, to: Point) = Point(
     x = from.x + 2 * (to.x - from.x), // works, but only because dx==1, dy==1
     y = from.y + 2 * (to.y - from.y)
 )
